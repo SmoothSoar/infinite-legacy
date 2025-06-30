@@ -1,0 +1,321 @@
+/* ==================== */
+/* THEME VARIABLES */
+/* ==================== */
+:root {
+    /* Light Theme Defaults */
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --danger-color: #e74c3c;
+    --warning-color: #f39c12;
+    --dark-color: #2c3e50;
+    --light-color: #ecf0f1;
+    
+    --bg-color: #f8f9fa;
+    --text-color: #333;
+    --card-bg: #ffffff;
+    --card-border: rgba(0, 0, 0, 0.1);
+    --progress-bg: #f0f0f0;
+    --disabled-opacity: 0.6;
+    
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+[data-theme="dark"] {
+    --primary-color: #2980b9;
+    --secondary-color: #27ae60;
+    --danger-color: #c0392b;
+    --warning-color: #d35400;
+    --dark-color: #1a252f;
+    --light-color: #bdc3c7;
+    
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --card-bg: #1e1e1e;
+    --card-border: rgba(255, 255, 255, 0.1);
+    --progress-bg: #2d2d2d;
+}
+
+/* ==================== */
+/* BASE STYLES */
+/* ==================== */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* ==================== */
+/* NAVIGATION */
+/* ==================== */
+.navbar {
+    background-color: var(--dark-color);
+    box-shadow: var(--shadow);
+}
+
+/* ==================== */
+/* CARD STYLES */
+/* ==================== */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    margin-bottom: 20px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--card-border);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 10px 10px 0 0 !important;
+    padding: 15px 20px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--card-border);
+}
+
+/* ==================== */
+/* JOB CARDS */
+/* ==================== */
+.job-listings-container {
+    padding: 15px;
+}
+
+.job-card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    border-left: 4px solid var(--primary-color);
+    border: 1px solid var(--card-border);
+}
+
+.job-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.job-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-color);
+}
+
+.job-company {
+    color: var(--text-color);
+    opacity: 0.9;
+    margin-bottom: 15px;
+}
+
+.job-salary {
+    color: var(--secondary-color);
+    font-weight: 600;
+}
+
+.job-level {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 0.25rem;
+    margin-top: 0.5rem;
+}
+
+.job-level.entry-level {
+    background-color: rgba(58, 134, 255, 0.15);
+    color: var(--primary-color);
+}
+
+.job-level.professional {
+    background-color: rgba(56, 176, 0, 0.15);
+    color: var(--secondary-color);
+}
+
+.job-level.management {
+    background-color: rgba(255, 158, 0, 0.15);
+    color: var(--warning-color);
+}
+
+.job-level.executive {
+    background-color: rgba(217, 4, 41, 0.15);
+    color: var(--danger-color);
+}
+
+/* ==================== */
+/* STAT CARDS */
+/* ==================== */
+.character-stat-card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    height: 100%;
+    transition: var(--transition);
+    border: 1px solid var(--card-border);
+}
+
+.character-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.stat-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.stat-label {
+    font-size: 1rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-color);
+}
+
+.age-display {
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* ==================== */
+/* MODAL STYLES */
+/* ==================== */
+.modal-content {
+    border-radius: 10px;
+    border: none;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--card-border);
+}
+
+.modal-footer {
+    border-top: 1px solid var(--card-border);
+}
+
+.job-detail-item {
+    margin-bottom: 15px;
+}
+
+.job-detail-item h6 {
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+.requirements-list, .skills-list {
+    padding-left: 20px;
+    color: var(--text-color);
+}
+
+/* ==================== */
+/* FILTER BUTTONS */
+/* ==================== */
+.filter-buttons {
+    margin-bottom: 20px;
+}
+
+.filter-btn {
+    border-radius: 20px;
+    padding: 5px 15px;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    border: 1px solid var(--card-border);
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+.filter-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.filter-btn:not(.active):hover {
+    background-color: var(--progress-bg);
+}
+
+/* ==================== */
+/* ALERT MESSAGES */
+/* ==================== */
+.alert {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.alert-info {
+    background-color: rgba(52, 152, 219, 0.2);
+    border-color: rgba(52, 152, 219, 0.3);
+    color: var(--text-color);
+}
+
+/* ==================== */
+/* RESPONSIVE ADJUSTMENTS */
+/* ==================== */
+@media (max-width: 768px) {
+    .job-card {
+        margin-bottom: 15px;
+    }
+    
+    .stat-icon {
+        font-size: 1.5rem;
+    }
+    
+    .stat-value {
+        font-size: 1.1rem;
+    }
+}
+
+/* ==================== */
+/* UTILITY CLASSES */
+/* ==================== */
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.bg-success {
+    background-color: var(--secondary-color) !important;
+}
+
+.bg-warning {
+    background-color: var(--warning-color) !important;
+}
+
+.bg-danger {
+    background-color: var(--danger-color) !important;
+}
+
+.mb-0 {
+    margin-bottom: 0 !important;
+}
+
+/* ==================== */
+/* THEME TRANSITION HANDLER */
+/* ==================== */
+.theme-transition * {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

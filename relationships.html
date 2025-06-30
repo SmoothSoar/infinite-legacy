@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relationships - Life Simulator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
+    <link rel="stylesheet" href="css/game.css">
+    <style>
+        .relationship-card {
+            transition: all 0.2s ease;
+        }
+        .relationship-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .flag-icon {
+            width: 1.2em;
+            height: 1.2em;
+            border-radius: 2px;
+        }
+        .relationships-list {
+            min-height: 200px;
+        }
+        .progress {
+            background-color: #e9ecef;
+        }
+        .progress-bar {
+            transition: width 0.6s ease;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100 theme-transition">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="bi bi-controller me-2"></i>
+                Life Simulator
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="game.html">
+                            <i class="bi bi-house-door"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="finances.html">
+                            <i class="bi bi-cash-stack"></i> Finances
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="career.html">
+                            <i class="bi bi-briefcase"></i> Career
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="education.html">
+                            <i class="bi bi-book"></i> Education
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="relationships.html">
+                            <i class="bi bi-heart"></i> Relationships
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="assets.html">
+                            <i class="bi bi-house-gear"></i> Assets
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="real-estate.html">
+                            <i class="bi bi-buildings"></i> Real Estate
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <button id="advanceTimeBtn" class="btn btn-primary me-2">
+                        <i class="bi bi-skip-forward-fill"></i>
+                        <span class="d-none d-sm-inline">Advance 3 Months</span>
+                    </button>
+                    <button id="themeToggle" class="btn btn-outline-light">
+                        <span class="theme-icon bi bi-moon"></span>
+                        <span class="d-none d-sm-inline">Theme</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container my-4 flex-grow-1">
+        <div class="row mb-4">
+            <div class="col">
+                <h1><i class="bi bi-heart me-2"></i> Relationships</h1>
+                <p class="lead">Manage your social connections and family relationships from around the world</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Family Section -->
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h2 class="h5 mb-0"><i class="bi bi-people-fill me-2"></i> Family</h2>
+                        <span class="badge bg-light text-dark">
+                            <i class="bi bi-globe me-1"></i> International
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div id="familyRelationships" class="relationships-list">
+                            <!-- Will be populated by JavaScript -->
+                            <div class="text-center py-3">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Friends Section -->
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h2 class="h5 mb-0"><i class="bi bi-person-arms-up me-2"></i> Friends</h2>
+                        <span class="badge bg-light text-dark">
+                            <i class="bi bi-globe-americas me-1"></i> Global
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div id="friendRelationships" class="relationships-list">
+                            <!-- Will be populated by JavaScript -->
+                            <div class="text-center py-3">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="makeNewFriendBtn" class="btn btn-success mt-3 w-100">
+                            <i class="bi bi-person-plus me-1"></i> Make New Friend
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Romantic Relationships Section -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h2 class="h5 mb-0"><i class="bi bi-heart-fill me-2"></i> Romantic Relationships</h2>
+                        <span class="badge bg-light text-dark">
+                            <i class="bi bi-globe-europe-africa me-1"></i> Cross-cultural
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div id="romanticRelationships" class="relationships-list">
+                            <!-- Will be populated by JavaScript -->
+                            <div class="text-center py-3">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="startDatingBtn" class="btn btn-danger mt-3 w-100">
+                            <i class="bi bi-heart me-1"></i> Start Dating
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Relationship Modal -->
+    <div class="modal fade" id="relationshipModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="relationshipModalTitle">Relationship Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="relationshipModalBody">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg me-1"></i> Close
+                    </button>
+                    <button type="button" class="btn btn-primary" id="interactBtn">
+                        <i class="bi bi-chat-square-text me-1"></i> Interact
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white py-3 mt-auto">
+        <div class="container text-center">
+            <p class="mb-0">© <span id="currentYear">2023</span> Life Simulator</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/countries.js"></script>
+    <script src="js/cultures.js"></script>
+    <script src="js/relationships.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+        });
+    </script>
+</body>
+</html>

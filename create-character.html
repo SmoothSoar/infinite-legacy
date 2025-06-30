@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Character - Life Simulator</title>
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/creation.css">
+</head>
+<body>
+    <header class="page-header">
+        <h1>Life Simulator</h1>
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">🌓</button>
+    </header>
+
+    <main class="creation-container">
+        <section class="character-creation">
+            <h2>Create Your Character</h2>
+            
+            <form id="characterForm" class="character-form">
+                <div class="form-group">
+                    <label for="name">Character Name:</label>
+                    <input type="text" id="name" required placeholder="Enter your character's name" minlength="2" maxlength="30">
+                </div>
+                
+                <div class="form-group">
+                    <label for="age">Age:</label>
+                    <input type="number" id="age" min="1" max="100" value="18" required>
+                    <span class="hint">(1-100 years)</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="gender">Gender:</label>
+                    <select id="gender" required>
+                        <option value="" disabled selected>Select gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="non-binary">Non-binary</option>
+                        <option value="other">Other</option>
+                        <option value="prefer-not-to-say">Prefer not to say</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="country">Country of Origin:</label>
+                    <select id="country" required>
+                        <!-- Will be populated by creation.js -->
+                        <option value="" disabled selected>Loading countries...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="culture">Cultural Background:</label>
+                    <select id="culture" required disabled>
+                        <option value="" disabled selected>First select a country</option>
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="submit-button">
+                        Begin Your Life Journey
+                    </button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <!-- Scripts loaded in correct order with defer for better performance -->
+ <script src="js/countries.js"></script>
+    <script src="js/cultures.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/creation.js"></script>
+</html>

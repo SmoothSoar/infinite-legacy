@@ -1,0 +1,450 @@
+/* ==================== */
+/* THEME VARIABLES */
+/* ==================== */
+:root {
+    /* Light Theme Defaults */
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --danger-color: #e74c3c;
+    --warning-color: #f39c12;
+    --dark-color: #2c3e50;
+    --light-color: #ecf0f1;
+    
+    --bg-color: #f8f9fa;
+    --text-color: #333;
+    --card-bg: #ffffff;
+    --card-border: rgba(0, 0, 0, 0.1);
+    --progress-bg: #f0f0f0;
+    --disabled-opacity: 0.6;
+    
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+[data-theme="dark"] {
+    --primary-color: #2980b9;
+    --secondary-color: #27ae60;
+    --danger-color: #c0392b;
+    --warning-color: #d35400;
+    --dark-color: #1a252f;
+    --light-color: #bdc3c7;
+    
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --card-bg: #1e1e1e;
+    --card-border: rgba(255, 255, 255, 0.1);
+    --progress-bg: #2d2d2d;
+    --disabled-opacity: 0.4;
+    
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* ==================== */
+/* BASE STYLES */
+/* ==================== */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ==================== */
+/* NAVIGATION */
+/* ==================== */
+.navbar {
+    background-color: var(--dark-color);
+    box-shadow: var(--shadow);
+    transition: background-color 0.3s ease;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--light-color);
+}
+
+.navbar-brand i {
+    font-size: 1.4rem;
+}
+
+.nav-link {
+    transition: var(--transition);
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: white !important;
+}
+
+/* ==================== */
+/* CARD STYLES */
+/* ==================== */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    margin-bottom: 20px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--card-border);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 10px 10px 0 0 !important;
+    padding: 15px 20px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--card-border);
+}
+
+/* ==================== */
+/* EDUCATION PROGRAM CARDS */
+/* ==================== */
+.education-programs-container {
+    padding: 15px;
+}
+
+.education-program-card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    border-left: 4px solid var(--primary-color);
+    border: 1px solid var(--card-border);
+}
+
+.education-program-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.program-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.program-card-header i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-right: 10px;
+}
+
+.program-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-color);
+}
+
+.program-description {
+    color: var(--text-color);
+    opacity: 0.9;
+    margin-bottom: 15px;
+}
+
+.program-details {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.program-action-btn {
+    width: 100%;
+    padding: 10px;
+    font-weight: 600;
+    transition: var(--transition);
+    border: none;
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.program-action-btn:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background-color: var(--primary-color);
+    opacity: 0.9;
+}
+
+.program-action-btn:disabled {
+    opacity: var(--disabled-opacity);
+    cursor: not-allowed;
+    background-color: var(--dark-color);
+}
+
+/* ==================== */
+/* CURRENT PROGRESS */
+/* ==================== */
+.current-programs {
+    padding: 10px;
+}
+
+.current-program-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.current-program-name {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: var(--text-color);
+}
+
+.current-program-progress {
+    height: 10px;
+    background-color: var(--progress-bg);
+    border-radius: 5px;
+    overflow: hidden;
+    width: 200px;
+}
+
+.current-program-progress-bar {
+    height: 100%;
+    background-color: var(--secondary-color);
+    transition: width 0.5s ease;
+}
+
+/* ==================== */
+/* SKILLS PROGRESS */
+/* ==================== */
+.skills-progress {
+    padding: 10px;
+}
+
+.skill-item {
+    margin-bottom: 15px;
+}
+
+.skill-name {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.skill-bar {
+    height: 8px;
+    background-color: var(--progress-bg);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.skill-level {
+    height: 100%;
+    background-color: var(--primary-color);
+    transition: width 0.5s ease;
+}
+
+.skill-item small {
+    display: block;
+    text-align: right;
+    color: var(--text-color);
+    opacity: 0.7;
+    font-size: 0.8rem;
+}
+
+/* ==================== */
+/* STATS CARDS */
+/* ==================== */
+.character-stat-card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    height: 100%;
+    transition: var(--transition);
+    border: 1px solid var(--card-border);
+}
+
+.character-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.stat-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.stat-label {
+    font-size: 1rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-color);
+}
+
+/* ==================== */
+/* MODAL STYLES */
+/* ==================== */
+.modal-content {
+    border-radius: 10px;
+    border: none;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--card-border);
+}
+
+.modal-footer {
+    border-top: 1px solid var(--card-border);
+}
+
+.program-detail-item {
+    margin-bottom: 15px;
+}
+
+.program-detail-item h6 {
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+.skills-list, .prerequisites-list {
+    padding-left: 20px;
+    color: var(--text-color);
+}
+
+.skills-list li, .prerequisites-list li {
+    margin-bottom: 5px;
+}
+
+/* ==================== */
+/* FILTER BUTTONS */
+/* ==================== */
+.filter-buttons {
+    margin-bottom: 20px;
+}
+
+.filter-btn {
+    border-radius: 20px;
+    padding: 5px 15px;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    border: 1px solid var(--card-border);
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+.filter-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.filter-btn:not(.active):hover {
+    background-color: var(--progress-bg);
+}
+
+/* ==================== */
+/* TIME DISPLAY */
+/* ==================== */
+.time-display {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.age-display {
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* ==================== */
+/* ALERT MESSAGES */
+/* ==================== */
+.alert {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.alert-info {
+    background-color: rgba(52, 152, 219, 0.2);
+    border-color: rgba(52, 152, 219, 0.3);
+    color: var(--text-color);
+}
+
+/* ==================== */
+/* RESPONSIVE ADJUSTMENTS */
+/* ==================== */
+@media (max-width: 768px) {
+    .education-program-card {
+        margin-bottom: 15px;
+    }
+    
+    .program-details {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .current-program-progress {
+        width: 150px;
+    }
+}
+
+/* ==================== */
+/* UTILITY CLASSES */
+/* ==================== */
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.bg-success {
+    background-color: var(--secondary-color) !important;
+}
+
+.bg-warning {
+    background-color: var(--warning-color) !important;
+}
+
+.bg-danger {
+    background-color: var(--danger-color) !important;
+}
+
+.mb-0 {
+    margin-bottom: 0 !important;
+}
+
+/* ==================== */
+/* THEME TRANSITION HANDLER */
+/* ==================== */
+.theme-transition * {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Add to education.css */
+#loadMoreProgramsBtn {
+    margin-bottom: 1rem;
+}
+
+.education-programs-container {
+    min-height: 300px;
+}

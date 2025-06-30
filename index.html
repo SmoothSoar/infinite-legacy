@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Simulator</title>
+</head>
+<body>
+    <h1>Welcome to Life Simulator</h1>
+    <a href="create-character.html" class="start-button">Create New Character</a>
+    
+    <script>
+        // Check for existing character
+        if(localStorage.getItem('lifeSimCharacter')) {
+            window.location.href = 'game.html'; // You'll create this later
+        }
+    </script>
+</body>
+</html>

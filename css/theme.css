@@ -1,0 +1,304 @@
+/* theme.css - Consolidated and optimized theme system */
+
+/* ==================== */
+/* THEME VARIABLES */
+/* ==================== */
+:root {
+    /* Common variables */
+    --transition-speed: 0.3s;
+    --border-radius: 0.5rem;
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --box-shadow-hover: 0 8px 15px rgba(0, 0, 0, 0.2);
+    
+    /* Light Theme Defaults */
+    --body-bg: #f8f9fa;
+    --text-primary: #212529;
+    --text-secondary: #495057;
+    --text-muted: #6c757d;
+    
+    --card-bg: #ffffff;
+    --card-border: #e9ecef;
+    --card-header-bg: #3a86ff;
+    --card-header-text: #ffffff;
+    
+    --navbar-bg: #2c3e50;
+    --navbar-text: rgba(255, 255, 255, 0.9);
+    
+    --primary: #3a86ff;
+    --primary-hover: #2667cc;
+    --success: #38b000;
+    --warning: #ff9e00;
+    --danger: #d90429;
+    --info: #17a2b8;
+    
+    --button-bg: var(--primary);
+    --button-text: #ffffff;
+    --button-hover: var(--primary-hover);
+    
+    --border-color: #dee2e6;
+    --container-bg: #f1f3f5;
+    --progress-bg: #e9ecef;
+}
+
+/* Dark Theme Overrides */
+[data-theme="dark"] {
+    --body-bg: #121212;
+    --text-primary: #e9ecef;
+    --text-secondary: #adb5bd;
+    --text-muted: #6c757d;
+    
+    --card-bg: #1e1e1e;
+    --card-border: #2d2d2d;
+    --card-header-bg: #1a3f8f;
+    --card-header-text: #ffffff;
+    
+    --navbar-bg: #1a1a2e;
+    --navbar-text: rgba(255, 255, 255, 0.9);
+    
+    --primary: #4d96ff;
+    --primary-hover: #3a7bd5;
+    --success: #49d904;
+    --warning: #ffb347;
+    --danger: #ff2d4e;
+    --info: #1565c0;
+    
+    --button-bg: var(--primary);
+    --button-text: #ffffff;
+    --button-hover: var(--primary-hover);
+    
+    --border-color: #2d2d2d;
+    --container-bg: #252525;
+    --progress-bg: #333;
+}
+
+/* ==================== */
+/* BASE STYLES */
+/* ==================== */
+* {
+    transition: 
+        background-color var(--transition-speed) ease,
+        color var(--transition-speed) ease,
+        border-color var(--transition-speed) ease;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+     background-color: var(--body-bg) !important;
+    color: var(--text-primary);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ==================== */
+/* TYPOGRAPHY */
+/* ==================== */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 1rem;
+}
+
+p {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+/* ==================== */
+/* NAVBAR STYLES */
+/* ==================== */
+.navbar {
+    background-color: var(--navbar-bg);
+    padding: 0.5rem 1rem;
+    box-shadow: var(--box-shadow);
+}
+
+.navbar-brand {
+    color: var(--navbar-text);
+    font-weight: 600;
+}
+
+.nav-link {
+    color: var(--navbar-text) !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    transition: all var(--transition-speed);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-link:hover, 
+.nav-link.active {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+/* ==================== */
+/* CARD STYLES */
+/* ==================== */
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: all var(--transition-speed);
+    margin-bottom: 1.5rem;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--box-shadow-hover);
+}
+
+.card-header {
+    background-color: var(--card-header-bg);
+    color: var(--card-header-text);
+    border-bottom: 1px solid var(--card-border);
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* ==================== */
+/* BUTTON STYLES */
+/* ==================== */
+.btn {
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    transition: all var(--transition-speed);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background-color: var(--button-bg);
+    border-color: var(--button-bg);
+    color: var(--button-text);
+}
+
+.btn-primary:hover {
+    background-color: var(--button-hover);
+    border-color: var(--button-hover);
+    transform: translateY(-2px);
+}
+
+.btn-outline-primary {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary);
+    color: var(--button-text);
+}
+
+/* ==================== */
+/* FORM ELEMENTS */
+/* ==================== */
+.form-control {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.form-control:focus {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.25rem rgba(58, 134, 255, 0.25);
+}
+
+/* ==================== */
+/* ALERTS & NOTIFICATIONS */
+/* ==================== */
+.alert {
+    border-radius: var(--border-radius);
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.alert-info {
+    background-color: rgba(23, 162, 184, 0.2);
+    border-left: 4px solid var(--info);
+    color: var(--text-primary);
+}
+
+/* ==================== */
+/* UTILITY CLASSES */
+/* ==================== */
+.bg-primary {
+    background-color: var(--primary) !important;
+}
+
+.text-primary {
+    color: var(--primary) !important;
+}
+
+.border-primary {
+    border-color: var(--primary) !important;
+}
+
+/* ==================== */
+/* THEME TOGGLE BUTTON */
+/* ==================== */
+.theme-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+    font-size: 18px;
+    box-shadow: var(--box-shadow);
+    transition: all var(--transition-speed);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.theme-toggle:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--box-shadow-hover);
+}
+
+/* ==================== */
+/* RESPONSIVE ADJUSTMENTS */
+/* ==================== */
+@media (max-width: 768px) {
+    .navbar-nav {
+        padding-top: 1rem;
+    }
+    
+    .nav-link {
+        padding: 0.75rem 1rem !important;
+    }
+    
+    .theme-toggle {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+}

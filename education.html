@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Simulator - Education Pathway</title>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/education.css">
+</head>
+<body class="d-flex flex-column min-vh-100 theme-transition">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="bi bi-controller me-2"></i>
+                Life Simulator
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="game.html">
+                            <i class="bi bi-house-door"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="finances.html">
+                            <i class="bi bi-cash-stack"></i> Finances
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="career.html">
+                            <i class="bi bi-briefcase"></i> Career
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="education.html">
+                            <i class="bi bi-book"></i> Education
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="relationships.html">
+                            <i class="bi bi-heart"></i> Relationships
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="assets.html">
+                            <i class="bi bi-house-gear"></i> Assets
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="real-estate.html">
+                            <i class="bi bi-buildings"></i> Real Estate
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <button id="advanceTimeBtn" class="btn btn-primary me-2">
+                        <i class="bi bi-skip-forward-fill"></i>
+                        <span class="d-none d-sm-inline">Advance 3 Months</span>
+                    </button>
+                    <button id="themeToggle" class="btn btn-outline-light">
+                        <span class="theme-icon bi bi-moon"></span>
+                        <span class="d-none d-sm-inline">Theme</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container my-4 flex-grow-1">
+        <div class="text-center mb-4">
+            <div class="welcome-header">
+                <h1>Education Pathway</h1>
+                <p class="time-display lead">Year 1, Q1 (January)</p>
+                <p id="characterAge" class="stat-value age-display">Age18</p>            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="character-stat-card">
+                    <i class="bi bi-mortarboard stat-icon"></i>
+                    <h3 class="stat-label">Education Level</h3>
+                    <p id="eduLevel" class="stat-value">High School</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="character-stat-card">
+                    <i class="bi bi-star stat-icon"></i>
+                    <h3 class="stat-label">GPA</h3>
+                    <p id="gpaDisplay" class="stat-value">3.2</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="character-stat-card">
+                    <i class="bi bi-calendar stat-icon"></i>
+                    <h3 class="stat-label">Year</h3>
+                    <p id="yearDisplay" class="stat-value">1</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="character-stat-card">
+                    <i class="bi bi-cash-stack stat-icon"></i>
+                    <h3 class="stat-label">Balance</h3>
+                    <div id="moneyDisplay" class="money-display">$0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="h5 mb-0"><i class="bi bi-book me-2"></i>Education Programs</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="filter-buttons d-flex flex-wrap gap-2 mb-3">
+    <button class="btn btn-sm btn-outline-primary filter-btn active" data-filter="all">All</button>
+    <button class="btn btn-sm btn-outline-primary filter-btn" data-filter="high-school">High School</button>
+    <button class="btn btn-sm btn-outline-primary filter-btn" data-filter="certificates">Certificates</button>
+    <button class="btn btn-sm btn-outline-primary filter-btn" data-filter="associate">Associate</button>
+    <button class="btn btn-sm btn-outline-primary filter-btn" data-filter="bachelor">Bachelor</button>
+    <button class="btn btn-sm btn-outline-primary filter-btn" data-filter="master">Master</button>
+</div>
+                        <div class="education-programs-container row g-3">
+                            </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="h5 mb-0"><i class="bi bi-journal-check me-2"></i>Current Programs</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="currentProgress" class="current-programs">
+                            <div class="alert alert-info mb-0">
+                                You are not currently enrolled in any programs.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="h5 mb-0"><i class="bi bi-graph-up me-2"></i>Skills Progress</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="skillMeter" class="skills-progress">
+                            <div class="alert alert-info mb-0">
+                                Skills will appear as you complete programs.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h5 mb-0"><i class="bi bi-clock-history me-2"></i>Event Log</h2>
+            </div>
+            <div class="card-body p-0">
+                <div id="eventLog" class="list-group list-group-flush" style="max-height: 200px; overflow-y: auto;">
+                    <div class="list-group-item">Game started</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="programDetailsModal" tabindex="-1" aria-labelledby="programDetailsTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="programDetailsTitle">Program Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="program-detail-item">
+                            <h6>Description</h6>
+                            <p id="programDetailsDescription">Loading program details...</p>
+                        </div>
+                        <div class="program-detail-item">
+                            <h6>Duration</h6>
+                            <p id="programDetailsDuration">--</p>
+                        </div>
+                        <div class="program-detail-item">
+                            <h6>Cost</h6>
+                            <p id="programDetailsCost">--</p>
+                        </div>
+                        <div class="program-detail-item">
+                            <h6>Skills Improved</h6>
+                            <ul class="skills-list" id="programDetailsSkills">
+                                <li>Loading...</li>
+                            </ul>
+                        </div>
+                        <div class="program-detail-item" id="careerRelevanceSection">
+                            <h6>Career Relevance</h6>
+                            <ul class="careers-list" id="programDetailsCareers">
+                                <li>No career paths found</li>
+                            </ul>
+                        </div>
+                        <div class="program-detail-item" id="prerequisitesSection">
+                            <h6>Prerequisites</h6>
+                            <ul class="prerequisites-list" id="programDetailsPrerequisites">
+                                <li>None</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="startProgramBtn">Begin Program</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-dark text-white py-3 mt-auto">
+        <div class="container text-center">
+            <p class="mb-0">© <span id="currentYear">2023</span> Life Simulator - Education Pathway</p>
+        </div>
+    </footer>
+<script src="js/time.js"></script>
+<script src="js/eventManager.js"></script>
+<script src="js/main.js"></script>
+<script src="js/finances.js"></script>
+<script src="js/education.js"></script>
+<script src="js/careerManager.js"></script>
+<script src="js/degrees.js"></script>
+<script src="js/skills.js"></script>
+<script src="js/theme.js"></script>
+</body>
+</html>

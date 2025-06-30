@@ -1,0 +1,271 @@
+/* styles.css - Optimized global styles for Life Simulator */
+:root {
+  /* Color Scheme */
+  --primary: #3498db;
+  --secondary: #2ecc71;
+  --danger: #e74c3c;
+  --warning: #f39c12;
+  --info: #1abc9c;
+  
+  /* Light Theme */
+  --bg-light: #f8f9fa;
+  --text-light: #212529;
+  --card-bg-light: #ffffff;
+  --border-light: #dee2e6;
+  
+  /* Dark Theme */
+  --bg-dark: #212529;
+  --text-dark: #f8f9fa;
+  --card-bg-dark: #2c3e50;
+  --border-dark: #495057;
+  
+  /* Sidebar */
+  --sidebar-bg: #2c3e50;
+  --sidebar-active: #34495e;
+  --sidebar-text: rgba(255, 255, 255, 0.8);
+  --sidebar-width: 250px;
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+}
+
+/* Base Reset & Typography */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  background-color: var(--bg-light);
+  color: var(--text-light);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Theme Switching */
+body[data-theme="dark"] {
+  background-color: var(--bg-dark);
+  color: var(--text-dark);
+}
+
+/* Layout Structure */
+.container-fluid {
+  padding: 0;
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 1rem 0;
+  transition: var(--transition-normal);
+}
+
+.main-content {
+  flex: 1;
+  padding: 1.5rem;
+  margin-left: var(--sidebar-width);
+  transition: var(--transition-normal);
+}
+
+/* Navigation */
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0 1rem;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 0.375rem;
+  transition: var(--transition-fast);
+}
+
+.nav-link:hover, 
+.nav-link.active {
+  background: var(--sidebar-active);
+  color: white;
+}
+
+.nav-link i {
+  font-size: 1.1em;
+}
+
+/* Cards */
+.card {
+  background: var(--card-bg-light);
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  transition: var(--transition-normal);
+}
+
+body[data-theme="dark"] .card {
+  background: var(--card-bg-dark);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-light);
+  background: rgba(0, 0, 0, 0.03);
+  
+  
+}
+
+body[data-theme="dark"] .card-header {
+  border-bottom-color: var(--border-dark);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.card-body {
+  padding: 1.25rem;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: var(--transition-fast);
+  cursor: pointer;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  border: none;
+}
+
+.btn-outline-secondary {
+  background: transparent;
+  border: 1px solid var(--border-light);
+  color: inherit;
+}
+
+/* Utility Classes */
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.gap-1 { gap: 0.5rem; }
+.gap-2 { gap: 1rem; }
+
+.mb-0 { margin-bottom: 0 !important; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-4 { margin-bottom: 1.5rem; }
+
+.text-center { text-align: center; }
+.text-muted { opacity: 0.7; }
+
+/* Alerts */
+.alert {
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+}
+
+.alert-warning {
+  background: rgba(243, 156, 18, 0.15);
+  border-left: 4px solid var(--warning);
+}
+
+.alert-info {
+  background: rgba(26, 188, 156, 0.15);
+  border-left: 4px solid var(--info);
+}
+
+.money-display {
+    font-weight: bold;
+    font-size: 1.2em;
+    padding: 5px 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+[data-theme="dark"] .money-display {
+    background-color: #343a40;
+    color: #f8f9fa;
+}
+
+/* Time Display */
+.time-display,
+.age-display {
+  font-size: 1.75rem;
+  font-weight: 300;
+  line-height: 1.2;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .sidebar {
+    position: fixed;
+    z-index: 1000;
+    transform: translateX(-100%);
+  }
+  
+  .sidebar.active {
+    transform: translateX(0);
+  }
+  
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .container-fluid {
+    flex-direction: column;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .sidebar, 
+  .btn-toolbar {
+    display: none !important;
+  }
+  
+  .main-content {
+    margin-left: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    page-break-inside: avoid;
+  }
+}
