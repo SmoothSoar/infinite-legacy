@@ -66,31 +66,38 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Handle Form Submission
     function handleFormSubmit(e) {
-        e.preventDefault();
-        
-        // Get form values
-        const formData = {
-            name: document.getElementById('name').value.trim(),
-            age: parseInt(document.getElementById('age').value),
-            gender: document.getElementById('gender').value,
-            countryCode: countrySelect.value,
-            countryName: countrySelect.options[countrySelect.selectedIndex].text,
-            cultureCode: cultureSelect.value,
-            cultureName: cultureSelect.options[cultureSelect.selectedIndex].text
-        };
-        
-        // Validate inputs
-        if (!validateForm(formData)) {
-            return;
-        }
-        
-        // Create character object
-        const character = createCharacterObject(formData);
-        
-        // Save and redirect
-        saveCharacter(character);
-        window.location.href = 'game.html';
+    e.preventDefault();
+    
+    // Get form elements
+    const nameInput = document.getElementById('name');
+    const ageInput = document.getElementById('age');
+    const genderSelect = document.getElementById('gender');
+    const countrySelect = document.getElementById('country');
+    const cultureSelect = document.getElementById('culture');
+    
+    // Create form data object
+    const formData = {
+        name: nameInput.value.trim(),
+        age: parseInt(ageInput.value),
+        gender: genderSelect.value,
+        countryCode: countrySelect.value,
+        countryName: countrySelect.options[countrySelect.selectedIndex].text,
+        cultureCode: cultureSelect.value,
+        cultureName: cultureSelect.options[cultureSelect.selectedIndex].text
+    };
+    
+    // Validate inputs
+    if (!validateForm(formData)) {
+        return;
     }
+    
+    // Create and save character
+    const character = createCharacterObject(formData);
+    saveCharacter(character);
+    
+    // Redirect to game
+    window.location.href = 'game.html';
+}
     
     // Form Validation
     function validateForm(data) {
@@ -119,18 +126,18 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Create Character Object
   // In the createCharacterObject function:
-function createCharacterObject(data) {
+function createCharacterObject(formData) {
     const character = {
-        name: data.name,
-        age: data.age,
-        gender: data.gender,
+        name: formData.name,
+        age: formData.age,
+        gender: formData.gender,
         country: {
-            code: data.countryCode,
-            name: data.countryName || data.country // Fallback to the select text if name not available
+            code: formData.countryCode,
+            name: formData.countryName
         },
         culture: {
-            name: data.cultureName,
-            code: data.cultureCode
+            name: formData.cultureName,
+            code: formData.cultureCode
         },
         stats: {
             health: 100,
@@ -146,10 +153,11 @@ function createCharacterObject(data) {
         createdAt: new Date().toISOString()
     };
     
-    console.log("Saving character data:", character);
+    console.log("Character data being saved:", character);
     return character;
+}
 
-}console.log("Country code:", data.countryCode);
+console.log("Country code:", data.countryCode);
 console.log("Country name:", data.countryName);
     
     // Save Character to LocalStorage

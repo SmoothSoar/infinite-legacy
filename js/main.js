@@ -144,14 +144,12 @@ static loadCharacterInfo() {
         const character = JSON.parse(localStorage.getItem('lifeSimCharacter')) || {
             name: 'Player',
             gender: 'Unknown',
-            country: { name: 'Unknown' },
+            country: { name: 'Unknown' }, // Default structure
             culture: { name: 'Unknown' },
             age: 18
         };
 
-        const timeState = JSON.parse(localStorage.getItem('timeState')) || { age: character.age };
-
-        // Update each field with proper nested property access
+        // Update all fields with proper fallbacks
         const updateField = (id, value) => {
             const element = document.getElementById(id);
             if (element) element.textContent = value || 'Unknown';
@@ -159,20 +157,24 @@ static loadCharacterInfo() {
 
         updateField('characterName', character.name);
         updateField('characterGender', character.gender);
-        updateField('characterCountry', character.country?.name);
-        updateField('characterCulture', character.culture?.name);
-        updateField('characterAge', timeState.age);
+        
+        // Handle both old and new country formats
+        const countryName = character.country?.name || character.countryName || 'Unknown';
+        updateField('characterCountry', countryName);
+        
+        // Handle both old and new culture formats
+        const cultureName = character.culture?.name || character.culture || 'Unknown';
+        updateField('characterCulture', cultureName);
 
-        const welcomeName = document.getElementById('characterName');
-        if (welcomeName) {
-            welcomeName.textContent = character.name || 'Player';
-        }
+        // Get age from timeState if available
+        const timeState = JSON.parse(localStorage.getItem('timeState')) || { age: character.age || 18 };
+        updateField('characterAge', `Age ${timeState.age}`);
 
     } catch (error) {
         console.error('[MainManager] Error loading character info:', error);
         // Fallback display
-        updateField('characterName', 'Error Loading Data');
-        updateField('characterCountry', 'Error');
+        document.getElementById('characterName').textContent = 'Error Loading Data';
+        document.getElementById('characterCountry').textContent = 'Error';
     }
 }
 
