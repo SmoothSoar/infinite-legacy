@@ -140,30 +140,46 @@ static init() {
      * @returns {void}
      */
     static loadCharacterInfo() {
-        try {
-           const character = JSON.parse(localStorage.getItem('lifeSimCharacter')) || {
-    name: 'Player',
-    gender: 'Unknown',
-    countryName: 'Unknown',  // Changed from country to countryName
-    culture: 'Unknown',
-    age: 18
-};
+    try {
+        // Get character data with proper fallbacks
+        const character = JSON.parse(localStorage.getItem('lifeSimCharacter')) || {
+            name: 'Player',
+            gender: 'Unknown',
+            countryName: 'Unknown',
+            culture: 'Unknown',
+            age: 18
+        };
 
-            // Sync age with TimeManager
-            if (TimeManager.timeState) {
-                character.age = TimeManager.timeState.age;
-                localStorage.setItem('lifeSimCharacter', JSON.stringify(character));
-            }
+        // Get time state with fallback to character age
+        const timeState = JSON.parse(localStorage.getItem('timeState')) || { age: character.age };
 
-            // Update DOM
-            ['name', 'gender', 'country', 'culture', 'age'].forEach(field => {
-                const element = document.getElementById(`character${field.charAt(0).toUpperCase() + field.slice(1)}`);
-                if (element) element.textContent = character[field];
-            });
-        } catch (error) {
-            this.log('Error loading character info:', error);
+        // Update all character info elements with null checks
+        const updateField = (id, value) => {
+            const element = document.getElementById(id);
+            if (element) element.textContent = value || 'Unknown';
+        };
+
+        // Update each field - using countryName for display
+        updateField('characterName', character.name);
+        updateField('characterGender', character.gender);
+        updateField('characterCountry', character.countryName || character.country); // Fallback to country if countryName missing
+        updateField('characterCulture', character.culture);
+        updateField('characterAge', timeState.age);
+
+        // Special case for welcome message
+        const welcomeName = document.getElementById('characterName');
+        if (welcomeName) {
+            welcomeName.textContent = character.name || 'Player';
         }
+
+    } catch (error) {
+        console.error('[MainManager] Error loading character info:', error);
+        
+        // Fallback display if error occurs
+        updateField('characterName', 'Error Loading Data');
+        updateField('characterCountry', 'Error');
     }
+}
 
     /**
      * Sets up the application theme

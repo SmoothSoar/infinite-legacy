@@ -118,16 +118,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Create Character Object
-    function createCharacterObject(data) {
-        return {
-            name: data.name,
-            age: data.age,
-            gender: data.gender,
-            country: data.countryCode,
-            countryName: data.countryName,
-            culture: data.cultureName,
-            cultureCode: data.cultureCode,
-            familySituation: "Average",
+   function createCharacterObject(data) {
+    return {
+        name: data.name,
+        age: data.age,
+        gender: data.gender,
+        country: data.countryCode,       // Storing code
+        countryName: data.countryName,   // Storing full name
+        culture: data.cultureName,
+        cultureCode: data.cultureCode,
+          familySituation: "Average",
             createdAt: new Date().toISOString(),
             stats: {
                 health: 100,

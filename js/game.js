@@ -152,6 +152,15 @@ class GameManager {
             age: 18
         };
 
+          // Update DOM elements - CRITICAL CHANGE HERE
+        if (this.characterInfoElements.name) {
+            this.characterInfoElements.name.textContent = character.name || 'Player';
+        }
+        if (this.characterInfoElements.country) {
+            // Use countryName instead of country
+            this.characterInfoElements.country.textContent = character.countryName || 'Unknown';
+        }
+
         // Get time state with fallback
         const timeState = JSON.parse(localStorage.getItem('timeState')) || { age: character.age };
 
