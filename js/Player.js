@@ -1,14 +1,20 @@
 export class Player {
   constructor() {
+        const savedData = JSON.parse(localStorage.getItem('lifeSimCharacter')) || {};
+        
     this.skills = {
       programming: 0,
       communication: 0,
       leadership: 0,
       // ...other skills
     };
+     this.name = savedData.name || 'Player';
+    this.gender = savedData.gender || 'Unknown';
+    this.country = savedData.country || 'Unknown';
+    this.culture = savedData.culture || 'Unknown';
     this.education = [];
     this.jobHistory = [];
-    this.age = 18; // Starting age
+    this.age = savedData.age || 18; // Starting age
   }
 
   // Calculate total work experience in years

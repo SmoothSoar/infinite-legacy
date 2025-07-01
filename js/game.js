@@ -142,12 +142,13 @@ class GameManager {
      * @returns {void}
      */
     static renderCharacterInfo() {
-        const character = JSON.parse(localStorage.getItem('character')) || {
-            name: 'Player',
-            gender: 'Male',
-            country: 'USA',
-            culture: 'Western'
-        };
+      const character = JSON.parse(localStorage.getItem('lifeSimCharacter')) || {
+        name: 'Player',
+        gender: 'Male',
+        country: 'USA',
+        culture: 'Western',
+        age: 18
+    };
 
         // Update character info elements if they exist
         if (this.characterInfoElements.name) this.characterInfoElements.name.textContent = character.name;
