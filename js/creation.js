@@ -157,9 +157,6 @@ function createCharacterObject(formData) {
     return character;
 }
 
-console.log("Country code:", data.countryCode);
-console.log("Country name:", data.countryName);
-    
     // Save Character to LocalStorage
     function saveCharacter(character) {
     try {
