@@ -10,7 +10,7 @@ export class Player {
     };
      this.name = savedData.name || 'Player';
     this.gender = savedData.gender || 'Unknown';
-    this.country = savedData.country || 'Unknown';
+    this.country = savedData.countryName || 'Unknown';  // Changed to countryName
     this.culture = savedData.culture || 'Unknown';
     this.education = [];
     this.jobHistory = [];

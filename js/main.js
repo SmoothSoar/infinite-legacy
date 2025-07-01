@@ -141,13 +141,13 @@ static init() {
      */
     static loadCharacterInfo() {
         try {
-            const character = JSON.parse(localStorage.getItem('lifeSimCharacter')) || {
-                name: 'Player',
-                gender: 'Unknown',
-                country: 'Unknown',
-                culture: 'Unknown',
-                age: 18
-            };
+           const character = JSON.parse(localStorage.getItem('lifeSimCharacter')) || {
+    name: 'Player',
+    gender: 'Unknown',
+    countryName: 'Unknown',  // Changed from country to countryName
+    culture: 'Unknown',
+    age: 18
+};
 
             // Sync age with TimeManager
             if (TimeManager.timeState) {

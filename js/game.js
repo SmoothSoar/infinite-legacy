@@ -142,24 +142,39 @@ class GameManager {
      * @returns {void}
      */
     static renderCharacterInfo() {
-      const character = JSON.parse(localStorage.getItem('lifeSimCharacter')) || {
-        name: 'Player',
-        gender: 'Male',
-        country: 'USA',
-        culture: 'Western',
-        age: 18
-    };
+    try {
+        // Safely get character data with defaults
+        const character = JSON.parse(localStorage.getItem('lifeSimCharacter')) || {
+            name: 'Player',
+            gender: 'Unknown',
+            countryName: 'Unknown',
+            culture: 'Unknown',
+            age: 18
+        };
 
-        // Update character info elements if they exist
-        if (this.characterInfoElements.name) this.characterInfoElements.name.textContent = character.name;
-        if (this.characterInfoElements.gender) this.characterInfoElements.gender.textContent = character.gender;
-        if (this.characterInfoElements.country) this.characterInfoElements.country.textContent = character.country;
-        if (this.characterInfoElements.culture) this.characterInfoElements.culture.textContent = character.culture;
+        // Get time state with fallback
+        const timeState = JSON.parse(localStorage.getItem('timeState')) || { age: character.age };
+
+        // Update all character info elements with null checks
+        const updateElement = (element, value) => {
+            if (element) element.textContent = value || 'Unknown';
+        };
+
+        updateElement(this.characterInfoElements.name, character.name);
+        updateElement(this.characterInfoElements.gender, character.gender);
+        updateElement(this.characterInfoElements.country, character.countryName);
+        updateElement(this.characterInfoElements.culture, character.culture);
+        updateElement(this.characterInfoElements.age, timeState.age);
+
+    } catch (error) {
+        console.error('[GameManager] Error rendering character info:', error);
         
-        // Update age from time state
-        const timeState = JSON.parse(localStorage.getItem('timeState')) || { age: 18 };
-        if (this.characterInfoElements.age) this.characterInfoElements.age.textContent = timeState.age;
+        // Fallback display if error occurs
+        if (this.characterInfoElements.name) {
+            this.characterInfoElements.name.textContent = 'Error Loading Character';
+        }
     }
+}
 
     /**
      * Handles time advancement events
