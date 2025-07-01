@@ -4,70 +4,101 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Character - Life Simulator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/creation.css">
 </head>
-<body>
-    <header class="page-header">
-        <h1>Life Simulator</h1>
-        <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">🌓</button>
+<body class="d-flex flex-column min-vh-100">
+    <header class="bg-dark text-white p-3">
+        <div class="container d-flex justify-content-between align-items-center">
+            <h1 class="mb-0">Life Simulator</h1>
+            <button id="themeToggle" class="btn btn-outline-light">
+                <span class="theme-icon bi bi-moon"></span>
+                <span class="d-none d-sm-inline">Theme</span>
+            </button>
+        </div>
     </header>
 
-    <main class="creation-container">
-        <section class="character-creation">
-            <h2>Create Your Character</h2>
-            
-            <form id="characterForm" class="character-form">
-                <div class="form-group">
-                    <label for="name">Character Name:</label>
-                    <input type="text" id="name" required placeholder="Enter your character's name" minlength="2" maxlength="30">
-                </div>
-                
-                <div class="form-group">
-                    <label for="age">Age:</label>
-                    <input type="number" id="age" min="1" max="100" value="18" required>
-                    <span class="hint">(1-100 years)</span>
-                </div>
-                
-                <div class="form-group">
-                    <label for="gender">Gender:</label>
-                    <select id="gender" required>
-                        <option value="" disabled selected>Select gender</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="non-binary">Non-binary</option>
-                        <option value="other">Other</option>
-                        <option value="prefer-not-to-say">Prefer not to say</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="country">Country of Origin:</label>
-                    <select id="country" required>
-                        <!-- Will be populated by creation.js -->
-                        <option value="" disabled selected>Loading countries...</option>
-                    </select>
-                </div>
+    <main class="container my-4 flex-grow-1">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="h4 mb-0">Create Your Character</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="characterForm" class="needs-validation" novalidate>
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Character Name</label>
+                                <input type="text" class="form-control" id="name" required 
+                                       placeholder="Enter your character's name" minlength="2" maxlength="30">
+                                <div class="invalid-feedback">Please enter a valid name (2-30 characters)</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="age" class="form-label">Age</label>
+                                <input type="number" class="form-control" id="age" min="1" max="100" value="18" required>
+                                <div class="form-text">(1-100 years)</div>
+                                <div class="invalid-feedback">Please enter a valid age between 1 and 100</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="gender" class="form-label">Gender</label>
+                                <select class="form-select" id="gender" required>
+                                    <option value="" disabled selected>Select gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="non-binary">Non-binary</option>
+                                    <option value="other">Other</option>
+                                    <option value="prefer-not-to-say">Prefer not to say</option>
+                                </select>
+                                <div class="invalid-feedback">Please select a gender</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="country" class="form-label">Country of Origin</label>
+                                <select class="form-select" id="country" required>
+                                    <option value="" disabled selected>Loading countries...</option>
+                                </select>
+                                <div class="invalid-feedback">Please select a country</div>
+                            </div>
 
-                <div class="form-group">
-                    <label for="culture">Cultural Background:</label>
-                    <select id="culture" required disabled>
-                        <option value="" disabled selected>First select a country</option>
-                    </select>
+                            <div class="mb-3">
+                                <label for="culture" class="form-label">Cultural Background</label>
+                                <select class="form-select" id="culture" required disabled>
+                                    <option value="" disabled selected>First select a country</option>
+                                </select>
+                                <div class="invalid-feedback">Please select a cultural background</div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-person-check"></i> Begin Your Life Journey
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                
-                <div class="form-actions">
-                    <button type="submit" class="submit-button">
-                        Begin Your Life Journey
-                    </button>
-                </div>
-            </form>
-        </section>
+            </div>
+        </div>
     </main>
 
-    <!-- Scripts loaded in correct order with defer for better performance -->
- <script src="js/countries.js"></script>
+    <footer class="bg-dark text-white py-3 mt-auto">
+        <div class="container text-center">
+            <p class="mb-0">© <span id="currentYear">2023</span> Life Simulator</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/countries.js"></script>
     <script src="js/cultures.js"></script>
     <script src="js/theme.js"></script>
     <script src="js/creation.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+        });
+    </script>
+</body>
 </html>

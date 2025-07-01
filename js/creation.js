@@ -1,182 +1,150 @@
-// Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize theme if themeManager exists
-    if (typeof themeManager !== 'undefined') {
-        themeManager.initTheme();
-        
-        // Add theme toggle handler
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
-            themeToggle.addEventListener('click', function() {
-                themeManager.toggleTheme();
-            });
-        }
+    // Initialize theme
+    if (typeof ThemeManager !== 'undefined') {
+        ThemeManager.init();
     }
 
     // DOM Elements
+    const characterForm = document.getElementById('characterForm');
     const countrySelect = document.getElementById('country');
     const cultureSelect = document.getElementById('culture');
-    const characterForm = document.getElementById('characterForm');
     
-    // Debug: Check if COUNTRIES is loaded
-    console.log('COUNTRIES available:', window.COUNTRIES);
+    // Initialize form
+    initCountryDropdown();
+    initCultureDropdown();
+    setupEventListeners();
     
     // Initialize Country Dropdown
     function initCountryDropdown() {
-        // Clear existing options
-        countrySelect.innerHTML = '';
+        countrySelect.innerHTML = '<option value="" disabled selected>-- Select Country --</option>';
         
-        // Add default option
-        const defaultOption = new Option('-- Select Country --', '', true, true);
-        defaultOption.disabled = true;
-        countrySelect.add(defaultOption);
-        
-        // Check if COUNTRIES is available
         if (!window.COUNTRIES || window.COUNTRIES.length === 0) {
             console.error('COUNTRIES data not loaded!');
-            const errorOption = new Option('Error loading countries', 'error');
-            countrySelect.add(errorOption);
+            countrySelect.innerHTML += '<option value="error" disabled>Error loading countries</option>';
             return;
         }
         
-        // Add countries to dropdown
+        // Group countries by continent
+        const groupedCountries = {};
         window.COUNTRIES.forEach(country => {
-            countrySelect.add(new Option(country.name, country.code));
+            const continent = country.continent || 'Other';
+            if (!groupedCountries[continent]) {
+                groupedCountries[continent] = [];
+            }
+            groupedCountries[continent].push(country);
         });
+        
+        // Add grouped options
+        for (const [continent, countries] of Object.entries(groupedCountries)) {
+            const optgroup = document.createElement('optgroup');
+            optgroup.label = continent;
+            
+            countries.forEach(country => {
+                const option = new Option(country.name, country.code);
+                optgroup.appendChild(option);
+            });
+            
+            countrySelect.appendChild(optgroup);
+        }
         
         console.log('Country dropdown initialized with', window.COUNTRIES.length, 'countries');
     }
     
     // Initialize Culture Dropdown
     function initCultureDropdown() {
-        cultureSelect.innerHTML = '';
-        const defaultOption = new Option('-- Select Country First --', '', true, true);
-        defaultOption.disabled = true;
-        cultureSelect.add(defaultOption);
+        cultureSelect.innerHTML = '<option value="" disabled selected>-- Select Country First --</option>';
+        cultureSelect.disabled = true;
     }
     
     // Handle Country Change
     function handleCountryChange() {
-        const countryCode = this.value;
-        console.log('Country selected:', countryCode);
+        cultureSelect.disabled = !this.value;
         
-        // This will be handled by cultures.js
-        // We just need to ensure the event is triggered
+        // The actual culture population is handled by cultures.js
+        // We just ensure the dropdown is enabled/disabled properly
     }
     
     // Handle Form Submission
     function handleFormSubmit(e) {
-    e.preventDefault();
-    
-    // Get form elements
-    const nameInput = document.getElementById('name');
-    const ageInput = document.getElementById('age');
-    const genderSelect = document.getElementById('gender');
-    const countrySelect = document.getElementById('country');
-    const cultureSelect = document.getElementById('culture');
-    
-    // Create form data object
-    const formData = {
-        name: nameInput.value.trim(),
-        age: parseInt(ageInput.value),
-        gender: genderSelect.value,
-        countryCode: countrySelect.value,
-        countryName: countrySelect.options[countrySelect.selectedIndex].text,
-        cultureCode: cultureSelect.value,
-        cultureName: cultureSelect.options[cultureSelect.selectedIndex].text
-    };
-    
-    // Validate inputs
-    if (!validateForm(formData)) {
-        return;
-    }
-    
-    // Create and save character
-    const character = createCharacterObject(formData);
-    saveCharacter(character);
-    
-    // Redirect to game
-    window.location.href = 'game.html';
-}
-    
-    // Form Validation
-    function validateForm(data) {
-        if (!data.name) {
-            alert('Please enter your character name');
-            return false;
+        e.preventDefault();
+        
+        if (!characterForm.checkValidity()) {
+            e.stopPropagation();
+            characterForm.classList.add('was-validated');
+            return;
         }
         
-        if (isNaN(data.age) || data.age < 1 || data.age > 100) {
-            alert('Please enter a valid age between 1 and 100');
-            return false;
-        }
+        // Get form data
+        const formData = {
+            name: document.getElementById('name').value.trim(),
+            age: parseInt(document.getElementById('age').value),
+            gender: document.getElementById('gender').value,
+            countryCode: countrySelect.value,
+            countryName: countrySelect.options[countrySelect.selectedIndex].text,
+            cultureCode: cultureSelect.value,
+            cultureName: cultureSelect.options[cultureSelect.selectedIndex].text
+        };
         
-        if (!data.countryCode) {
-            alert('Please select a country');
-            return false;
-        }
+        // Create and save character
+        const character = createCharacterObject(formData);
+        saveCharacter(character);
         
-        if (!data.cultureCode) {
-            alert('Please select a culture');
-            return false;
-        }
-        
-        return true;
+        // Redirect to game
+        window.location.href = 'game.html';
     }
     
     // Create Character Object
-  // In the createCharacterObject function:
-function createCharacterObject(formData) {
-    const character = {
-        name: formData.name,
-        age: formData.age,
-        gender: formData.gender,
-        country: {
-            code: formData.countryCode,
-            name: formData.countryName
-        },
-        culture: {
-            name: formData.cultureName,
-            code: formData.cultureCode
-        },
-        stats: {
-            health: 100,
-            happiness: 75,
-            education: 50,
-            wealth: 25
-        },
-        skills: {
-            programming: 0,
-            communication: 0,
-            leadership: 0
-        },
-        createdAt: new Date().toISOString()
-    };
+    function createCharacterObject(formData) {
+        const character = {
+            name: formData.name,
+            age: formData.age,
+            gender: formData.gender,
+            country: {
+                code: formData.countryCode,
+                name: formData.countryName
+            },
+            culture: {
+                code: formData.cultureCode,
+                name: formData.cultureName
+            },
+            stats: {
+                health: 100,
+                happiness: 75,
+                education: 50,
+                wealth: 25
+            },
+            skills: {
+                programming: 0,
+                communication: 0,
+                leadership: 0
+            },
+            inventory: [],
+            finances: {
+                cash: 5000,
+                bank: 0,
+                debt: 0
+            },
+            createdAt: new Date().toISOString()
+        };
+        
+        console.log("Character created:", character);
+        return character;
+    }
     
-    console.log("Character data being saved:", character);
-    return character;
-}
-
     // Save Character to LocalStorage
     function saveCharacter(character) {
-    try {
-        console.log("DEBUG - Character data before saving:", character);
-        localStorage.setItem('lifeSimCharacter', JSON.stringify(character));
-        console.log("DEBUG - Saved character:", JSON.parse(localStorage.getItem('lifeSimCharacter')));
-    } catch (e) {
-        console.error('Error saving character:', e);
-        alert('Error saving your character data. Please try again.');
+        try {
+            localStorage.setItem('lifeSimCharacter', JSON.stringify(character));
+            console.log("Character saved successfully");
+        } catch (e) {
+            console.error('Error saving character:', e);
+            alert('Error saving your character data. Please try again.');
+        }
     }
-}
     
-    // Initialize everything
-    initCountryDropdown();
-    initCultureDropdown();
-    
-    // Event Listeners
-    countrySelect.addEventListener('change', handleCountryChange);
-    characterForm.addEventListener('submit', handleFormSubmit);
-    
-    // Debug: Simulate country selection for testing
-    // setTimeout(() => { countrySelect.value = 'US'; countrySelect.dispatchEvent(new Event('change')); }, 1000);
+    // Setup Event Listeners
+    function setupEventListeners() {
+        countrySelect.addEventListener('change', handleCountryChange);
+        characterForm.addEventListener('submit', handleFormSubmit);
+    }
 });
