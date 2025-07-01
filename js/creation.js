@@ -118,41 +118,51 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Create Character Object
-   function createCharacterObject(data) {
-    return {
+  // In the createCharacterObject function:
+function createCharacterObject(data) {
+    const character = {
         name: data.name,
         age: data.age,
         gender: data.gender,
-        country: data.countryCode,       // Storing code
-        countryName: data.countryName,   // Storing full name
-        culture: data.cultureName,
-        cultureCode: data.cultureCode,
-          familySituation: "Average",
-            createdAt: new Date().toISOString(),
-            stats: {
-                health: 100,
-                happiness: 75,
-                education: 50,
-                wealth: 25
-            },
-            skills: {
-                programming: 0,
-                communication: 0,
-                leadership: 0
-            }
-        };
-    }
+        country: {
+            code: data.countryCode,
+            name: data.countryName || data.country // Fallback to the select text if name not available
+        },
+        culture: {
+            name: data.cultureName,
+            code: data.cultureCode
+        },
+        stats: {
+            health: 100,
+            happiness: 75,
+            education: 50,
+            wealth: 25
+        },
+        skills: {
+            programming: 0,
+            communication: 0,
+            leadership: 0
+        },
+        createdAt: new Date().toISOString()
+    };
+    
+    console.log("Saving character data:", character);
+    return character;
+
+}console.log("Country code:", data.countryCode);
+console.log("Country name:", data.countryName);
     
     // Save Character to LocalStorage
     function saveCharacter(character) {
-        try {
-            localStorage.setItem('lifeSimCharacter', JSON.stringify(character));
-            console.log('Character saved:', character);
-        } catch (e) {
-            console.error('Error saving character:', e);
-            alert('Error saving your character data. Please try again.');
-        }
+    try {
+        console.log("DEBUG - Character data before saving:", character);
+        localStorage.setItem('lifeSimCharacter', JSON.stringify(character));
+        console.log("DEBUG - Saved character:", JSON.parse(localStorage.getItem('lifeSimCharacter')));
+    } catch (e) {
+        console.error('Error saving character:', e);
+        alert('Error saving your character data. Please try again.');
     }
+}
     
     // Initialize everything
     initCountryDropdown();
