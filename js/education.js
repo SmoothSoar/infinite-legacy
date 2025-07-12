@@ -235,55 +235,60 @@ static validateEnrolledPrograms(programs) {
         }
     }
 
-    static setupEventListeners() {
-        this.removeEventListeners(); // Clean up any existing listeners
+  static setupEventListeners() {
+    this.removeEventListeners(); // Clean up any existing listeners
 
-        // Program click listener
-        if (this.elements.programsContainer) {
-            this.addListener(this.elements.programsContainer, 'click', (e) => {
-                const button = e.target.closest('.program-action-btn');
-                if (button && button.dataset.programId) {
-                    e.preventDefault();
-                    this.showProgramDetails(button.dataset.programId);
-                }
-            });
-        }
-
-        // Enroll button listener
-        if (this.elements.startProgramBtn) {
-            this.addListener(this.elements.startProgramBtn, 'click', () => {
-                if (this.selectedProgram) {
-                    this.handleEnroll(this.selectedProgram.id);
-                }
-            });
-        }
-
-        // Storage listener
-        this.addListener(window, 'storage', (e) => {
-            if (e.key === 'educationGameState' || e.key === 'educationUpdateTrigger') {
-                this.log('Detected education state change from storage');
-                this.loadGameState();
-                this.renderAll();
-                
-                if (typeof GameManager !== 'undefined' && GameManager.currentEducationContainer) {
-                    GameManager.renderCurrentEducation();
-                }
-            }
-        });
-
-        // Filter button listeners
-        const filterButtons = document.querySelectorAll('.filter-btn');
-        filterButtons.forEach(button => {
-            if (button.dataset.filter) {
-                this.addListener(button, 'click', (e) => {
-                    e.preventDefault();
-                    filterButtons.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-                    this.renderPrograms(button.dataset.filter);
-                });
+    // Program click listener
+    if (this.elements.programsContainer) {
+        this.addListener(this.elements.programsContainer, 'click', (e) => {
+            const button = e.target.closest('.program-action-btn');
+            if (button && button.dataset.programId) {
+                e.preventDefault();
+                this.showProgramDetails(button.dataset.programId);
             }
         });
     }
+
+    // Enroll button listener
+    if (this.elements.startProgramBtn) {
+        this.addListener(this.elements.startProgramBtn, 'click', () => {
+            if (this.selectedProgram) {
+                this.handleEnroll(this.selectedProgram.id);
+            }
+        });
+    }
+
+    // Time advancement listener - MODIFIED THIS PART
+    this.addListener(document, 'timeAdvanced', (e) => {
+        this.handleTimeAdvanced(e.detail);
+    });
+
+    // Storage listener
+    this.addListener(window, 'storage', (e) => {
+        if (e.key === 'educationGameState' || e.key === 'educationUpdateTrigger') {
+            this.log('Detected education state change from storage');
+            this.loadGameState();
+            this.renderAll();
+            
+            if (typeof GameManager !== 'undefined' && GameManager.currentEducationContainer) {
+                GameManager.renderCurrentEducation();
+            }
+        }
+    });
+
+    // Filter button listeners
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    filterButtons.forEach(button => {
+        if (button.dataset.filter) {
+            this.addListener(button, 'click', (e) => {
+                e.preventDefault();
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                this.renderPrograms(button.dataset.filter);
+            });
+        }
+    });
+}
 
     static addListener(element, type, listener) {
         if (!element || !type || !listener) return;
@@ -312,49 +317,49 @@ static validateEnrolledPrograms(programs) {
     // ===================================================================
 
     static handleTimeAdvanced(timeState) {
-        try {
-            // Validate input
-            if (!timeState || typeof timeState !== 'object') {
-                this.log('Invalid timeState object');
-                return;
-            }
-
-            this.log('Handling time advancement:', timeState);
-
-            // Update progress
-            this.updateQuarterlyProgress();
-            this.updateYearlyProgress();
-
-            // Save and render
-            this.saveGameState();
-            this.debouncedRender();
-            
-            // Handle age changes
-            if (timeState.isNewAge && typeof timeState.age === 'number') {
-                this.handleAgeChange(timeState.age);
-            }
-
-            // Notify CareerManager if available
-            if (typeof CareerManager !== 'undefined') {
-                try {
-                    if (typeof CareerManager.loadGameState === 'function') {
-                        CareerManager.loadGameState();
-                    }
-                    CareerManager.handleTimeAdvanced(timeState);
-                } catch (e) {
-                    this.log('Error in CareerManager.handleTimeAdvanced:', e);
-                    EventManager.addToEventLog('Career update failed', 'warning');
-                }
-            }
-
-            // Notify other systems
-            this.dispatchEvent('educationTimeAdvanced', { timeState });
-
-        } catch (error) {
-            console.error(this.ERROR_MESSAGES.TIME_ADVANCE_FAILED, error);
-            EventManager.addToEventLog(this.ERROR_MESSAGES.TIME_ADVANCE_FAILED, 'danger');
+    try {
+        // Validate input
+        if (!timeState || typeof timeState !== 'object') {
+            this.log('Invalid timeState object');
+            return;
         }
+
+        this.log('Handling time advancement:', timeState);
+
+        // Update progress
+        this.updateQuarterlyProgress();
+        this.updateYearlyProgress();
+
+        // Save and render
+        this.saveGameState();
+        this.debouncedRender();
+        
+        // Handle age changes
+        if (timeState.isNewAge && typeof timeState.age === 'number') {
+            this.handleAgeChange(timeState.age);
+        }
+
+        // Notify CareerManager if available
+        if (typeof CareerManager !== 'undefined') {
+            try {
+                if (typeof CareerManager.loadGameState === 'function') {
+                    CareerManager.loadGameState();
+                }
+                CareerManager.handleTimeAdvanced(timeState);
+            } catch (e) {
+                this.log('Error in CareerManager.handleTimeAdvanced:', e);
+                EventManager.addToEventLog('Career update failed', 'warning');
+            }
+        }
+
+        // Notify other systems
+        this.dispatchEvent('educationTimeAdvanced', { timeState });
+
+    } catch (error) {
+        console.error(this.ERROR_MESSAGES.TIME_ADVANCE_FAILED, error);
+        EventManager.addToEventLog(this.ERROR_MESSAGES.TIME_ADVANCE_FAILED, 'danger');
     }
+}
 
     static dispatchEvent(name, detail) {
         try {
@@ -448,24 +453,25 @@ static updateQuarterlyProgress() {
     }
 
     static handleEnroll(programId) {
-        try {
-            const program = this.programs.find(p => p.id === programId);
-            if (!program) return;
+    try {
+        const program = this.programs.find(p => p.id === programId);
+        if (!program) return;
 
-            // Check enrollment status
-            if (this.isProgramEnrolled(programId)) {
-                EventManager.addToEventLog('Already enrolled in this program', 'warning');
-                return;
-            }
+        // Check enrollment status
+        if (this.isProgramEnrolled(programId)) {
+            EventManager.addToEventLog('Already enrolled in this program', 'warning');
+            return;
+        }
 
-            if (this.isProgramCompleted(programId)) {
-                EventManager.addToEventLog('Already completed this program', 'warning');
-                return;
-            }
+        if (this.isProgramCompleted(programId)) {
+            EventManager.addToEventLog('Already completed this program', 'warning');
+            return;
+        }
 
-            // Age validation
-            const characterAge = TimeManager?.timeState?.age || 18;
-            
+        // Age validation - only for high school programs
+        const characterAge = TimeManager?.timeState?.age || 14;
+        
+        if (program.type === 'high-school') {
             if (program.maxAge && characterAge > program.maxAge) {
                 EventManager.addToEventLog(`Too old for this program (max age: ${program.maxAge})`, 'warning');
                 return;
@@ -475,31 +481,32 @@ static updateQuarterlyProgress() {
                 EventManager.addToEventLog(`Too young for this program (min age: ${program.minAge})`, 'warning');
                 return;
             }
-
-            // Check prerequisites
-            const missingPrereqs = this.getMissingPrerequisites(programId);
-            if (missingPrereqs.length > 0) {
-                const prereqNames = missingPrereqs.map(id => 
-                    this.programs.find(p => p.id === id)?.name || id
-                ).join(', ');
-                EventManager.addToEventLog(`Missing prerequisites: ${prereqNames}`, 'danger');
-                return;
-            }
-
-            // Check funds
-            if (this.gameState.balance < program.cost) {
-                EventManager.addToEventLog(`Insufficient funds for ${program.name} ($${program.cost})`, 'danger');
-                return;
-            }
-
-            // All checks passed - enroll student
-            this.enrollStudent(program);
-
-        } catch (e) {
-            console.error('Error enrolling in program:', e);
-            EventManager.addToEventLog('Failed to enroll in program', 'danger');
         }
+
+        // Rest of the enrollment logic remains the same...
+        const missingPrereqs = this.getMissingPrerequisites(programId);
+        if (missingPrereqs.length > 0) {
+            const prereqNames = missingPrereqs.map(id => 
+                this.programs.find(p => p.id === id)?.name || id
+            ).join(', ');
+            EventManager.addToEventLog(`Missing prerequisites: ${prereqNames}`, 'danger');
+            return;
+        }
+
+        // Check funds
+        if (this.gameState.balance < program.cost) {
+            EventManager.addToEventLog(`Insufficient funds for ${program.name} ($${program.cost})`, 'danger');
+            return;
+        }
+
+        // All checks passed - enroll student
+        this.enrollStudent(program);
+
+    } catch (e) {
+        console.error('Error enrolling in program:', e);
+        EventManager.addToEventLog('Failed to enroll in program', 'danger');
     }
+}
 
 static enrollStudent(program) {
     if (!program?.id || !program?.name || !program?.field || !program?.type || !program?.duration) {
@@ -1052,13 +1059,9 @@ class GameStateStorage {
 // Safe initialization
 document.addEventListener('DOMContentLoaded', () => {
     try {
+        TimeManager.init();
         EducationManager.init();
     } catch (e) {
-        console.error('Failed to initialize EducationManager:', e);
+        console.error('Initialization failed:', e);
     }
-});
-
-// Cleanup
-window.addEventListener('beforeunload', () => {
-    EducationManager.cleanup();
 });

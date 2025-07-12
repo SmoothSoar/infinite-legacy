@@ -1,321 +1,316 @@
-/* ==================== */
-/* THEME VARIABLES */
-/* ==================== */
+/* career.css - Perfect 3-wide job card layout */
 :root {
-    /* Light Theme Defaults */
-    --primary-color: #3498db;
-    --secondary-color: #2ecc71;
-    --danger-color: #e74c3c;
-    --warning-color: #f39c12;
-    --dark-color: #2c3e50;
-    --light-color: #ecf0f1;
-    
-    --bg-color: #f8f9fa;
-    --text-color: #333;
-    --card-bg: #ffffff;
-    --card-border: rgba(0, 0, 0, 0.1);
-    --progress-bg: #f0f0f0;
-    --disabled-opacity: 0.6;
-    
-    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --transition: all 0.3s ease;
+    --bs-primary: rgb(var(--color-primary));
+    --bs-secondary: rgb(var(--color-secondary));
+    --bs-accent: rgb(var(--color-accent));
+    --bs-success: rgb(var(--color-success));
+    --bs-warning: rgb(var(--color-warning));
+    --bs-danger: rgb(var(--color-danger));
+    --bs-info: rgb(var(--color-info));
+    --bs-light: rgb(var(--color-bg-secondary));
+    --bs-dark: rgb(var(--color-bg-tertiary));
+    --bs-gray-400: rgb(var(--color-text-muted));
 }
 
-[data-theme="dark"] {
-    --primary-color: #2980b9;
-    --secondary-color: #27ae60;
-    --danger-color: #c0392b;
-    --warning-color: #d35400;
-    --dark-color: #1a252f;
-    --light-color: #bdc3c7;
-    
-    --bg-color: #121212;
-    --text-color: #e0e0e0;
-    --card-bg: #1e1e1e;
-    --card-border: rgba(255, 255, 255, 0.1);
-    --progress-bg: #2d2d2d;
-}
-
-/* ==================== */
-/* BASE STYLES */
-/* ==================== */
+/* Base styles */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    line-height: 1.6;
+    background-color: rgb(var(--color-bg));
+    color: rgb(var(--color-text));
 }
 
-/* ==================== */
-/* NAVIGATION */
-/* ==================== */
-.navbar {
-    background-color: var(--dark-color);
-    box-shadow: var(--shadow);
+.theme-transition {
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* ==================== */
-/* CARD STYLES */
-/* ==================== */
-.card {
-    border: none;
+/* Header styles */
+.welcome-header {
+    padding: 1.5rem;
+    background-color: rgb(var(--color-card));
+    border: 1px solid rgb(var(--color-card-border));
     border-radius: 10px;
-    box-shadow: var(--shadow);
-    transition: var(--transition);
-    margin-bottom: 20px;
-    background-color: var(--card-bg);
-    color: var(--text-color);
-    border: 1px solid var(--card-border);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    color: rgb(var(--color-text));
 }
 
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+.welcome-header h1 {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: rgb(var(--color-text));
 }
 
-.card-header {
-    background-color: var(--primary-color);
-    color: white;
-    border-radius: 10px 10px 0 0 !important;
-    padding: 15px 20px;
-    font-weight: 600;
-    border-bottom: 1px solid var(--card-border);
-}
-
-/* ==================== */
-/* JOB CARDS */
-/* ==================== */
-.job-listings-container {
-    padding: 15px;
-}
-
-.job-card {
-    background: var(--card-bg);
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: var(--shadow);
-    transition: var(--transition);
-    border-left: 4px solid var(--primary-color);
-    border: 1px solid var(--card-border);
-}
-
-.job-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-}
-
-.job-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin: 0;
-    color: var(--text-color);
-}
-
-.job-company {
-    color: var(--text-color);
-    opacity: 0.9;
-    margin-bottom: 15px;
-}
-
-.job-salary {
-    color: var(--secondary-color);
-    font-weight: 600;
-}
-
-.job-level {
-    display: inline-block;
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border-radius: 0.25rem;
-    margin-top: 0.5rem;
-}
-
-.job-level.entry-level {
-    background-color: rgba(58, 134, 255, 0.15);
-    color: var(--primary-color);
-}
-
-.job-level.professional {
-    background-color: rgba(56, 176, 0, 0.15);
-    color: var(--secondary-color);
-}
-
-.job-level.management {
-    background-color: rgba(255, 158, 0, 0.15);
-    color: var(--warning-color);
-}
-
-.job-level.executive {
-    background-color: rgba(217, 4, 41, 0.15);
-    color: var(--danger-color);
-}
-
-/* ==================== */
-/* STAT CARDS */
-/* ==================== */
+/* Stat cards */
 .character-stat-card {
-    background: var(--card-bg);
-    border-radius: 8px;
-    padding: 20px;
+    background-color: rgb(var(--color-card));
+    border: 1px solid rgb(var(--color-card-border));
+    border-radius: 10px;
+    padding: 1.25rem;
     text-align: center;
-    box-shadow: var(--shadow);
     height: 100%;
-    transition: var(--transition);
-    border: 1px solid var(--card-border);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    color: rgb(var(--color-text));
 }
 
 .character-stat-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    transform: translateY(-5px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
 .stat-icon {
     font-size: 2rem;
-    color: var(--primary-color);
-    margin-bottom: 10px;
+    margin-bottom: 0.5rem;
+    color: var(--bs-primary);
 }
 
 .stat-label {
     font-size: 1rem;
-    color: var(--text-color);
-    opacity: 0.8;
-    margin-bottom: 5px;
+    color: rgb(var(--color-text-secondary));
+    margin-bottom: 0.5rem;
 }
 
 .stat-value {
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin: 0;
-    color: var(--text-color);
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0;
+    color: rgb(var(--color-text));
 }
 
-.age-display {
-    font-weight: 700;
-    color: var(--primary-color);
-}
-
-/* ==================== */
-/* MODAL STYLES */
-/* ==================== */
-.modal-content {
+/* Card styles */
+.card {
+    border: 1px solid rgb(var(--color-card-border));
     border-radius: 10px;
-    border: none;
-    background-color: var(--card-bg);
-    color: var(--text-color);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background-color: rgb(var(--color-card));
+    color: rgb(var(--color-text));
 }
 
-.modal-header {
-    border-bottom: 1px solid var(--card-border);
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
-.modal-footer {
-    border-top: 1px solid var(--card-border);
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+    background-color: rgb(var(--color-card-header)) !important;
+    color: rgb(var(--color-text-inverse)) !important;
+    border-bottom: 1px solid rgb(var(--color-card-border)) !important;
 }
 
-.job-detail-item {
-    margin-bottom: 15px;
+.card-body {
+    padding: 1.5rem;
 }
 
-.job-detail-item h6 {
+/* Job listings - Perfect 3-column layout */
+.job-listings-container {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.job-card {
+    background-color: rgb(var(--color-card));
+    border: 1px solid rgb(var(--color-card-border));
+    border-radius: 8px;
+    padding: 1.25rem;
+    transition: all 0.3s ease;
+    border-left: 4px solid var(--bs-primary);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    min-height: 180px;
+    height: auto;
+}
+
+.job-card-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.job-title {
+    font-size: 1.1rem;
     font-weight: 600;
-    color: var(--primary-color);
-    margin-bottom: 5px;
+    margin: 0 0 0.5rem 0;
+    color: rgb(var(--color-text));
+    line-height: 1.3;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
-.requirements-list, .skills-list {
-    padding-left: 20px;
-    color: var(--text-color);
+.job-company {
+    color: rgb(var(--color-text-secondary));
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    line-height: 1.3;
 }
 
-/* ==================== */
-/* FILTER BUTTONS */
-/* ==================== */
+.job-salary {
+    color: var(--bs-success);
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+}
+
+.job-level {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 20px;
+    margin-top: auto;
+    width: fit-content;
+}
+
+.job-level.entry-level {
+    background-color: rgba(58, 134, 255, 0.15);
+    color: var(--bs-primary);
+}
+
+.job-level.professional {
+    background-color: rgba(56, 176, 0, 0.15);
+    color: var(--bs-success);
+}
+
+.job-level.management {
+    background-color: rgba(255, 158, 0, 0.15);
+    color: var(--bs-warning);
+}
+
+.job-level.executive {
+    background-color: rgba(217, 4, 41, 0.15);
+    color: var(--bs-danger);
+}
+
+/* Filter buttons */
 .filter-buttons {
-    margin-bottom: 20px;
+    margin-bottom: 1.25rem;
 }
 
 .filter-btn {
     border-radius: 20px;
-    padding: 5px 15px;
-    font-size: 0.9rem;
-    transition: var(--transition);
-    border: 1px solid var(--card-border);
-    background-color: var(--card-bg);
-    color: var(--text-color);
+    padding: 0.375rem 0.75rem;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    border: 1px solid rgb(var(--color-border));
+    background-color: rgb(var(--color-card));
+    color: rgb(var(--color-text));
 }
 
 .filter-btn.active {
-    background-color: var(--primary-color);
+    background-color: var(--bs-primary);
     color: white;
-    border-color: var(--primary-color);
+    border-color: var(--bs-primary);
 }
 
 .filter-btn:not(.active):hover {
-    background-color: var(--progress-bg);
+    background-color: rgba(var(--color-primary), 0.1);
+    border-color: var(--bs-primary);
 }
 
-/* ==================== */
-/* ALERT MESSAGES */
-/* ==================== */
-.alert {
-    transition: background-color 0.3s ease, color 0.3s ease;
+/* Job details modal */
+.job-detail-item {
+    margin-bottom: 1rem;
 }
 
-.alert-info {
-    background-color: rgba(52, 152, 219, 0.2);
-    border-color: rgba(52, 152, 219, 0.3);
-    color: var(--text-color);
+.job-detail-item h6 {
+    font-weight: 600;
+    color: var(--bs-primary);
+    margin-bottom: 0.5rem;
 }
 
-/* ==================== */
-/* RESPONSIVE ADJUSTMENTS */
-/* ==================== */
-@media (max-width: 768px) {
+.requirements-list, .skills-list {
+    padding-left: 1.25rem;
+    color: rgb(var(--color-text));
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] {
+    .character-stat-card,
+    .card,
     .job-card {
-        margin-bottom: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+    
+    .character-stat-card:hover,
+    .card:hover,
+    .job-card:hover {
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
+    }
+    
+    .job-card:hover {
+        background-color: rgba(var(--color-primary), 0.1);
+    }
+    
+    .job-level.entry-level {
+        background-color: rgba(58, 134, 255, 0.3);
+    }
+    
+    .job-level.professional {
+        background-color: rgba(56, 176, 0, 0.3);
+    }
+    
+    .job-level.management {
+        background-color: rgba(255, 158, 0, 0.3);
+    }
+    
+    .job-level.executive {
+        background-color: rgba(217, 4, 41, 0.3);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .job-listings-container {
+        gap: 1.25rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .job-listings-container {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+    }
+    
+    .character-stat-card {
+        padding: 1rem;
     }
     
     .stat-icon {
-        font-size: 1.5rem;
+        font-size: 1.75rem;
     }
     
     .stat-value {
-        font-size: 1.1rem;
+        font-size: 1.25rem;
     }
 }
 
-/* ==================== */
-/* UTILITY CLASSES */
-/* ==================== */
-.text-primary {
-    color: var(--primary-color) !important;
+@media (max-width: 768px) {
+    .job-listings-container {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .job-card {
+        min-height: 160px;
+    }
+    
+    .card-body {
+        padding: 1.25rem;
+    }
 }
 
-.bg-primary {
-    background-color: var(--primary-color) !important;
-}
-
-.bg-success {
-    background-color: var(--secondary-color) !important;
-}
-
-.bg-warning {
-    background-color: var(--warning-color) !important;
-}
-
-.bg-danger {
-    background-color: var(--danger-color) !important;
-}
-
-.mb-0 {
-    margin-bottom: 0 !important;
-}
-
-/* ==================== */
-/* THEME TRANSITION HANDLER */
-/* ==================== */
-.theme-transition * {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+@media (max-width: 576px) {
+    .character-stat-card {
+        padding: 0.9rem;
+    }
+    
+    .stat-icon {
+        font-size: 1.6rem;
+    }
+    
+    .stat-value {
+        font-size: 1.2rem;
+    }
 }

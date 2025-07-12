@@ -1,4 +1,5 @@
 // degrees.js - Education Programs with Skill-Based Fields
+// degrees.js - Education Programs with Skill-Based Fields
 window.EDUCATION_PROGRAMS = [
     // ========== HIGH SCHOOL ==========
     {
@@ -35,6 +36,7 @@ window.EDUCATION_PROGRAMS = [
         duration: '6 months',
         cost: 2000,
         difficulty: 3,
+        minAge: 16,  // Minimum age for vocational programs
         skillsGained: ['cooking_nutrition', 'time_management']
     },
     {
@@ -45,6 +47,7 @@ window.EDUCATION_PROGRAMS = [
         duration: '1 year',
         cost: 3000,
         difficulty: 3,
+        minAge: 16,  // Minimum age for vocational programs
         skillsGained: ['automotive_repair', 'critical_thinking']
     },
     {
@@ -55,6 +58,7 @@ window.EDUCATION_PROGRAMS = [
         duration: '1 year',
         cost: 2500,
         difficulty: 3,
+        minAge: 16,  // Minimum age for vocational programs
         skillsGained: ['graphic_design', 'creativity']
     },
 
@@ -67,6 +71,7 @@ window.EDUCATION_PROGRAMS = [
         duration: '2 years',
         cost: 10000,
         difficulty: 4,
+        minAge: 18,  // College-level minimum age
         skillsGained: ['programming', 'data_analysis']
     },
     {
@@ -77,6 +82,7 @@ window.EDUCATION_PROGRAMS = [
         duration: '2 years',
         cost: 12000,
         difficulty: 4,
+        minAge: 18,  // College-level minimum age
         skillsGained: ['first_aid', 'empathy']
     },
 
@@ -88,7 +94,8 @@ window.EDUCATION_PROGRAMS = [
         field: 'Business',
         duration: '4 years',
         cost: 40000,
-        difficulty: 4,
+        difficulty: 5,
+        minAge: 18,  // College-level minimum age
         skillsGained: ['negotiation', 'financial_literacy']
     },
     {
@@ -99,6 +106,7 @@ window.EDUCATION_PROGRAMS = [
         duration: '4 years',
         cost: 45000,
         difficulty: 5,
+        minAge: 18,  // College-level minimum age
         skillsGained: ['programming', 'critical_thinking', 'system_design']
     },
 
@@ -111,6 +119,7 @@ window.EDUCATION_PROGRAMS = [
         duration: '2 years',
         cost: 60000,
         difficulty: 5,
+        minAge: 21,  // Graduate-level minimum age
         skillsGained: ['leadership', 'financial_analysis']
     },
     {
@@ -121,9 +130,12 @@ window.EDUCATION_PROGRAMS = [
         duration: '2 years',
         cost: 50000,
         difficulty: 5,
+        minAge: 21,  // Graduate-level minimum age
         skillsGained: ['data_analysis', 'system_design']
     }
 ];
+
+// ... rest of the file remains the same ...
 
 // Prerequisites for programs
 window.PREREQUISITES = {

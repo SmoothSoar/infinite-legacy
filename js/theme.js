@@ -15,14 +15,6 @@ class ThemeManager {
         document.documentElement.setAttribute('data-theme', themeName);
         localStorage.setItem('theme', themeName);
         this.updateThemeButton(themeName);
-        
-        // Force repaint of main content area
-        const main = document.querySelector('main');
-        if (main) {
-            main.style.display = 'none';
-            main.offsetHeight; // Trigger reflow
-            main.style.display = '';
-        }
     }
 
     static toggleTheme() {
@@ -36,14 +28,14 @@ class ThemeManager {
         if (!themeToggle) return;
         
         // Update icon
-        const icon = themeToggle.querySelector('.theme-icon');
+        const icon = themeToggle.querySelector('i');
         if (icon) {
-            icon.className = `theme-icon bi ${themeName === 'light' ? 'bi-moon' : 'bi-sun'}`;
+            icon.className = themeName === 'light' ? 'bi bi-moon' : 'bi bi-sun';
         }
         
         // Update text if present
         const textSpan = themeToggle.querySelector('.d-none.d-sm-inline');
-        if (textSpan && textSpan.textContent.trim() === 'Theme') {
+        if (textSpan) {
             textSpan.textContent = themeName === 'light' ? 'Dark Mode' : 'Light Mode';
         }
     }
@@ -53,6 +45,3 @@ class ThemeManager {
 document.addEventListener('DOMContentLoaded', () => {
     ThemeManager.init();
 });
-
-// Make available globally
-window.ThemeManager = ThemeManager;

@@ -1,410 +1,516 @@
-// eventManager.js - Optimized for Financial System Integration
+/**
+ * EventManager - Central event handling and UI update system
+ * @version 3.0
+ * @description Handles game events, manages UI updates, and coordinates between systems
+ * 
+ * Responsibilities:
+ * - Central event bus for game systems
+ * - UI display updates
+ * - Event logging system
+ * - Time-based event processing
+ */
 class EventManager {
-    // Cached DOM elements
-    static elements = {
-        timeDisplays: null,
-        ageDisplays: null,
-        currentEducationContainer: null,
-        eventLogContainer: null,
-        financialSummaryContainer: null
-    };
-    
-    // Event listener references for cleanup
-    static eventListeners = [];
-    
-    // Configuration
+    /**
+     * Configuration settings
+     * @static
+     * @property {Object} config
+     * @property {boolean} debug - Enable debug logging
+     * @property {number} maxEventLogEntries - Maximum events to keep in log
+     * @property {number} financialUpdateInterval - Months between financial updates
+     * @property {number} debounceTime - Debounce time for rapid updates (ms)
+     * @property {number} retryAttempts - Number of initialization retries
+     * @property {number} retryDelay - Delay between retries (ms)
+     */
     static config = {
         debug: true,
         maxEventLogEntries: 50,
-        financialUpdateInterval: 3 // Update financial displays every 3 months
+        financialUpdateInterval: 3,
+        debounceTime: 200,
+        retryAttempts: 3,
+        retryDelay: 1000
     };
 
     /**
-     * Initializes the EventManager system
+     * Current manager state
+     * @static
+     * @property {Object} state
+     * @property {boolean} initialized - Initialization status
+     * @property {Object} elements - Cached DOM elements
+     * @property {Array} eventListeners - Active event listeners
+     * @property {number|null} debounceTimer - Timeout ID for debouncing
+     * @property {Set} pendingUpdates - Types of pending UI updates
+     * @property {boolean} updateScheduled - Whether update is scheduled
+     * @property {Object|null} lastProcessedTime - Last processed time state
+     * @property {Object|null} lastCharacterState - Last character state
      */
-    static init() {
+    static state = {
+        initialized: false,
+        elements: {
+            eventLogContainer: null,
+            timeDisplay: null,
+            ageDisplay: null,
+            moneyDisplay: null
+        },
+        eventListeners: [],
+        debounceTimer: null,
+        pendingUpdates: new Set(),
+        updateScheduled: false,
+        lastProcessedTime: null,
+        lastCharacterState: null
+    };
+
+    /* --------------------------
+     * Initialization
+     * -------------------------- */
+
+    /**
+     * Initialize the EventManager system
+     * @async
+     * @static
+     * @throws {Error} If initialization fails after retries
+     */
+    static async init() {
+        if (this.state.initialized) {
+            this.log('Already initialized');
+            return;
+        }
+
         try {
-            this.log('Initializing EventManager...');
+            this._validateConfig();
+            this._cacheElements();
+            this._setupEventListeners();
             
-            // Verify dependencies
-            if (typeof TimeManager === 'undefined') {
-                throw new Error('TimeManager is required but not loaded');
-            }
-
-            // Cache DOM elements safely
-            this.cacheDOMElements();
+            this.state.initialized = true;
+            this.log('Initialized successfully');
             
-            // Initialize event listeners
-            this.setupEventListeners();
-            
-            // Initial state sync
-            this.syncState();
-            
-            this.log('EventManager initialized successfully');
+            this._updateDisplays();
         } catch (error) {
-            console.error('EventManager initialization failed:', error);
-            throw error;
+            console.error('Initialization failed:', error);
+            await this._retryInit();
         }
     }
 
     /**
-     * Cleans up resources
+     * Validate configuration settings
+     * @private
+     * @static
+     * @throws {Error} If config is invalid
      */
-    static cleanup() {
-        this.log('Cleaning up EventManager...');
-        this.removeEventListeners();
-        this.elements = {};
-    }
-
-    /**
-     * Caches frequently used DOM elements safely
-     */
-    static cacheDOMElements() {
-        this.elements.timeDisplays = document.querySelectorAll('.time-display');
-        this.elements.ageDisplays = document.querySelectorAll('.age-display');
-        this.elements.currentEducationContainer = document.getElementById('currentEducation');
-        this.elements.eventLogContainer = document.getElementById('eventLog');
-        this.elements.financialSummaryContainer = document.getElementById('financialSummary');
-        
-        // Log missing elements for debugging
-        if (this.config.debug) {
-            for (const [key, value] of Object.entries(this.elements)) {
-                if (!value) {
-                    this.log(`Element not found: ${key}`);
-                }
-            }
+    static _validateConfig() {
+        if (typeof this.config.debug !== 'boolean') {
+            throw new Error('Invalid config: debug must be boolean');
+        }
+        if (typeof this.config.maxEventLogEntries !== 'number' || this.config.maxEventLogEntries < 1) {
+            throw new Error('Invalid config: maxEventLogEntries must be positive number');
         }
     }
 
     /**
-     * Sets up all event listeners
+     * Cache frequently used DOM elements
+     * @private
+     * @static
      */
-    static setupEventListeners() {
-        const timeAdvancedListener = (e) => this.handleTimeAdvanced(e.detail);
-        const storageListener = (e) => this.handleStorageEvent(e);
-        const financialUpdateListener = () => this.updateFinancialDisplays();
+    static _cacheElements() {
+        this.state.elements = {
+            eventLogContainer: document.getElementById('eventLog'),
+            timeDisplay: document.getElementById('timeDisplay'),
+            ageDisplay: document.getElementById('characterAge'),
+            moneyDisplay: document.getElementById('moneyDisplay')
+        };
         
-        document.addEventListener('timeAdvanced', timeAdvancedListener);
-        window.addEventListener('storage', storageListener);
-        document.addEventListener('financialDataUpdated', financialUpdateListener);
-        
-        this.eventListeners = [
-            { type: 'timeAdvanced', element: document, listener: timeAdvancedListener },
-            { type: 'storage', element: window, listener: storageListener },
-            { type: 'financialDataUpdated', element: document, listener: financialUpdateListener }
-        ];
-    }
-
-    /**
-     * Removes all event listeners
-     */
-    static removeEventListeners() {
-        this.eventListeners.forEach(({ element, type, listener }) => {
-            element.removeEventListener(type, listener);
-        });
-        this.eventListeners = [];
-    }
-
-    /**
-     * Synchronizes game state across all components
-     */
-    static syncState() {
-        try {
-            // Sync with financial system if available
-            if (typeof FinancesManager !== 'undefined') {
-                FinancesManager.loadGameState();
-                this.updateFinancialDisplays();
-            }
-            
-            // Sync with education system if available
-            if (typeof EducationManager !== 'undefined') {
-                EducationManager.loadGameState();
-            }
-            
-            // Update all displays with current time state
-            if (TimeManager.timeState) {
-                this.updateAllDisplays(TimeManager.timeState);
-            }
-        } catch (error) {
-            console.error('Error in syncState:', error);
-            this.addToEventLog('Failed to synchronize game state', 'danger');
+        if (this.config.debug && !this.state.elements.eventLogContainer) {
+            this.log('Warning: eventLogContainer element not found');
         }
     }
 
+    /* --------------------------
+     * Event System
+     * -------------------------- */
+
     /**
-     * Handles time advancement events
-     * @param {Object} timeState - Current time state
+     * Set up all event listeners
+     * @private
+     * @static
      */
-    static handleTimeAdvanced(timeState) {
-    try {
-        // Update all displays first
-        this.updateAllDisplays(timeState);
-        
-        // Process financial updates if FinancesManager exists
-        if (typeof FinancesManager !== 'undefined') {
-            // Only process financial updates at configured interval
-            if (timeState.month % this.config.financialUpdateInterval === 0) {
-                // Ensure FinancesManager is initialized
-                if (typeof FinancesManager.loadGameState === 'function') {
-                    FinancesManager.loadGameState();
-                }
-                FinancesManager.handleTimeAdvanced(timeState);
-                this.updateFinancialDisplays();
-            }
+   static _setupEventListeners() {
+    this._removeEventListeners();
+
+    // Time advancement handler (cross-tab sync)
+    const timeHandler = (e) => {
+        this._handleTimeAdvanced(e.detail);
+        this._queueUpdate('career'); // Add career updates to time change
+        this._queueUpdate('financial'); // Add financial updates
+        // Add other systems as needed
+    };
+    this._addListener(document, 'timeAdvanced', timeHandler);
+
+    // Storage event handler for cross-tab sync
+    const storageHandler = (e) => {
+        if (e.key === `${TimeManager.config.localStorageKey}_${TimeManager.state.currentCharacterId}`) {
+            const newState = JSON.parse(e.newValue);
+            document.dispatchEvent(new CustomEvent('timeAdvanced', {
+                detail: newState
+            }));
         }
-        
-        // Process quarterly events
-        if (timeState.isQuarterly) {
-            this.processQuarterlyEvents(timeState);
-            
-            // Special quarterly financial processing
-            if (typeof FinancesManager !== 'undefined') {
-                FinancesManager.processQuarterlyEvents(timeState);
-                this.updateFinancialDisplays();
-            }
-        }
-        
-        // Handle career updates if CareerManager exists
-        if (typeof CareerManager !== 'undefined') {
-            // Ensure CareerManager is initialized
-            if (typeof CareerManager.loadGameState === 'function') {
-                CareerManager.loadGameState();
-            }
-            CareerManager.handleTimeAdvanced(timeState);
-        }
-        
-        // Handle education updates if EducationManager exists
-        if (typeof EducationManager !== 'undefined') {
-            // Ensure EducationManager is initialized
-            if (typeof EducationManager.loadGameState === 'function') {
-                EducationManager.loadGameState();
-            }
-            EducationManager.handleTimeAdvanced(timeState);
-        }
-        
-    } catch (error) {
-        this.log('Error handling time advancement:', error);
-        this.addToEventLog('Error processing time advancement', 'danger');
-    }
+    };
+    this._addListener(window, 'storage', storageHandler);
+
+    // Existing handlers (unchanged)
+    const financialHandler = () => this._queueUpdate('financial');
+    this._addListener(document, 'financialDataUpdated', financialHandler);
+
+    const careerHandler = () => this._queueUpdate('career');
+    this._addListener(document, 'careerUpdated', careerHandler);
+
+    const characterHandler = (e) => {
+        this._queueUpdate('character');
+        this.state.lastCharacterState = e.detail;
+    };
+    this._addListener(document, 'characterStateChanged', characterHandler);
 }
 
     /**
-     * Updates all display elements
+     * Add tracked event listener
+     * @private
+     * @static
+     * @param {Element} element - DOM element to listen on
+     * @param {string} type - Event type
+     * @param {Function} handler - Callback function
+     */
+    static _addListener(element, type, handler) {
+        element.addEventListener(type, handler);
+        this.state.eventListeners.push({ element, type, handler });
+    }
+
+    /**
+     * Remove all event listeners
+     * @private
+     * @static
+     */
+    static _removeEventListeners() {
+        this.state.eventListeners.forEach(({element, type, handler}) => {
+            element?.removeEventListener(type, handler);
+        });
+        this.state.eventListeners = [];
+    }
+
+    /* --------------------------
+     * Time Handling
+     * -------------------------- */
+
+    /**
+     * Handle time advancement events
+     * @private
+     * @static
+     * @param {Object} timeState - Time state from TimeManager
+     */
+    static _handleTimeAdvanced(timeState) {
+        if (!timeState) {
+            this.log('Received empty timeState');
+            return;
+        }
+
+        // Debounce rapid updates
+        clearTimeout(this.state.debounceTimer);
+        this.state.debounceTimer = setTimeout(() => {
+            this._processTimeUpdate(timeState);
+        }, this.config.debounceTime);
+    }
+
+    /**
+     * Process time update and trigger related updates
+     * @private
+     * @static
      * @param {Object} timeState - Current time state
      */
-    static updateAllDisplays(timeState) {
-        this.updateTimeDisplays(timeState);
-        this.updateAgeDisplays(timeState);
-        this.updateEducationDisplays(timeState);
-        
-        // Update financial displays if needed
-        if (typeof FinancesManager !== 'undefined') {
-            this.updateFinancialDisplays();
+    static _processTimeUpdate(timeState) {
+        try {
+            // Update time displays
+            this._updateTimeDisplay(timeState);
+            this._updateAgeDisplay(timeState.age);
+            
+            // Process financial updates if needed
+            if (timeState.month % this.config.financialUpdateInterval === 0) {
+                this._queueUpdate('financial');
+            }
+            
+            // Process quarterly events
+            if (timeState.isQuarterly) {
+                this._processQuarterlyEvents(timeState);
+            }
+
+            this.state.lastProcessedTime = timeState;
+        } catch (error) {
+            console.error('Error processing time update:', error);
         }
     }
 
     /**
-     * Updates time-related displays
+     * Handle quarterly events
+     * @private
+     * @static
      * @param {Object} timeState - Current time state
      */
-    static updateTimeDisplays(timeState) {
-        if (!this.elements.timeDisplays || this.elements.timeDisplays.length === 0) return;
+    static _processQuarterlyEvents(timeState) {
+        this.log(`Processing quarterly events for Q${timeState.quarter}`);
+        this.addToEventLog(`Quarter ${timeState.quarter} of Year ${timeState.year} has begun`, 'info');
+        
+        document.dispatchEvent(new CustomEvent('quarterlyUpdate', {
+            detail: timeState
+        }));
+    }
+
+    /* --------------------------
+     * Update Management
+     * -------------------------- */
+
+    /**
+     * Queue UI update of specific type
+     * @private
+     * @static
+     * @param {string} type - Update type ('financial', 'career', 'character')
+     */
+    static _queueUpdate(type) {
+        this.state.pendingUpdates.add(type);
+        if (!this.state.updateScheduled) {
+            this.state.updateScheduled = true;
+            requestAnimationFrame(() => this._processQueuedUpdates());
+        }
+    }
+
+    /**
+     * Process all queued updates
+     * @private
+     * @static
+     */
+    static _processQueuedUpdates() {
+        try {
+            this.state.pendingUpdates.forEach(type => {
+                switch(type) {
+                    case 'financial':
+                        this._updateFinancialDisplays();
+                        break;
+                    case 'career':
+                        this._updateCareerDisplays();
+                        break;
+                    case 'character':
+                        this._updateCharacterDisplays();
+                        break;
+                }
+            });
+            
+            this.state.pendingUpdates.clear();
+            this.state.updateScheduled = false;
+        } catch (error) {
+            console.error('Error processing queued updates:', error);
+        }
+    }
+
+    /* --------------------------
+     * Display Updates
+     * -------------------------- */
+
+    /**
+     * Update all displays
+     * @private
+     * @static
+     */
+    static _updateDisplays() {
+        this._updateTimeDisplay();
+        this._updateAgeDisplay();
+        this._updateFinancialDisplays();
+    }
+
+    /**
+     * Update time display
+     * @private
+     * @static
+     * @param {Object} [timeState] - Optional time state (uses TimeManager if not provided)
+     */
+    static _updateTimeDisplay(timeState) {
+        if (!this.state.elements.timeDisplay) return;
+        
+        const state = timeState || TimeManager?.state?.timeState;
+        if (!state) return;
         
         const monthNames = ["January", "February", "March", "April", "May", "June", 
                           "July", "August", "September", "October", "November", "December"];
-        const currentMonth = monthNames[timeState.month - 1];
+        const monthName = monthNames[state.month - 1] || '';
         
-        this.elements.timeDisplays.forEach(el => {
-            el.textContent = `Year ${timeState.year}, Q${timeState.quarter} (${currentMonth})`;
+        this.state.elements.timeDisplay.textContent = 
+            `Year ${state.year}, Q${state.quarter} (${monthName})`;
+    }
+
+    /**
+     * Update age display
+     * @private
+     * @static
+     * @param {number} [age] - Optional age (uses TimeManager if not provided)
+     */
+    static _updateAgeDisplay(age) {
+        if (!this.state.elements.ageDisplay) return;
+        
+        const currentAge = age ?? TimeManager?.state?.timeState?.age ?? 18;
+        this.state.elements.ageDisplay.textContent = `Age ${currentAge}`;
+    }
+
+    /**
+     * Update financial displays
+     * @private
+     * @static
+     */
+    static _updateFinancialDisplays() {
+        if (!this.state.elements.moneyDisplay) return;
+        
+        // Prefer player's money if available
+        if (MainManager.state.player) {
+            const money = MainManager.state.player.totalMoney || 0;
+            this.state.elements.moneyDisplay.textContent = `$${money.toLocaleString()}`;
+        } 
+        // Fallback to FinancesManager
+        else if (typeof FinancesManager !== 'undefined') {
+            const financialState = FinancesManager.getFinancialState?.() || {};
+            this.state.elements.moneyDisplay.textContent = 
+                `$${(financialState.totalBalance || 0).toLocaleString()}`;
+        }
+    }
+
+    /**
+     * Update career displays
+     * @private
+     * @static
+     */
+    static _updateCareerDisplays() {
+        // Implementation would go here when CareerManager is available
+    }
+
+    /**
+     * Update character displays
+     * @private
+     * @static
+     */
+    static _updateCharacterDisplays() {
+        if (!MainManager.state.player) return;
+
+        const player = MainManager.state.player;
+        const fields = {
+            'characterName': player.name,
+            'characterAge': `Age ${player.age || 18}`,
+            'characterCountry': player.country?.name || 'Unknown',
+            'characterCulture': player.culture?.name || 'Unknown',
+            'healthDisplay': `${player.getStat?.('health') || 100}%`,
+            'moneyDisplay': `$${(player.totalMoney || 0).toLocaleString()}`
+        };
+
+        Object.entries(fields).forEach(([id, value]) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
         });
     }
 
-    /**
-     * Updates age-related displays
-     * @param {Object} timeState - Current time state
-     */
-    static updateAgeDisplays(timeState) {
-        if (!this.elements.ageDisplays || this.elements.ageDisplays.length === 0) return;
-        
-        this.elements.ageDisplays.forEach(el => {
-            el.textContent = timeState.age;
-        });
-    }
+    /* --------------------------
+     * Event Log Management
+     * -------------------------- */
 
     /**
-     * Updates education-related displays
-     * @param {Object} timeState - Current time state
-     */
-    static updateEducationDisplays(timeState) {
-        if (!this.elements.currentEducationContainer) return;
-
-        try {
-            if (typeof EducationManager !== 'undefined') {
-                EducationManager.loadGameState();
-                const enrolledPrograms = EducationManager.gameState?.education?.enrolledPrograms || [];
-                
-                if (enrolledPrograms.length === 0) {
-                    this.elements.currentEducationContainer.innerHTML = '<div class="alert alert-info mb-0">Not currently enrolled in any programs.</div>';
-                    return;
-                }
-
-                this.elements.currentEducationContainer.innerHTML = enrolledPrograms.map(program => `
-                    <div class="mb-2">
-                        <div class="d-flex justify-content-between">
-                            <strong>${program.name}</strong>
-                            <span>${Math.round(program.progress)}%</span>
-                        </div>
-                        <div class="progress mt-1" style="height: 8px;">
-                            <div class="progress-bar" role="progressbar" 
-                                 style="width: ${program.progress}%" 
-                                 aria-valuenow="${program.progress}" 
-                                 aria-valuemin="0" 
-                                 aria-valuemax="100">
-                            </div>
-                        </div>
-                        <small class="text-muted">${program.monthsCompleted}/${program.totalDuration} months completed</small>
-                    </div>
-                `).join('');
-            }
-        } catch (e) {
-            this.log('Error updating education displays:', e);
-            this.elements.currentEducationContainer.innerHTML = '<div class="alert alert-danger mb-0">Error loading education data</div>';
-        }
-    }
-
-    /**
-     * Updates financial-related displays
-     */
-    static updateFinancialDisplays() {
-        if (!this.elements.financialSummaryContainer || typeof FinancesManager === 'undefined') return;
-        
-        try {
-            const financialState = FinancesManager.getFinancialState();
-            
-            this.elements.financialSummaryContainer.innerHTML = `
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Financial Summary</h5>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="me-3 text-primary">
-                                        <i class="bi bi-cash-stack fs-2"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0">Liquid Assets</h6>
-                                        <p class="mb-0">$${financialState.totalBalance.toLocaleString()}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="me-3 text-success">
-                                        <i class="bi bi-graph-up fs-2"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0">Monthly Income</h6>
-                                        <p class="mb-0">$${financialState.monthlyIncome.toLocaleString()}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="me-3 text-danger">
-                                        <i class="bi bi-graph-down fs-2"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0">Monthly Expenses</h6>
-                                        <p class="mb-0">$${financialState.monthlyExpenses.toLocaleString()}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-0">Net Worth</h6>
-                                <h4 class="mb-0 text-primary">$${financialState.netWorth.toLocaleString()}</h4>
-                            </div>
-                            <button class="btn btn-sm btn-outline-primary" onclick="if (typeof FinancesManager !== 'undefined') FinancesManager.init()">
-                                View Details
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        } catch (error) {
-            this.log('Error updating financial displays:', error);
-            this.elements.financialSummaryContainer.innerHTML = '<div class="alert alert-danger">Error loading financial data</div>';
-        }
-    }
-
-    /**
-     * Processes quarterly events
-     * @param {Object} timeState - Current time state
-     */
-    static processQuarterlyEvents(timeState) {
-        this.log('Processing quarterly events for:', timeState);
-        
-        // Financial events are handled directly in FinancesManager.processQuarterlyEvents()
-        
-        // Add any non-financial quarterly events here
-        this.addToEventLog(`Quarter ${timeState.quarter} of Year ${timeState.year} has begun`, 'info');
-    }
-
-    /**
-     * Handles storage events from other tabs
-     * @param {StorageEvent} e - Storage event object
-     */
-    static handleStorageEvent(e) {
-        if (e.key === 'financesGameState' || e.key === 'educationGameState') {
-            this.log('Detected state change from another tab');
-            this.syncState();
-        }
-    }
-
-    /**
-     * Adds a message to the event log
+     * Add message to event log
+     * @static
      * @param {string} message - Message to display
-     * @param {string} [type='info'] - Alert type (info, success, warning, danger)
+     * @param {string} [type='info'] - Message type ('info', 'warning', 'error')
      */
     static addToEventLog(message, type = 'info') {
-        if (!this.elements.eventLogContainer) return;
+        if (!this.state.elements.eventLogContainer) {
+            if (this.config.debug) {
+                console.log(`[Event] ${message}`);
+            }
+            return;
+        }
 
-        const newEvent = document.createElement('div');
-        newEvent.className = `alert alert-${type} p-2 mb-2`;
-        newEvent.textContent = `[Year ${TimeManager.timeState?.year || '?'}] ${message}`;
-        newEvent.dataset.timestamp = Date.now();
-        this.elements.eventLogContainer.insertBefore(newEvent, this.elements.eventLogContainer.firstChild);
-
-        // Limit log size
-        while (this.elements.eventLogContainer.children.length > this.config.maxEventLogEntries) {
-            this.elements.eventLogContainer.removeChild(this.elements.eventLogContainer.lastChild);
+        const eventElement = document.createElement('div');
+        eventElement.className = `event-log-entry event-${type}`;
+        
+        const ts = TimeManager?.state?.timeState;
+        const timestamp = ts ? `[Year ${ts.year}, Q${ts.quarter}] ` : '';
+        eventElement.textContent = timestamp + message;
+        
+        this.state.elements.eventLogContainer.prepend(eventElement);
+        
+        // Trim log if too long
+        const maxEntries = this.config.maxEventLogEntries;
+        while (this.state.elements.eventLogContainer.children.length > maxEntries) {
+            this.state.elements.eventLogContainer.lastChild.remove();
         }
     }
 
     /**
-     * Gets all events from the event log
-     * @returns {Array} Array of event objects
+     * Get all logged events
+     * @static
+     * @returns {Array<Object>} Array of event objects
      */
     static getEvents() {
-        if (!this.elements.eventLogContainer) return [];
+        if (!this.state.elements.eventLogContainer) return [];
         
-        return Array.from(this.elements.eventLogContainer.children).map(el => ({
+        return Array.from(this.state.elements.eventLogContainer.children).map(el => ({
             message: el.textContent,
-            type: el.className.match(/alert-(\w+)/)?.[1] || 'info',
+            type: el.className.match(/event-(\w+)/)?.[1] || 'info',
             timestamp: el.dataset.timestamp || Date.now()
         }));
     }
 
+    /* --------------------------
+     * Utility Methods
+     * -------------------------- */
+
     /**
-     * Logs debug messages when enabled
-     * @param {...any} args - Arguments to log
+     * Retry initialization on failure
+     * @private
+     * @async
+     * @static
+     */
+    static async _retryInit() {
+        for (let attempt = 1; attempt <= this.config.retryAttempts; attempt++) {
+            try {
+                this.log(`Retry attempt ${attempt}/${this.config.retryAttempts}`);
+                await new Promise(resolve => setTimeout(resolve, this.config.retryDelay * attempt));
+                await this.init();
+                return;
+            } catch (error) {
+                if (attempt === this.config.retryAttempts) {
+                    console.error('Failed to initialize after retries:', error);
+                }
+            }
+        }
+    }
+
+    /**
+     * Debug logging
+     * @private
+     * @static
+     * @param {...any} args - Messages to log
      */
     static log(...args) {
         if (this.config.debug) {
             console.log('[EventManager]', ...args);
         }
+    }
+
+    /**
+     * Clean up resources
+     * @static
+     */
+    static cleanup() {
+        this._removeEventListeners();
+        clearTimeout(this.state.debounceTimer);
+        this.state = {
+            initialized: false,
+            elements: {},
+            eventListeners: [],
+            debounceTimer: null,
+            pendingUpdates: new Set(),
+            updateScheduled: false,
+            lastProcessedTime: null,
+            lastCharacterState: null
+        };
     }
 }
 
@@ -417,3 +523,10 @@ document.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('beforeunload', () => {
     EventManager.cleanup();
 });
+
+// Export for module systems
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = EventManager;
+} else {
+    window.EventManager = EventManager;
+}

@@ -95,52 +95,82 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Create Character Object
     function createCharacterObject(formData) {
-        const character = {
-            name: formData.name,
-            age: formData.age,
-            gender: formData.gender,
-            country: {
+        return {
+            id: '', // Will be set in saveCharacter
+            _name: formData.name,
+            _age: formData.age,
+            _gender: formData.gender,
+            _country: {
                 code: formData.countryCode,
                 name: formData.countryName
             },
-            culture: {
+            _culture: {
                 code: formData.cultureCode,
                 name: formData.cultureName
             },
-            stats: {
+            _stats: {
                 health: 100,
                 happiness: 75,
                 education: 50,
-                wealth: 25
+                wealth: 25,
+                fitness: 50,
+                intelligence: 50,
+                charisma: 50
             },
-            skills: {
+            _skills: {
                 programming: 0,
                 communication: 0,
-                leadership: 0
+                leadership: 0,
+                cooking: 0,
+                driving: 0,
+                creativity: 0
             },
-            inventory: [],
-            finances: {
-                cash: 5000,
+            _finances: {
+                cash: 1000,
                 bank: 0,
-                debt: 0
+                debt: 0,
+                creditScore: 650,
+                monthlyIncome: 0,
+                monthlyExpenses: 0
             },
+            _education: [],
+            _jobs: [],
+            _relationships: [],
+            _inventory: [],
+            _properties: [],
+            _version: '1.1',
             createdAt: new Date().toISOString()
         };
-        
-        console.log("Character created:", character);
-        return character;
     }
     
     // Save Character to LocalStorage
-    function saveCharacter(character) {
-        try {
-            localStorage.setItem('lifeSimCharacter', JSON.stringify(character));
-            console.log("Character saved successfully");
-        } catch (e) {
-            console.error('Error saving character:', e);
-            alert('Error saving your character data. Please try again.');
-        }
+  function saveCharacter(character) {
+    try {
+        const characterId = 'char_' + Date.now();
+        character.id = characterId;
+        
+        localStorage.setItem(`lifeSimCharacter_${characterId}`, JSON.stringify(character));
+        
+        const characters = JSON.parse(localStorage.getItem('lifeSimCharacters')) || [];
+        characters.push({
+            id: characterId,
+            name: character._name, // Use _name instead of name
+            age: character._age,    // Use _age instead of age
+            gender: character._gender,
+            country: character._country, // Make sure this matches
+            culture: character._culture, // Make sure this matches
+            createdAt: character.createdAt,
+            lastPlayed: new Date().toISOString()
+        });
+        
+        localStorage.setItem('lifeSimCharacters', JSON.stringify(characters));
+        localStorage.setItem('currentCharacterId', characterId);
+        
+        console.log("Saved character:", character); // Debug log
+    } catch (e) {
+        console.error('Error saving character:', e);
     }
+}
     
     // Setup Event Listeners
     function setupEventListeners() {

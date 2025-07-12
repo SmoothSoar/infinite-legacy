@@ -37,6 +37,8 @@ class FinancesManager {
         }
     };
 
+    
+
     /**
      * Initializes the FinancesManager system
      */
@@ -59,37 +61,56 @@ class FinancesManager {
             throw error;
         }
     }
-    
-    /**
-     * Syncs financial data with career information
-     */
-    static syncWithCareer() {
-        if (typeof CareerManager !== 'undefined' && CareerManager.gameState) {
-            this.log('Syncing with career data...');
-            
-            if (CareerManager.gameState.currentJob) {
-                const hasSalaryTx = this.gameState.transactions.some(
-                    tx => tx.category === 'salary' && 
-                    tx.description.includes(CareerManager.gameState.currentJob.title)
-                );
-                
-                if (!hasSalaryTx) {
-                    const checkingAccounts = this.gameState.accounts.filter(acc => acc.type === 'checking');
-                    const accountId = checkingAccounts.length > 0 ? checkingAccounts[0].id : null;
-                    
-                    this.addTransaction(
-                        'income', 
-                        `Salary from ${CareerManager.gameState.currentJob.title}`, 
-                        CareerManager.gameState.currentJob.salary * 0.7, // 30% tax
-                        'salary',
-                        accountId
-                    );
-                }
-            }
-            
-            this.renderAll();
-        }
+
+static processSalary(monthsAdvanced) {
+    // Check if CareerManager exists and player has a job
+    if (typeof CareerManager === 'undefined' || !CareerManager.gameState?.currentJob?.salary) {
+        console.warn("No job or CareerManager not found - no salary processed");
+        return;
     }
+
+    const salaryPayment = CareerManager.gameState.currentJob.salary * monthsAdvanced;
+    const taxRate = this.calculateTaxRate(salaryPayment);
+    const taxAmount = salaryPayment * taxRate;
+    const netSalary = salaryPayment - taxAmount;
+
+    // Find or create a checking account
+    const checkingAccounts = this.gameState.accounts.filter(acc => acc.type === 'checking');
+    const accountId = checkingAccounts.length > 0 
+        ? checkingAccounts[0].id 
+        : this.createDefaultCheckingAccount();
+
+    // Update account balance
+    const account = this.gameState.accounts.find(acc => acc.id === accountId);
+    if (account) {
+        account.balance += netSalary;
+    }
+
+    // Record transactions
+    this.addTransaction(
+        'income', 
+        `Salary from ${CareerManager.gameState.currentJob.title}`, 
+        netSalary, 
+        'salary',
+        accountId
+    );
+
+    this.addTransaction(
+        'expense',
+        `Income tax withholding`,
+        taxAmount,
+        'taxes',
+        accountId
+    );
+
+    // Notify player
+    if (typeof EventManager !== 'undefined') {
+        EventManager.addToEventLog(`Received salary: $${netSalary.toLocaleString()}`, 'success');
+    }
+
+    this.saveGameState();
+    this.renderAll();
+}
     
     static cleanup() {
         this.log('Cleaning up FinancesManager...');
@@ -101,6 +122,16 @@ class FinancesManager {
             this.chart = null;
         }
     }
+
+  // In FinancesManager.js, modify the getCurrentDateString method:
+static getCurrentDateString() {
+    if (window.timeState?.currentDate) {
+        return formatDate(window.timeState.currentDate);
+    }
+    return new Date().toLocaleDateString();
+}
+
+    
     
     // ===================================================================
     // STATE MANAGEMENT
@@ -124,6 +155,7 @@ class FinancesManager {
             this.gameState = this.getDefaultGameState();
         }
     }
+    
     
     static validateGameState() {
         if (!this.gameState.accounts) this.gameState.accounts = [];
@@ -156,6 +188,24 @@ class FinancesManager {
             return false;
         }
     }
+
+  static syncWithCareer() {
+    this.log('Syncing with career data...');
+    
+    // If we have a current job but no salary transaction, add one
+    if (typeof CareerManager !== 'undefined' && CareerManager.gameState?.currentJob) {
+        const hasSalaryTx = this.gameState.transactions.some(
+            tx => tx.category === 'salary' && 
+            tx.description.includes(CareerManager.gameState.currentJob.title)
+        );
+        
+        if (!hasSalaryTx) {
+            this.processSalary(1); // Process one month's salary
+        }
+    }
+    
+    this.renderAll();
+}
     
     // ===================================================================
     // UI MANAGEMENT
@@ -199,6 +249,24 @@ class FinancesManager {
             }
         }
     }
+
+    static handleCareerUpdate() {
+    this.log('Handling career update...');
+    
+    // If we have a current job but no salary transaction, add one
+    if (CareerManager.gameState?.currentJob) {
+        const hasSalaryTx = this.gameState.transactions.some(
+            tx => tx.category === 'salary' && 
+            tx.description.includes(CareerManager.gameState.currentJob.title)
+        );
+    }
+    
+    this.renderAll();
+}
+
+static updateDisplay() {
+    this.renderAll(); // Since renderAll already updates all displays
+}
     
     static setupEventListeners() {
         const openAccountListener = () => this.showAccountModal();
@@ -246,62 +314,82 @@ class FinancesManager {
         this.eventListeners = [];
     }
     
-    static handleCareerUpdate() {
-        this.log('Handling career update...');
-        this.syncWithCareer();
-        this.renderAll();
-    }
-    
     // ===================================================================
     // ACCOUNT MANAGEMENT
     // ===================================================================
     
-    static createAccount() {
-        const accountType = this.elements.accountType.value;
-        const initialDeposit = parseFloat(this.elements.initialDeposit.value) || 0;
-        const accountName = this.elements.accountName.value || this.accountTypes[accountType].name;
-        
-        if (!accountType) {
-            alert('Please select an account type');
-            return;
-        }
-        
-        // Check minimum deposit requirements
-        const minDeposit = this.accountTypes[accountType].minBalance;
-        if (initialDeposit < minDeposit) {
-            alert(`Minimum deposit for this account type is $${minDeposit}`);
-            return;
-        }
-        
-        // Check if player has enough money
-        if (typeof MainManager !== 'undefined' && MainManager.getMoney) {
-            const currentMoney = MainManager.getMoney();
-            if (currentMoney < initialDeposit) {
-                alert(`You don't have enough money for this deposit (need $${initialDeposit}, have $${currentMoney})`);
-                return;
-            }
+   static createAccount() {
+    const accountType = this.elements.accountType.value;
+    const initialDeposit = parseFloat(this.elements.initialDeposit.value) || 0;
+    const accountName = this.elements.accountName.value || this.accountTypes[accountType].name;
+    
+    if (!accountType) {
+        alert('Please select an account type');
+        return;
+    }
+    
+    // Check minimum deposit requirements
+    const minDeposit = this.accountTypes[accountType].minBalance;
+    if (initialDeposit < minDeposit) {
+        alert(`Minimum deposit for this account type is $${minDeposit}`);
+        return;
+    }
+    
+    // Check if player has enough money (either in cash or checking account)
+    let hasFunds = false;
+    
+    // Check cash first
+    if (typeof MainManager !== 'undefined' && MainManager.getMoney) {
+        const currentCash = MainManager.getMoney();
+        if (currentCash >= initialDeposit) {
+            hasFunds = true;
             MainManager.addMoney(-initialDeposit);
         }
-        
-        const newAccount = {
-            id: 'acc-' + Date.now(),
-            type: accountType,
-            name: accountName,
-            balance: initialDeposit,
-            openedDate: this.getCurrentDateString(),
-            transactions: []
-        };
-        
-        this.gameState.accounts.push(newAccount);
-        this.saveGameState();
-        
-        this.addTransaction('account', 'Deposit to new account', initialDeposit, 'initial_deposit');
-        EventManager.addToEventLog(`Opened new ${this.accountTypes[accountType].name}: ${accountName}`, 'success');
-        
-        this.elements.accountModal.hide();
-        this.elements.accountForm.reset();
-        this.renderAll();
     }
+    
+    // If not enough cash, check checking accounts
+    if (!hasFunds) {
+        const checkingAccounts = this.gameState.accounts.filter(acc => acc.type === 'checking');
+        for (const account of checkingAccounts) {
+            if (account.balance >= initialDeposit) {
+                account.balance -= initialDeposit;
+                hasFunds = true;
+                this.addTransaction(
+                    'expense',
+                    `Initial deposit for new ${this.accountTypes[accountType].name}`,
+                    initialDeposit,
+                    'account_opening',
+                    account.id
+                );
+                break;
+            }
+        }
+    }
+    
+    if (!hasFunds) {
+        alert(`You don't have enough funds for this deposit (need $${initialDeposit})`);
+        return;
+    }
+    
+    const newAccount = {
+        id: 'acc-' + Date.now(),
+        type: accountType,
+        name: accountName,
+        balance: initialDeposit,
+        openedDate: this.getCurrentDateString(),
+        transactions: []
+    };
+    
+    this.gameState.accounts.push(newAccount);
+    this.saveGameState();
+    
+    this.addTransaction('account', 'Deposit to new account', initialDeposit, 'initial_deposit', newAccount.id);
+    EventManager.addToEventLog(`Opened new ${this.accountTypes[accountType].name}: ${accountName}`, 'success');
+    
+    this.elements.accountModal.hide();
+    this.elements.accountForm.reset();
+    this.renderAll();
+}
     
     // ===================================================================
     // TRANSACTION MANAGEMENT
@@ -432,341 +520,471 @@ class FinancesManager {
     // ACCOUNT ACTIONS
     // ===================================================================
     
-    static showDepositWithdrawModal(accountId, actionType) {
-        const account = this.gameState.accounts.find(acc => acc.id === accountId);
-        if (!account) return;
+   static showDepositWithdrawModal(accountId, actionType) {
+    const account = this.gameState.accounts.find(acc => acc.id === accountId);
+    if (!account) return;
+
+    // For withdrawals, check if account allows them
+    if (actionType === 'withdraw' && !this.accountTypes[account.type].canWithdraw) {
+        alert('This account type does not allow direct withdrawals. Transfer to checking first.');
+        return;
+    }
+
+    // For savings withdrawals, check monthly limit
+    if (actionType === 'withdraw' && account.type === 'savings') {
+        const month = new Date().toISOString().slice(0, 7);
+        const withdrawalsThisMonth = this.gameState.accountWithdrawals[account.id]?.[month] || 0;
+        const withdrawalLimit = this.accountTypes.savings.withdrawalLimit;
         
-        // For withdrawals, check if account allows them
-        if (actionType === 'withdraw' && !this.accountTypes[account.type].canWithdraw) {
-            alert('This account type does not allow direct withdrawals. Transfer to checking first.');
+        if (withdrawalsThisMonth >= withdrawalLimit) {
+            alert(`You've reached your monthly withdrawal limit (${withdrawalLimit}) for this savings account.`);
             return;
         }
-        
-        // For savings withdrawals, check monthly limit
-        if (actionType === 'withdraw' && account.type === 'savings') {
-            const month = new Date().toISOString().slice(0, 7);
-            const withdrawalsThisMonth = this.gameState.accountWithdrawals[account.id]?.[month] || 0;
-            const withdrawalLimit = this.accountTypes.savings.withdrawalLimit;
-            
-            if (withdrawalsThisMonth >= withdrawalLimit) {
-                alert(`You've reached your monthly withdrawal limit (${withdrawalLimit}) for this savings account.`);
-                return;
-            }
-        }
-        
-        // Get source accounts for deposits
-        const sourceAccounts = actionType === 'deposit' 
-            ? this.gameState.accounts.filter(acc => 
-                acc.id !== accountId && 
-                acc.balance > 0 &&
-                this.accountTypes[acc.type].canWithdraw
-            ) 
-            : [];
-        
-        const modalHtml = `
-            <div class="modal fade" id="actionModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">${actionType === 'deposit' ? 'Deposit to' : 'Withdraw from'} ${account.name}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="actionAmount" class="form-label">Amount</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">$</span>
-                                    <input type="number" class="form-control" id="actionAmount" min="0" step="0.01">
-                                </div>
-                                <small class="text-muted">Current balance: $${account.balance.toLocaleString()}</small>
+    }
+
+    // Get source accounts for deposits
+    const sourceAccounts = actionType === 'deposit' 
+        ? this.gameState.accounts.filter(acc => 
+            acc.id !== accountId && 
+            acc.balance > 0 &&
+            this.accountTypes[acc.type].canWithdraw
+        ) 
+        : [];
+
+    // Create modal container with unique ID
+    const modalId = `actionModal-${Date.now()}`;
+    const modalHtml = `
+        <div class="modal fade" id="${modalId}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">${actionType === 'deposit' ? 'Deposit to' : 'Withdraw from'} ${account.name}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="actionAmount" class="form-label">Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="actionAmount" min="0" step="0.01">
                             </div>
-                            ${actionType === 'deposit' && sourceAccounts.length > 0 ? `
-                            <div class="mb-3">
-                                <label for="sourceType" class="form-label">Fund from:</label>
-                                <select class="form-select" id="sourceType">
-                                    <option value="cash">Cash (wallet)</option>
-                                    ${sourceAccounts.map(acc => `
-                                        <option value="${acc.id}">${acc.name} ($${acc.balance.toLocaleString()})</option>
-                                    `).join('')}
-                                </select>
-                            </div>
-                            ` : ''}
-                            ${actionType === 'withdraw' && account.type === 'savings' ? `
-                            <div class="alert alert-warning">
-                                <small>Savings accounts have a monthly withdrawal limit (${this.accountTypes.savings.withdrawalLimit}). 
-                                Used: ${this.gameState.accountWithdrawals[account.id]?.[new Date().toISOString().slice(0, 7)] || 0}</small>
-                            </div>
-                            ` : ''}
+                            <small class="text-muted">Current balance: $${account.balance.toLocaleString()}</small>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" id="confirmActionBtn">Confirm ${actionType}</button>
+                        ${actionType === 'deposit' && sourceAccounts.length > 0 ? `
+                        <div class="mb-3">
+                            <label for="sourceType" class="form-label">Fund from:</label>
+                            <select class="form-select" id="sourceType">
+                                <option value="cash">Cash (wallet)</option>
+                                ${sourceAccounts.map(acc => `
+                                    <option value="${acc.id}">${acc.name} ($${acc.balance.toLocaleString()})</option>
+                                `).join('')}
+                            </select>
                         </div>
+                        ` : ''}
+                        ${actionType === 'withdraw' && account.type === 'savings' ? `
+                        <div class="alert alert-warning">
+                            <small>Savings accounts have a monthly withdrawal limit (${this.accountTypes.savings.withdrawalLimit}). 
+                            Used: ${this.gameState.accountWithdrawals[account.id]?.[new Date().toISOString().slice(0, 7)] || 0}</small>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="confirmActionBtn">Confirm ${actionType}</button>
                     </div>
                 </div>
             </div>
-        `;
-        
-        const modalContainer = document.createElement('div');
-        modalContainer.innerHTML = modalHtml;
-        document.body.appendChild(modalContainer);
-        
-        const modal = new bootstrap.Modal(document.getElementById('actionModal'));
-        modal.show();
-        
-        document.getElementById('confirmActionBtn').addEventListener('click', () => {
-            const amount = parseFloat(document.getElementById('actionAmount').value);
-            if (isNaN(amount) || amount <= 0) {
-                alert('Please enter a valid amount greater than 0');
-                return;
-            }
-            
-            if (actionType === 'deposit') {
-                const sourceType = sourceAccounts.length > 0 
-                    ? document.getElementById('sourceType').value 
-                    : 'cash';
-                this.depositToAccount(accountId, amount, `Deposit to ${account.name}`, sourceType);
-            } else {
-                this.withdrawFromAccount(accountId, amount, `Withdrawal from ${account.name}`);
-            }
-            
-            modal.hide();
+        </div>
+    `;
+
+    // Create modal container
+    const modalContainer = document.createElement('div');
+    modalContainer.innerHTML = modalHtml;
+    document.body.appendChild(modalContainer);
+
+    // Get modal instance
+    const modalElement = document.getElementById(modalId);
+    const modal = new bootstrap.Modal(modalElement);
+
+    // Store references for cleanup
+    let modalCleanup = () => {
+        if (modalContainer && document.body.contains(modalContainer)) {
             document.body.removeChild(modalContainer);
-        });
-        
-        document.getElementById('actionModal').addEventListener('hidden.bs.modal', () => {
-            document.body.removeChild(modalContainer);
+        }
+    };
+
+    // Handle modal show/hide events
+    modalElement.addEventListener('hidden.bs.modal', () => {
+        modalCleanup();
+    });
+
+    modalElement.addEventListener('shown.bs.modal', () => {
+        // Focus on amount input when modal is shown
+        const amountInput = modalElement.querySelector('#actionAmount');
+        if (amountInput) amountInput.focus();
+    });
+
+    // Handle confirm button click
+    modalElement.querySelector('#confirmActionBtn').addEventListener('click', () => {
+        const amount = parseFloat(modalElement.querySelector('#actionAmount').value);
+        if (isNaN(amount) || amount <= 0) {
+            alert('Please enter a valid amount greater than 0');
+            return;
+        }
+
+        if (actionType === 'deposit') {
+            const sourceType = sourceAccounts.length > 0 
+                ? modalElement.querySelector('#sourceType').value 
+                : 'cash';
+            this.depositToAccount(accountId, amount, `Deposit to ${account.name}`, sourceType);
+        } else {
+            this.withdrawFromAccount(accountId, amount, `Withdrawal from ${account.name}`);
+        }
+
+        modal.hide();
+    });
+
+    // Show the modal
+    modal.show();
+}
+    
+static setupEventListeners() {
+    // Remove any existing listeners first
+    this.removeEventListeners();
+
+    // Open account modal listener
+    const openAccountListener = () => this.showAccountModal();
+    if (this.elements.openAccountBtn) {
+        this.elements.openAccountBtn.addEventListener('click', openAccountListener);
+        this.eventListeners.push({
+            element: this.elements.openAccountBtn,
+            type: 'click',
+            listener: openAccountListener
         });
     }
-    
-    static depositToAccount(accountId, amount, description = 'Deposit', source = 'cash') {
-        try {
-            if (isNaN(amount)) {
-                alert('Please enter a valid amount');
+
+    // Confirm account creation listener
+    const confirmAccountListener = () => this.createAccount();
+    if (this.elements.confirmAccountBtn) {
+        this.elements.confirmAccountBtn.addEventListener('click', confirmAccountListener);
+        this.eventListeners.push({
+            element: this.elements.confirmAccountBtn,
+            type: 'click',
+            listener: confirmAccountListener
+        });
+    }
+
+    // Time advancement listener
+    const timeAdvancedListener = (e) => this.handleTimeAdvanced(e.detail);
+    document.addEventListener('timeAdvanced', timeAdvancedListener);
+    this.eventListeners.push({
+        element: document,
+        type: 'timeAdvanced',
+        listener: timeAdvancedListener
+    });
+
+    // Career update listener
+    const careerUpdateListener = () => {
+        this.log('Career update event received');
+        this.syncWithCareer();
+        this.renderAll();
+    };
+    document.addEventListener('careerUpdated', careerUpdateListener);
+    this.eventListeners.push({
+        element: document,
+        type: 'careerUpdated',
+        listener: careerUpdateListener
+    });
+
+    // Storage event listener for cross-tab sync
+    const storageListener = (e) => {
+        if (e.key === 'financesGameState') {
+            this.log('Detected finances state change from storage');
+            this.loadGameState();
+            this.renderAll();
+        }
+    };
+    window.addEventListener('storage', storageListener);
+    this.eventListeners.push({
+        element: window,
+        type: 'storage',
+        listener: storageListener
+    });
+
+    // Add listeners for dynamically created account action buttons
+    const accountActionListener = (e) => {
+        const depositBtn = e.target.closest('.deposit-btn');
+        const withdrawBtn = e.target.closest('.withdraw-btn');
+        
+        if (depositBtn) {
+            const accountId = e.target.closest('.account-card').dataset.accountId;
+            this.showDepositWithdrawModal(accountId, 'deposit');
+        } else if (withdrawBtn) {
+            const accountId = e.target.closest('.account-card').dataset.accountId;
+            this.showDepositWithdrawModal(accountId, 'withdraw');
+        }
+    };
+
+    // Use event delegation for dynamically created buttons
+    if (this.elements.bankAccountsContainer) {
+        this.elements.bankAccountsContainer.addEventListener('click', accountActionListener);
+        this.eventListeners.push({
+            element: this.elements.bankAccountsContainer,
+            type: 'click',
+            listener: accountActionListener
+        });
+    }
+
+    if (this.elements.investmentsContainer) {
+        this.elements.investmentsContainer.addEventListener('click', accountActionListener);
+        this.eventListeners.push({
+            element: this.elements.investmentsContainer,
+            type: 'click',
+            listener: accountActionListener
+        });
+    }
+}
+
+ static depositToAccount(accountId, amount, description = 'Deposit', source = 'cash') {
+    try {
+        // Validate amount
+        if (isNaN(amount)) {
+            alert('Please enter a valid amount');
+            return false;
+        }
+        
+        amount = parseFloat(amount);
+        if (amount <= 0) return false;
+        
+        const targetAccount = this.gameState.accounts.find(acc => acc.id === accountId);
+        if (!targetAccount) {
+            alert('Target account not found');
+            return false;
+        }
+        
+        if (source === 'cash') {
+            // Handle cash deposit
+            const currentCash = typeof MainManager?.getMoney === 'function' 
+                ? MainManager.getMoney() 
+                : 0;
+            
+            if (currentCash < amount) {
+                alert(`You don't have enough money for this deposit. You only have $${currentCash.toLocaleString()} available.`);
                 return false;
             }
             
-            amount = parseFloat(amount);
-            if (amount <= 0) return false;
-            
-            const account = this.gameState.accounts.find(acc => acc.id === accountId);
-            if (!account) {
-                alert('Target account not found');
-                return false;
-            }
-            
-            if (source === 'cash') {
-                const currentCash = typeof MainManager?.getMoney === 'function' 
-                    ? MainManager.getMoney() 
-                    : 0;
-                
-                if (currentCash < amount) {
-                    alert(`You don't have enough money for this deposit. You only have $${currentCash.toLocaleString()} available.`);
-                    return false;
-                }
-                
-                if (typeof MainManager !== 'undefined' && MainManager.addMoney) {
-                    MainManager.addMoney(-amount);
-                    account.balance += amount;
-                    this.addTransaction('deposit', description, amount, 'deposit', accountId);
-                    EventManager.addToEventLog(`Deposited $${amount.toLocaleString()} to ${account.name}`, 'success');
-                    this.saveGameState();
-                    this.renderAll();
-                    return true;
-                }
-            } else {
-                const sourceAccount = this.gameState.accounts.find(acc => acc.id === source);
-                if (!sourceAccount) {
-                    alert('Source account not found');
-                    return false;
-                }
-                
-                if (sourceAccount.balance < amount) {
-                    alert(`Insufficient funds in source account. Available balance: $${sourceAccount.balance.toLocaleString()}`);
-                    return false;
-                }
-                
-                sourceAccount.balance -= amount;
-                account.balance += amount;
-                
-                this.addTransaction('transfer', `Transfer to ${account.name}`, -amount, 'account_transfer', sourceAccount.id);
+            if (typeof MainManager !== 'undefined' && MainManager.addMoney) {
+                MainManager.addMoney(-amount);
+                targetAccount.balance += amount;
                 this.addTransaction('deposit', description, amount, 'deposit', accountId);
-                
-                EventManager.addToEventLog(`Transferred $${amount.toLocaleString()} from ${sourceAccount.name} to ${account.name}`, 'success');
+                EventManager.addToEventLog(`Deposited $${amount.toLocaleString()} to ${targetAccount.name}`, 'success');
                 this.saveGameState();
                 this.renderAll();
                 return true;
             }
-            
-            return false;
-        } catch (error) {
-            console.error('Error in depositToAccount:', error);
-            EventManager.addToEventLog('Error processing deposit', 'danger');
-            return false;
-        }
-    }
-    
-    static withdrawFromAccount(accountId, amount, description = 'Withdrawal') {
-        const account = this.gameState.accounts.find(acc => acc.id === accountId);
-        if (!account) {
-            console.error('Account not found');
-            return false;
-        }
-        
-        if (account.balance < amount) {
-            alert(`Insufficient funds in this account. Available balance: $${account.balance.toLocaleString()}`);
-            return false;
-        }
-        
-        // Check minimum balance requirements
-        const minBalance = this.accountTypes[account.type].minBalance;
-        if ((account.balance - amount) < minBalance) {
-            alert(`This account requires a minimum balance of $${minBalance.toLocaleString()}`);
-            return false;
-        }
-        
-        // For savings accounts, check withdrawal limit
-        if (account.type === 'savings') {
-            const month = new Date().toISOString().slice(0, 7);
-            const withdrawalsThisMonth = this.gameState.accountWithdrawals[account.id]?.[month] || 0;
-            const withdrawalLimit = this.accountTypes.savings.withdrawalLimit;
-            
-            if (withdrawalsThisMonth >= withdrawalLimit) {
-                alert(`You've reached your monthly withdrawal limit (${withdrawalLimit}) for this savings account.`);
+        } else {
+            // Handle transfer from another account
+            const sourceAccount = this.gameState.accounts.find(acc => acc.id === source);
+            if (!sourceAccount) {
+                alert('Source account not found');
                 return false;
             }
+            
+            if (sourceAccount.balance < amount) {
+                alert(`Insufficient funds in source account. Available balance: $${sourceAccount.balance.toLocaleString()}`);
+                return false;
+            }
+            
+            if (!this.accountTypes[sourceAccount.type].canWithdraw) {
+                alert(`Cannot transfer from ${sourceAccount.name} - this account type doesn't allow withdrawals`);
+                return false;
+            }
+            
+            const minBalance = this.accountTypes[sourceAccount.type].minBalance;
+            if ((sourceAccount.balance - amount) < minBalance) {
+                const maxTransfer = sourceAccount.balance - minBalance;
+                alert(`Cannot transfer $${amount.toLocaleString()}. Maximum you can transfer is $${maxTransfer.toLocaleString()} to maintain minimum balance of $${minBalance.toLocaleString()}`);
+                return false;
+            }
+            
+            if (sourceAccount.type === 'savings') {
+                const month = new Date().toISOString().slice(0, 7);
+                const withdrawalsThisMonth = this.gameState.accountWithdrawals[sourceAccount.id]?.[month] || 0;
+                const withdrawalLimit = this.accountTypes.savings.withdrawalLimit;
+                
+                if (withdrawalsThisMonth >= withdrawalLimit) {
+                    alert(`You've reached your monthly withdrawal limit (${withdrawalLimit}) for this savings account.`);
+                    return false;
+                }
+                
+                this.gameState.accountWithdrawals[sourceAccount.id] = this.gameState.accountWithdrawals[sourceAccount.id] || {};
+                this.gameState.accountWithdrawals[sourceAccount.id][month] = (this.gameState.accountWithdrawals[sourceAccount.id][month] || 0) + 1;
+            }
+            
+            sourceAccount.balance -= amount;
+            targetAccount.balance += amount;
+            
+            this.addTransaction(
+                'transfer', 
+                `Transfer to ${targetAccount.name}`, 
+                amount, 
+                'account_transfer', 
+                sourceAccount.id
+            );
+            this.addTransaction(
+                'deposit', 
+                description, 
+                amount, 
+                'deposit', 
+                targetAccount.id
+            );
+            
+            EventManager.addToEventLog(
+                `Transferred $${amount.toLocaleString()} from ${sourceAccount.name} to ${targetAccount.name}`, 
+                'success'
+            );
+            this.saveGameState();
+            this.renderAll();
+            return true;
         }
         
-        account.balance -= amount;
-        
-        if (typeof MainManager !== 'undefined' && MainManager.addMoney) {
-            MainManager.addMoney(amount);
-        }
-        
-        this.addTransaction('withdrawal', description, -amount, 'withdrawal', accountId);
-        
-        EventManager.addToEventLog(`Withdrew $${amount.toLocaleString()} from ${account.name}`, 'success');
-        return true;
+        return false;
+    } catch (error) {
+        console.error('Error in depositToAccount:', error);
+        EventManager.addToEventLog('Error processing deposit', 'danger');
+        return false;
     }
+}
+    
+    static withdrawFromAccount(accountId, amount, description = 'Withdrawal') {
+    const account = this.gameState.accounts.find(acc => acc.id === accountId);
+    if (!account) {
+        alert('Account not found');
+        return false;
+    }
+    
+    // Validate amount
+    if (isNaN(amount) || amount <= 0) {
+        alert('Please enter a valid amount greater than 0');
+        return false;
+    }
+    
+    amount = parseFloat(amount);
+    
+    if (account.balance < amount) {
+        alert(`Insufficient funds in this account. Available balance: $${account.balance.toLocaleString()}`);
+        return false;
+    }
+    
+    // Check minimum balance requirements
+    const minBalance = this.accountTypes[account.type].minBalance;
+    if ((account.balance - amount) < minBalance) {
+        alert(`This account requires a minimum balance of $${minBalance.toLocaleString()}`);
+        return false;
+    }
+    
+    // For savings accounts, check withdrawal limit
+    if (account.type === 'savings') {
+        const month = new Date().toISOString().slice(0, 7);
+        const withdrawalsThisMonth = this.gameState.accountWithdrawals[account.id]?.[month] || 0;
+        const withdrawalLimit = this.accountTypes.savings.withdrawalLimit;
+        
+        if (withdrawalsThisMonth >= withdrawalLimit) {
+            alert(`You've reached your monthly withdrawal limit (${withdrawalLimit}) for this savings account.`);
+            return false;
+        }
+        
+        // Track the withdrawal
+        this.gameState.accountWithdrawals[account.id] = this.gameState.accountWithdrawals[account.id] || {};
+        this.gameState.accountWithdrawals[account.id][month] = (this.gameState.accountWithdrawals[account.id][month] || 0) + 1;
+    }
+    
+    // Perform the withdrawal
+    account.balance -= amount;
+    
+    if (typeof MainManager !== 'undefined' && MainManager.addMoney) {
+        MainManager.addMoney(amount);
+    }
+    
+    this.addTransaction('withdrawal', description, amount, 'withdrawal', accountId);
+    
+    EventManager.addToEventLog(`Withdrew $${amount.toLocaleString()} from ${account.name}`, 'success');
+    this.saveGameState();
+    this.renderAll();
+    return true;
+}
     
     // ===================================================================
     // TIME ADVANCEMENT
     // ===================================================================
     
-    static handleTimeAdvanced(timeState) {
-        try {
-            if (!this.gameState) {
-                this.loadGameState();
-                if (!this.gameState) {
-                    this.gameState = this.getDefaultGameState();
-                }
-            }
-            
-            // Process monthly events for each month advanced
-            for (let i = 0; i < timeState.monthsAdvanced; i++) {
-                this.processMonthlyEvents();
-                
-                // Process quarterly events every 3 months
-                if ((timeState.currentMonth + i) % 3 === 0) {
-                    this.processQuarterlyEvents();
-                }
-            }
-            
-            this.saveGameState();
-            this.renderAll();
-        } catch (error) {
-            console.error('Error handling time advancement:', error);
-            EventManager.addToEventLog('Error processing financial updates', 'danger');
+static handleTimeAdvanced(timeState) {
+    if (!this.gameState.currentJob) return; // No job = no salary
+
+    // Update job duration
+    this.gameState.currentJob.monthsWorked += timeState.monthsAdvanced;
+
+    // Process salary via FinancesManager (if available)
+    if (typeof FinancesManager !== 'undefined') {
+        FinancesManager.processSalary(timeState.monthsAdvanced);
+    } else {
+        console.warn("FinancesManager not found - salary not processed");
+    }
+
+    // Update performance, experience, etc.
+    this.updatePerformance(timeState.monthsAdvanced);
+    this.gainExperience(timeState.monthsAdvanced);
+    this.gainSkills(timeState.monthsAdvanced);
+    this.checkForPromotion();
+
+    // Save changes
+    this.saveGameState();
+}
+    
+static processMonthlyEvents() {
+    // Only process salary if employed
+    if (typeof CareerManager !== 'undefined' && CareerManager.gameState?.currentJob) {
+        const monthlySalary = CareerManager.gameState.currentJob.salary;
+        const taxRate = this.calculateTaxRate(monthlySalary);
+        const taxAmount = monthlySalary * taxRate;
+        const netSalary = monthlySalary - taxAmount;
+        
+        // Deposit to checking account
+        const checkingAccounts = this.gameState.accounts.filter(acc => acc.type === 'checking');
+        const accountId = checkingAccounts.length > 0 
+            ? checkingAccounts[0].id 
+            : this.createDefaultCheckingAccount();
+        
+        const account = this.gameState.accounts.find(acc => acc.id === accountId);
+        if (account) {
+            account.balance += netSalary;
         }
+        
+        this.addTransaction(
+            'income', 
+            `Salary from ${CareerManager.gameState.currentJob.title}`, 
+            netSalary, 
+            'salary',
+            accountId
+        );
     }
     
-    static processMonthlyEvents() {
-        // Process salary payment
-        if (typeof CareerManager !== 'undefined' && CareerManager.gameState?.currentJob) {
-            const monthlySalary = CareerManager.gameState.currentJob.salary;
-            const taxRate = this.calculateTaxRate(monthlySalary);
-            const taxAmount = monthlySalary * taxRate;
-            const netSalary = monthlySalary - taxAmount;
-            
-            const checkingAccounts = this.gameState.accounts.filter(acc => acc.type === 'checking');
-            const accountId = checkingAccounts.length > 0 
-                ? checkingAccounts[0].id 
-                : this.createDefaultCheckingAccount();
-            
-            this.addTransaction(
-                'income', 
-                `Salary from ${CareerManager.gameState.currentJob.title}`, 
-                netSalary, 
-                'salary',
-                accountId
-            );
-            
+    // Process monthly expenses (living costs still apply)
+    const monthlyExpenses = this.calculateMonthlyExpenses();
+    if (monthlyExpenses > 0) {
+        const checkingAccounts = this.gameState.accounts.filter(acc => acc.type === 'checking');
+        if (checkingAccounts.length > 0) {
+            checkingAccounts[0].balance -= monthlyExpenses;
             this.addTransaction(
                 'expense',
-                `Income tax withholding`,
-                taxAmount,
-                'taxes',
-                accountId
-            );
-        }
-        
-        // Process monthly expenses
-        const monthlyExpenses = this.calculateMonthlyExpenses();
-        if (monthlyExpenses > 0) {
-            const checkingAccounts = this.gameState.accounts.filter(acc => acc.type === 'checking');
-            const accountId = checkingAccounts.length > 0 
-                ? checkingAccounts[0].id 
-                : this.createDefaultCheckingAccount();
-            
-            this.addTransaction(
-                'expense', 
-                'Monthly living expenses', 
-                monthlyExpenses, 
+                'Monthly living expenses',
+                monthlyExpenses,
                 'living_expenses',
-                accountId
+                checkingAccounts[0].id
             );
         }
-        
-        // Process account interest
-        this.gameState.accounts.forEach(account => {
-            if (account.balance > 0) {
-                let interestRate = this.accountTypes[account.type].interestRate;
-                
-                // Add volatility to investments
-                if (account.type === 'investment') {
-                    const marketFluctuation = (Math.random() * 0.1) - 0.05;
-                    interestRate += marketFluctuation;
-                    interestRate = Math.max(interestRate, -0.03); // Cap losses at 3%
-                }
-                
-                const interest = account.balance * interestRate;
-                account.balance += interest;
-                
-                if (interest !== 0) {
-                    this.addTransaction(
-                        interest > 0 ? 'income' : 'expense', 
-                        `${interest > 0 ? 'Interest' : 'Loss'} on ${account.name}`, 
-                        Math.abs(interest), 
-                        account.type === 'investment' ? 'investment_return' : 'interest', 
-                        account.id
-                    );
-                }
-            }
-            
-            // Charge monthly account fees
-            const fee = this.accountTypes[account.type].monthlyFee || 0;
-            if (fee > 0) {
-                account.balance -= fee;
-                this.addTransaction('expense', `Monthly fee - ${account.name}`, fee, 'account_fee', account.id);
-            }
-        });
-        
-        // Reset monthly withdrawal counters for savings accounts
-        const currentMonth = new Date().toISOString().slice(0, 7);
-        Object.keys(this.gameState.accountWithdrawals).forEach(accountId => {
-            this.gameState.accountWithdrawals[accountId][currentMonth] = 0;
-        });
     }
+}
     
     static processQuarterlyEvents() {
         try {
@@ -863,6 +1081,58 @@ class FinancesManager {
         this.saveGameState();
         return newAccount.id;
     }
+
+    static _updateFinancialDisplays() {
+    const { financialSummaryContainer } = this.state.elements;
+    if (!financialSummaryContainer || typeof FinancesManager === 'undefined') return;
+    
+    this._withErrorHandling(() => {
+        if (!FinancesManager.gameState) {
+            FinancesManager.loadGameState?.();
+        }
+        
+        const financialState = FinancesManager.getFinancialState?.() || {
+            totalBalance: 0,
+            monthlyIncome: 0,
+            monthlyExpenses: 0,
+            netWorth: 0
+        };
+        
+        // Use FinancesManager's method to generate the HTML
+        financialSummaryContainer.innerHTML = FinancesManager.generateFinancialSummaryHTML?.(financialState) || 
+            this._generateFinancialSummaryHTML(financialState);
+    }, 'financial display update');
+}
+
+
+    generateFinancialSummaryHTML() {
+        // Calculate financial metrics
+        const monthlyCashFlow = this.income - this.expenses;
+        const savingsRate = this.income > 0 ? (monthlyCashFlow / this.income * 100) : 0;
+        const debtToIncome = this.income > 0 ? (this.debt / this.income * 100) : 0;
+        
+        // Format values for display
+        const formattedCashFlow = this.formatCurrency(monthlyCashFlow);
+        const formattedSavingsRate = savingsRate.toFixed(1) + '%';
+        const formattedDebtRatio = debtToIncome.toFixed(1) + '%';
+        
+        // Generate HTML for the financial summary section
+        return `
+            <p class="mb-1"><strong>Monthly Cash Flow:</strong> <span id="cashFlowDisplay">${formattedCashFlow}</span></p>
+            <p class="mb-1"><strong>Savings Rate:</strong> <span id="savingsRateDisplay">${formattedSavingsRate}</span></p>
+            <p class="mb-1"><strong>Debt-to-Income:</strong> <span id="debtRatioDisplay">${formattedDebtRatio}</span></p>
+        `;
+    }
+
+    // Helper method to format currency
+    formatCurrency(amount) {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2
+        }).format(amount);
+    }
+
     
     // ===================================================================
     // RENDERING
@@ -1008,30 +1278,37 @@ class FinancesManager {
             `).join('');
     }
     
-    static updateFinancialStats() {
-        if (!this.elements.moneyDisplay) return;
-        
-        const totalBalance = this.calculateTotalBalance();
-        const monthlyIncome = this.calculateMonthlyIncome();
-        const monthlyExpenses = this.calculateMonthlyExpenses();
-        const netWorth = this.calculateNetWorth();
-        const cashFlow = monthlyIncome - monthlyExpenses;
-        const savingsRate = monthlyIncome > 0 ? (cashFlow / monthlyIncome) * 100 : 0;
-        
-        if (this.elements.incomeDisplay) {
-            const baseSalary = CareerManager.gameState?.currentJob?.salary || 0;
-            this.elements.incomeDisplay.innerHTML = `
-                $${Math.round(monthlyIncome).toLocaleString()}/month<br>
-                <small class="text-muted">(Base salary: $${baseSalary.toLocaleString()}/month)</small>
-            `;
-        }
-        
-        if (this.elements.expensesDisplay) this.elements.expensesDisplay.textContent = `$${Math.round(monthlyExpenses).toLocaleString()}/month`;
-        if (this.elements.netWorthDisplay) this.elements.netWorthDisplay.textContent = `$${Math.round(netWorth).toLocaleString()}`;
-        if (this.elements.cashFlowDisplay) this.elements.cashFlowDisplay.textContent = `$${Math.round(cashFlow).toLocaleString()}`;
-        if (this.elements.savingsRateDisplay) this.elements.savingsRateDisplay.textContent = `${Math.round(savingsRate)}%`;
-        if (this.elements.debtRatioDisplay) this.elements.debtRatioDisplay.textContent = '0%';
+  static updateFinancialStats() {
+    const totalBalance = this.calculateTotalBalance();
+    const monthlyIncome = this.calculateMonthlyIncome();
+    const monthlyExpenses = this.calculateMonthlyExpenses();
+    const netWorth = this.calculateNetWorth();
+    const cashFlow = monthlyIncome - monthlyExpenses;
+    const savingsRate = monthlyIncome > 0 ? (cashFlow / monthlyIncome) * 100 : 0;
+    
+    // Safely update all possible displays
+    const updateDisplay = (id, content) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = content;
+    };
+    
+    // Update all financial displays
+    updateDisplay('moneyDisplay', `$${Math.round(totalBalance).toLocaleString()}`);
+    updateDisplay('incomeDisplay', `$${Math.round(monthlyIncome).toLocaleString()}/month`);
+    updateDisplay('expensesDisplay', `$${Math.round(monthlyExpenses).toLocaleString()}/month`);
+    updateDisplay('netWorthDisplay', `$${Math.round(netWorth).toLocaleString()}`);
+    updateDisplay('cashFlowDisplay', `$${Math.round(cashFlow).toLocaleString()}`);
+    updateDisplay('savingsRateDisplay', `${Math.round(savingsRate)}%`);
+    updateDisplay('debtRatioDisplay', '0%');
+    
+    // Special case for income display with salary info
+    const incomeEl = document.getElementById('incomeDisplay');
+    if (incomeEl && typeof CareerManager !== 'undefined' && CareerManager.gameState?.currentJob) {
+        const baseSalary = CareerManager.gameState.currentJob.salary;
+        incomeEl.innerHTML = `$${Math.round(monthlyIncome).toLocaleString()}/month<br>
+            <small class="text-muted">(Base salary: $${baseSalary.toLocaleString()}/month)</small>`;
     }
+}
     
     static updateChart() {
         // Chart implementation would go here
@@ -1061,37 +1338,47 @@ class FinancesManager {
     // PUBLIC API
     // ===================================================================
     
-    static getFinancialState() {
-        return {
-            totalBalance: this.calculateTotalBalance(),
-            monthlyIncome: this.calculateMonthlyIncome(),
-            monthlyExpenses: this.calculateMonthlyExpenses(),
-            netWorth: this.calculateNetWorth(),
-            accounts: [...this.gameState.accounts],
-            assets: [...this.gameState.assets]
-        };
+  static getFinancialState() {
+    // Ensure we have a game state
+    if (!this.gameState) {
+        this.loadGameState();
     }
     
+    return {
+        totalBalance: this.calculateTotalBalance(),
+        monthlyIncome: this.calculateMonthlyIncome(),
+        monthlyExpenses: this.calculateMonthlyExpenses(),
+        netWorth: this.calculateNetWorth(),
+        accounts: [...(this.gameState?.accounts || [])],
+        assets: [...(this.gameState?.assets || [])]
+    };
+}
+    
     static makePurchase(amount, description) {
-        const totalBalance = this.calculateTotalBalance();
-        
-        if (totalBalance >= amount) {
-            const checkingAccounts = this.gameState.accounts.filter(acc => acc.type === 'checking');
-            
-            if (checkingAccounts.length > 0) {
-                checkingAccounts[0].balance -= amount;
-            } else {
-                this.gameState.accounts[0].balance -= amount;
-            }
-            
-            this.addTransaction('expense', description, amount, 'purchase');
-            this.saveGameState();
-            this.renderAll();
-            return true;
-        }
-        
-        return false;
-    }
+  const totalBalance = this.calculateTotalBalance();
+  
+  if (totalBalance < amount) {
+    return false; // Not enough funds
+  }
+
+  // Deduct from the primary checking account
+  const checkingAccount = this.gameState.accounts.find(acc => acc.type === 'checking');
+  if (checkingAccount) {
+    checkingAccount.balance -= amount;
+  } else {
+    return false; // No account to deduct from
+  }
+
+  // Record transaction
+  this.addTransaction('expense', description, amount, 'property_purchase');
+  
+  // Notify other systems
+  window.dispatchEvent(new CustomEvent('moneyChanged', { 
+    detail: { amount: -amount } 
+  }));
+
+  return true;
+}
     
     static addMoney(amount, description = 'Income', category = 'misc_income') {
         const checkingAccounts = this.gameState.accounts.filter(acc => acc.type === 'checking');
@@ -1145,6 +1432,8 @@ class FinancesManager {
         return true;
     }
 }
+
+
 
 // Initialize when DOM is loaded
 if (typeof document !== 'undefined') {

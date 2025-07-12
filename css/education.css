@@ -1,450 +1,324 @@
-/* ==================== */
-/* THEME VARIABLES */
-/* ==================== */
-:root {
-    /* Light Theme Defaults */
-    --primary-color: #3498db;
-    --secondary-color: #2ecc71;
-    --danger-color: #e74c3c;
-    --warning-color: #f39c12;
-    --dark-color: #2c3e50;
-    --light-color: #ecf0f1;
-    
-    --bg-color: #f8f9fa;
-    --text-color: #333;
-    --card-bg: #ffffff;
-    --card-border: rgba(0, 0, 0, 0.1);
-    --progress-bg: #f0f0f0;
-    --disabled-opacity: 0.6;
-    
-    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --transition: all 0.3s ease;
-}
-
-[data-theme="dark"] {
-    --primary-color: #2980b9;
-    --secondary-color: #27ae60;
-    --danger-color: #c0392b;
-    --warning-color: #d35400;
-    --dark-color: #1a252f;
-    --light-color: #bdc3c7;
-    
-    --bg-color: #121212;
-    --text-color: #e0e0e0;
-    --card-bg: #1e1e1e;
-    --card-border: rgba(255, 255, 255, 0.1);
-    --progress-bg: #2d2d2d;
-    --disabled-opacity: 0.4;
-    
-    --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-}
+/* career.css - Career Module Styles */
+/* Uses variables from theme.css for colors */
 
 /* ==================== */
 /* BASE STYLES */
 /* ==================== */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    line-height: 1.6;
-    transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
 }
 
 /* ==================== */
 /* NAVIGATION */
 /* ==================== */
 .navbar {
-    background-color: var(--dark-color);
-    box-shadow: var(--shadow);
-    transition: background-color 0.3s ease;
+  background-color: rgb(var(--color-navbar)) !important;
+  box-shadow: var(--shadow-md);
 }
 
 .navbar-brand {
-    font-weight: 700;
-    font-size: 1.2rem;
-    color: var(--light-color);
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: rgb(var(--color-navbar-text)) !important;
 }
 
 .navbar-brand i {
-    font-size: 1.4rem;
+  font-size: 1.4rem;
 }
 
 .nav-link {
-    transition: var(--transition);
-    color: rgba(255, 255, 255, 0.8) !important;
+  transition: all var(--transition-normal);
+  color: rgba(255, 255, 255, 0.8) !important;
 }
 
 .nav-link:hover, .nav-link.active {
-    color: white !important;
+  color: white !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* ==================== */
 /* CARD STYLES */
 /* ==================== */
 .card {
-    border: none;
-    border-radius: 10px;
-    box-shadow: var(--shadow);
-    transition: var(--transition);
-    margin-bottom: 20px;
-    background-color: var(--card-bg);
-    color: var(--text-color);
-    border: 1px solid var(--card-border);
+  border: none;
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+  margin-bottom: 20px;
+  background-color: rgb(var(--color-card));
+  color: rgb(var(--color-text));
+  border: 1px solid rgb(var(--color-card-border));
 }
 
 .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
 }
 
 .card-header {
-    background-color: var(--primary-color);
-    color: white;
-    border-radius: 10px 10px 0 0 !important;
-    padding: 15px 20px;
-    font-weight: 600;
-    border-bottom: 1px solid var(--card-border);
+  background-color: rgb(var(--color-card-header)) !important;
+  color: rgb(var(--color-text-inverse)) !important;
+  border-radius: 10px 10px 0 0 !important;
+  padding: 15px 20px;
+  font-weight: 600;
+  border-bottom: 1px solid rgb(var(--color-card-border));
 }
 
 /* ==================== */
-/* EDUCATION PROGRAM CARDS */
+/* JOB CARDS */
 /* ==================== */
-.education-programs-container {
-    padding: 15px;
+.job-listings-container {
+  padding: 15px;
 }
 
-.education-program-card {
-    background: var(--card-bg);
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: var(--shadow);
-    transition: var(--transition);
-    border-left: 4px solid var(--primary-color);
-    border: 1px solid var(--card-border);
+.job-card {
+  background: rgb(var(--color-card));
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+  border-left: 4px solid rgb(var(--color-primary));
+  border: 1px solid rgb(var(--color-card-border));
 }
 
-.education-program-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+.job-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
 }
 
-.program-card-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
+.job-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+  color: rgb(var(--color-text));
 }
 
-.program-card-header i {
-    font-size: 1.5rem;
-    color: var(--primary-color);
-    margin-right: 10px;
+.job-company {
+  color: rgb(var(--color-text-secondary));
+  opacity: 0.9;
+  margin-bottom: 15px;
 }
 
-.program-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin: 0;
-    color: var(--text-color);
+.job-salary {
+  color: rgb(var(--color-secondary));
+  font-weight: 600;
 }
 
-.program-description {
-    color: var(--text-color);
-    opacity: 0.9;
-    margin-bottom: 15px;
+.job-level {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 0.25rem;
+  margin-top: 0.5rem;
 }
 
-.program-details {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 15px;
+.job-level.entry-level {
+  background-color: rgba(var(--color-primary), 0.15);
+  color: rgb(var(--color-primary));
 }
 
-.program-action-btn {
-    width: 100%;
-    padding: 10px;
-    font-weight: 600;
-    transition: var(--transition);
-    border: none;
-    background-color: var(--primary-color);
-    color: white;
+.job-level.professional {
+  background-color: rgba(var(--color-secondary), 0.15);
+  color: rgb(var(--color-secondary));
 }
 
-.program-action-btn:not(:disabled):hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    background-color: var(--primary-color);
-    opacity: 0.9;
+.job-level.management {
+  background-color: rgba(var(--color-warning), 0.15);
+  color: rgb(var(--color-warning));
 }
 
-.program-action-btn:disabled {
-    opacity: var(--disabled-opacity);
-    cursor: not-allowed;
-    background-color: var(--dark-color);
-}
-
-/* ==================== */
-/* CURRENT PROGRESS */
-/* ==================== */
-.current-programs {
-    padding: 10px;
-}
-
-.current-program-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--card-border);
-}
-
-.current-program-name {
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: var(--text-color);
-}
-
-.current-program-progress {
-    height: 10px;
-    background-color: var(--progress-bg);
-    border-radius: 5px;
-    overflow: hidden;
-    width: 200px;
-}
-
-.current-program-progress-bar {
-    height: 100%;
-    background-color: var(--secondary-color);
-    transition: width 0.5s ease;
-}
-
-/* ==================== */
-/* SKILLS PROGRESS */
-/* ==================== */
-.skills-progress {
-    padding: 10px;
-}
-
-.skill-item {
-    margin-bottom: 15px;
-}
-
-.skill-name {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 5px;
-    font-weight: 600;
-    color: var(--text-color);
-}
-
-.skill-bar {
-    height: 8px;
-    background-color: var(--progress-bg);
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.skill-level {
-    height: 100%;
-    background-color: var(--primary-color);
-    transition: width 0.5s ease;
-}
-
-.skill-item small {
-    display: block;
-    text-align: right;
-    color: var(--text-color);
-    opacity: 0.7;
-    font-size: 0.8rem;
+.job-level.executive {
+  background-color: rgba(var(--color-danger), 0.15);
+  color: rgb(var(--color-danger));
 }
 
 /* ==================== */
 /* STATS CARDS */
 /* ==================== */
 .character-stat-card {
-    background: var(--card-bg);
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-    box-shadow: var(--shadow);
-    height: 100%;
-    transition: var(--transition);
-    border: 1px solid var(--card-border);
+  background: rgb(var(--color-bg-secondary));
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  height: 100%;
+  transition: all var(--transition-normal);
+  border: 1px solid rgb(var(--color-card-border));
 }
 
 .character-stat-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
 }
 
 .stat-icon {
-    font-size: 2rem;
-    color: var(--primary-color);
-    margin-bottom: 10px;
+  font-size: 2rem;
+  color: rgb(var(--color-primary));
+  margin-bottom: 10px;
 }
 
 .stat-label {
-    font-size: 1rem;
-    color: var(--text-color);
-    opacity: 0.8;
-    margin-bottom: 5px;
+  font-size: 1rem;
+  color: rgb(var(--color-text-secondary));
+  opacity: 0.8;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .stat-value {
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin: 0;
-    color: var(--text-color);
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0;
+  color: rgb(var(--color-text));
+}
+
+.age-display {
+  font-weight: 700;
+  color: rgb(var(--color-primary));
 }
 
 /* ==================== */
 /* MODAL STYLES */
 /* ==================== */
 .modal-content {
-    border-radius: 10px;
-    border: none;
-    background-color: var(--card-bg);
-    color: var(--text-color);
+  border-radius: 10px;
+  border: none;
+  background-color: rgb(var(--color-card));
+  color: rgb(var(--color-text));
 }
 
 .modal-header {
-    border-bottom: 1px solid var(--card-border);
+  border-bottom: 1px solid rgb(var(--color-border));
 }
 
 .modal-footer {
-    border-top: 1px solid var(--card-border);
+  border-top: 1px solid rgb(var(--color-border));
 }
 
-.program-detail-item {
-    margin-bottom: 15px;
+.job-detail-item {
+  margin-bottom: 15px;
 }
 
-.program-detail-item h6 {
-    font-weight: 600;
-    color: var(--primary-color);
-    margin-bottom: 5px;
+.job-detail-item h6 {
+  font-weight: 600;
+  color: rgb(var(--color-primary));
+  margin-bottom: 5px;
 }
 
-.skills-list, .prerequisites-list {
-    padding-left: 20px;
-    color: var(--text-color);
-}
-
-.skills-list li, .prerequisites-list li {
-    margin-bottom: 5px;
+.requirements-list, .skills-list {
+  padding-left: 20px;
+  color: rgb(var(--color-text));
 }
 
 /* ==================== */
 /* FILTER BUTTONS */
 /* ==================== */
 .filter-buttons {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .filter-btn {
-    border-radius: 20px;
-    padding: 5px 15px;
-    font-size: 0.9rem;
-    transition: var(--transition);
-    border: 1px solid var(--card-border);
-    background-color: var(--card-bg);
-    color: var(--text-color);
+  border-radius: 20px;
+  padding: 5px 15px;
+  font-size: 0.9rem;
+  transition: all var(--transition-normal);
+  border: 1px solid rgb(var(--color-border));
+  background-color: rgb(var(--color-card));
+  color: rgb(var(--color-text));
 }
 
 .filter-btn.active {
-    background-color: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
+  background-color: rgb(var(--color-primary));
+  color: rgb(var(--color-text-inverse));
+  border-color: rgb(var(--color-primary));
 }
 
 .filter-btn:not(.active):hover {
-    background-color: var(--progress-bg);
-}
-
-/* ==================== */
-/* TIME DISPLAY */
-/* ==================== */
-.time-display {
-    font-weight: 600;
-    color: var(--text-color);
-}
-
-.age-display {
-    font-weight: 700;
-    color: var(--primary-color);
+  background-color: rgb(var(--color-bg-tertiary));
 }
 
 /* ==================== */
 /* ALERT MESSAGES */
 /* ==================== */
 .alert {
-    transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .alert-info {
-    background-color: rgba(52, 152, 219, 0.2);
-    border-color: rgba(52, 152, 219, 0.3);
-    color: var(--text-color);
+  background-color: rgba(var(--color-info), 0.2);
+  border-color: rgba(var(--color-info), 0.3);
+  color: rgb(var(--color-text));
 }
 
 /* ==================== */
 /* RESPONSIVE ADJUSTMENTS */
 /* ==================== */
 @media (max-width: 768px) {
-    .education-program-card {
-        margin-bottom: 15px;
-    }
-    
-    .program-details {
-        flex-direction: column;
-        gap: 5px;
-    }
-    
-    .current-program-progress {
-        width: 150px;
-    }
+  .job-card {
+    margin-bottom: 15px;
+  }
+  
+  .stat-icon {
+    font-size: 1.5rem;
+  }
+  
+  .stat-value {
+    font-size: 1.1rem;
+  }
 }
 
 /* ==================== */
 /* UTILITY CLASSES */
 /* ==================== */
 .text-primary {
-    color: var(--primary-color) !important;
+  color: rgb(var(--color-primary)) !important;
 }
 
 .bg-primary {
-    background-color: var(--primary-color) !important;
+  background-color: rgb(var(--color-primary)) !important;
 }
 
 .bg-success {
-    background-color: var(--secondary-color) !important;
+  background-color: rgb(var(--color-success)) !important;
 }
 
 .bg-warning {
-    background-color: var(--warning-color) !important;
+  background-color: rgb(var(--color-warning)) !important;
 }
 
 .bg-danger {
-    background-color: var(--danger-color) !important;
+  background-color: rgb(var(--color-danger)) !important;
 }
 
 .mb-0 {
-    margin-bottom: 0 !important;
+  margin-bottom: 0 !important;
 }
 
 /* ==================== */
 /* THEME TRANSITION HANDLER */
 /* ==================== */
 .theme-transition * {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Add to education.css */
-#loadMoreProgramsBtn {
-    margin-bottom: 1rem;
+/* Current Job Details */
+.current-job-details {
+  padding: 10px;
 }
 
-.education-programs-container {
-    min-height: 300px;
+.job-history {
+  padding: 10px;
+}
+
+.money-display {
+  font-weight: bold;
+  font-size: 1.2em;
+  padding: 5px 10px;
+  background-color: rgb(var(--color-bg-secondary));
+  border-radius: 4px;
+  display: inline-block;
 }

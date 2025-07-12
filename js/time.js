@@ -1,239 +1,343 @@
-// time.js - Optimized Version
+/**
+ * TimeManager - Core time progression system
+ * @version 2.0
+ * @description Handles game time, age calculation, and quarterly events
+ */
 class TimeManager {
-    // Cached DOM elements
-    static timeDisplays = null;
-    static advanceTimeBtn = null;
-    static resetTimeBtn = null;
-    
-    // Event listener references for cleanup
-    static eventListeners = [];
-    
-    // Configuration
-    static debug = true;
-    static timeState = null;
+    // Configuration with defaults
+    static config = {
+        debug: true,
+        monthsPerAdvance: 3,
+        localStorageKey: 'lifeSimTimeState',
+        maxRetryAttempts: 3,
+        quarterStartMonths: [1, 4, 7, 10] // Months that start quarters
+    };
+
+    // Singleton state
+    static state = {
+        initialized: false,
+        timeState: null,
+        elements: {
+            timeDisplays: null,
+            ageDisplays: null
+        },
+        listeners: [],
+        eventListeners: [],
+        currentCharacterId: null
+    };
 
     /**
-     * Initializes the TimeManager system
-     * @throws {Error} If initialization fails
-     * @returns {void}
+     * Initialize TimeManager with a character ID
+     * @param {string} characterId - Character ID for state isolation
+     * @returns {Promise<boolean>} True if initialization succeeded
      */
-    static init() {
-        try {
-            this.log('Initializing TimeManager...');
-            
-            // Cache DOM elements
-            this.cacheDOMElements();
-            
-            // Load or initialize time state
-            this.timeState = this.loadTimeState();
-            
-            // Set up event listeners
-            this.setupEventListeners();
-            
-            this.log('TimeManager initialized with state:', this.timeState);
-        } catch (error) {
-            console.error('TimeManager initialization failed:', error);
-            throw error;
+    static async init(characterId = 'default') {
+        if (this.state.initialized) {
+            this.log('Already initialized');
+            return true;
         }
-    }
 
-    /**
-     * Cleans up event listeners and references
-     * @returns {void}
-     */
-    static cleanup() {
-        this.log('Cleaning up TimeManager...');
-        this.eventListeners.forEach(({ element, type, listener }) => {
-            element.removeEventListener(type, listener);
-        });
-        this.eventListeners = [];
-        
-        // Clear cached DOM references
-        this.timeDisplays = null;
-        this.advanceTimeBtn = null;
-        this.resetTimeBtn = null;
-    }
+        this.state.currentCharacterId = characterId;
+        let attempts = 0;
 
-    /**
-     * Caches frequently used DOM elements
-     * @returns {void}
-     */
-    static cacheDOMElements() {
-        this.timeDisplays = document.querySelectorAll('.time-display');
-        this.advanceTimeBtn = document.getElementById('advanceTimeBtn');
-        this.resetTimeBtn = document.getElementById('resetTimeBtn');
-    }
+        while (attempts < this.config.maxRetryAttempts) {
+            try {
+                attempts++;
+                this.log(`Initialization attempt ${attempts}`);
 
-    /**
-     * Sets up all event listeners
-     * @returns {void}
-     */
-    static setupEventListeners() {
-        if (this.advanceTimeBtn) {
-            const advanceHandler = () => this.advanceTime(3);
-            this.advanceTimeBtn.addEventListener('click', advanceHandler);
-            this.eventListeners.push({
-                element: this.advanceTimeBtn,
-                type: 'click',
-                listener: advanceHandler
-            });
-        }
-        
-        if (this.resetTimeBtn) {
-            const resetHandler = () => this.resetTime();
-            this.resetTimeBtn.addEventListener('click', resetHandler);
-            this.eventListeners.push({
-                element: this.resetTimeBtn,
-                type: 'click',
-                listener: resetHandler
-            });
-        }
-    }
+                this.state.timeState = await this._loadTimeState(characterId);
+                this._cacheElements();
+                this._setupEventListeners();
+                this.updateDisplays();
 
-    /**
-     * Loads time state from localStorage or returns default
-     * @returns {Object} Time state object
-     */
-    static loadTimeState() {
-        try {
-            const savedState = localStorage.getItem('lifeSimTimeState');
-            if (savedState) return JSON.parse(savedState);
-        } catch (e) {
-            this.log('Error loading time state:', e);
-            if (typeof EventManager !== 'undefined') {
-                EventManager.addToEventLog('Error loading time data', 'danger');
+                this.state.initialized = true;
+                this.log('Initialization successful');
+                return true;
+
+            } catch (error) {
+                console.error(`Initialization attempt ${attempts} failed:`, error);
+                if (attempts >= this.config.maxRetryAttempts) {
+                    this._handleInitError(error);
+                    return false;
+                }
+                await new Promise(resolve => setTimeout(resolve, 1000 * attempts));
             }
         }
-        return this.getDefaultTimeState();
+    }
+
+    // --------------------------
+    // Public API
+    // --------------------------
+
+    /**
+     * Advance time by configured months
+     * @returns {Promise<TimeState>} New time state
+     * @throws {Error} If not initialized
+     */
+   static async advanceTime() {
+  if (!this.state.initialized) throw new Error('TimeManager not initialized');
+  
+  const oldState = { ...this.state.timeState };
+  const newState = this._calculateNewTimeState(oldState);
+  
+  // Enforce 3-month advancement
+  if (newState.totalMonths - oldState.totalMonths !== 3) {
+    throw new Error('Time advancement must be exactly 3 months');
+  }
+
+  this.state.timeState = newState;
+  await this._saveTimeState();
+  this._notifyListeners(newState);
+  return newState;
+}
+
+
+
+    /**
+     * Update all time-related displays
+     */
+    static updateDisplays() {
+        if (!this.state.initialized) return;
+
+        const { timeState, elements } = this.state;
+        const monthNames = ["January", "February", "March", "April", "May", "June", 
+                          "July", "August", "September", "October", "November", "December"];
+
+        // Update time displays
+        if (elements.timeDisplays?.length) {
+            const timeText = `Year ${timeState.year}, Q${timeState.quarter} (${monthNames[timeState.month - 1]})`;
+            elements.timeDisplays.forEach(el => el.textContent = timeText);
+        }
+
+        // Update age displays
+        if (elements.ageDisplays?.length) {
+            const ageText = `Age ${timeState.age}`;
+            elements.ageDisplays.forEach(el => el.textContent = ageText);
+        }
     }
 
     /**
-     * Returns default time state
-     * @returns {Object} Default time state
+     * Register time advancement listener
+     * @param {function(TimeState)} callback - Function to call on time advancement
      */
-    static getDefaultTimeState() {
+    static registerTimeListener(callback) {
+        if (typeof callback === 'function') {
+            this.state.listeners.push(callback);
+        }
+    }
+
+    /**
+     * Get current time state
+     * @returns {TimeState} Current time state
+     */
+    static getTimeState() {
+        return {...this.state.timeState};
+    }
+
+    /**
+     * Clean up resources
+     */
+    static cleanup() {
+        this._removeEventListeners();
+        this.state = {
+            initialized: false,
+            timeState: null,
+            elements: {
+                timeDisplays: null,
+                ageDisplays: null
+            },
+            listeners: [],
+            eventListeners: [],
+            currentCharacterId: null
+        };
+        this.log('Cleanup complete');
+    }
+
+    // --------------------------
+    // Private Methods
+    // --------------------------
+
+    /**
+     * Calculate new time state after advancement
+     * @private
+     */
+    static _calculateNewTimeState(oldState) {
+        const months = this.config.monthsPerAdvance;
+        const totalMonths = oldState.totalMonths + months;
+        const month = (totalMonths % 12) || 12;
+        
+        return {
+            totalMonths,
+            month,
+            quarter: this._getQuarterForMonth(month),
+            year: 1 + Math.floor(totalMonths / 12),
+            age: 18 + Math.floor(totalMonths / 12),
+            isQuarterly: this.config.quarterStartMonths.includes(month)
+        };
+    }
+
+    /**
+     * Get quarter for a given month
+     * @private
+     */
+    static _getQuarterForMonth(month) {
+        return Math.ceil(month / 3);
+    }
+
+    /**
+     * Load time state from storage or create default
+     * @private
+     */
+    static async _loadTimeState(characterId) {
+        try {
+            const key = `${this.config.localStorageKey}_${characterId}`;
+            const savedState = localStorage.getItem(key);
+            
+            if (savedState) {
+                return JSON.parse(savedState);
+            }
+            return this._getDefaultTimeState();
+            
+        } catch (error) {
+            console.error('Error loading time state:', error);
+            return this._getDefaultTimeState();
+        }
+    }
+
+    /**
+     * Save current time state to storage
+     * @private
+     */
+    static async _saveTimeState() {
+        try {
+            const key = `${this.config.localStorageKey}_${this.state.currentCharacterId || 'default'}`;
+            localStorage.setItem(key, JSON.stringify(this.state.timeState));
+        } catch (error) {
+            console.error('Error saving time state:', error);
+        }
+    }
+
+    /**
+     * Get default time state
+     * @private
+     */
+    static _getDefaultTimeState() {
         return {
             totalMonths: 0,
             month: 1,
             quarter: 1,
             year: 1,
-            age: 18
+            age: 18,
+            isQuarterly: false
         };
     }
 
     /**
-     * Saves current time state to localStorage
-     * @returns {void}
+     * Cache frequently used DOM elements
+     * @private
      */
-    static saveTimeState() {
-        try {
-            localStorage.setItem('lifeSimTimeState', JSON.stringify(this.timeState));
-        } catch (e) {
-            this.log('Error saving time state:', e);
-            if (typeof EventManager !== 'undefined') {
-                EventManager.addToEventLog('Error saving time data', 'danger');
-            }
-        }
+    static _cacheElements() {
+        this.state.elements = {
+            timeDisplays: document.querySelectorAll('.time-display, [data-time-display]'),
+            ageDisplays: document.querySelectorAll('.age-display, [data-age-display]')
+        };
+        this.log('Cached DOM elements');
     }
 
     /**
-     * Calculates age based on total months
-     * @param {number} totalMonths - Total months elapsed
-     * @returns {number} Calculated age
+     * Setup event listeners
+     * @private
      */
-    static calculateAge(totalMonths) {
-        return 18 + Math.floor(totalMonths / 12);
-    }
-
-    /**
-     * Advances time by specified months
-     * @param {number} months - Number of months to advance
-     * @throws {Error} If months is invalid
-     * @returns {Object} Updated time state
-     */
-    static advanceTime(months) {
-        if (isNaN(months) || months <= 0) {
-            throw new Error('Invalid months value: must be a positive number');
-        }
-
-        const oldState = {...this.timeState};
+    static _setupEventListeners() {
+        this._removeEventListeners();
         
-        // Update time state
-        this.timeState.totalMonths += months;
-        this.timeState.year = 1 + Math.floor(this.timeState.totalMonths / 12);
-        this.timeState.month = (this.timeState.totalMonths % 12) || 12;
-        this.timeState.quarter = Math.ceil(this.timeState.month / 3);
-        this.timeState.age = this.calculateAge(this.timeState.totalMonths);
+        // Storage events for cross-tab sync
+         const storageHandler = (e) => {
+        if (e.key === `${this.config.localStorageKey}_${this.state.currentCharacterId}`) {
+            this._loadTimeState(this.state.currentCharacterId).then(newState => {
+                this.state.timeState = newState;
+                this.updateDisplays();
+                // Notify other systems in THIS tab
+                document.dispatchEvent(new CustomEvent('timeAdvanced', { detail: newState }));
+            });
+        }
+    };
+    window.addEventListener('storage', storageHandler);
+}
 
-        const isQuarterly = this.timeState.quarter !== oldState.quarter;
-        const isYearly = this.timeState.year !== oldState.year;
-        const isNewAge = this.timeState.age !== oldState.age;
-
-        this.saveTimeState();
-
-        // Dispatch event instead of directly updating displays
-        document.dispatchEvent(new CustomEvent('timeAdvanced', {
-            detail: {
-                ...this.timeState,
-                isQuarterly,
-                isYearly,
-                isNewAge,
-                monthsAdvanced: months
-            }
-        }));
-
-        return this.timeState;
+    /**
+     * Remove all event listeners
+     * @private
+     */
+    static _removeEventListeners() {
+        this.state.eventListeners.forEach(({ element, type, handler }) => {
+            element?.removeEventListener(type, handler);
+        });
+        this.state.eventListeners = [];
     }
 
     /**
-     * Resets all time data to default state
-     * @returns {void}
+     * Handle storage events
+     * @private
      */
-    static resetTime() {
-        if (confirm('Reset all time data? This cannot be undone.')) {
-            try {
-                localStorage.removeItem('lifeSimTimeState');
-                this.timeState = this.getDefaultTimeState();
-                this.saveTimeState();
-                
-                // Dispatch reset event
-                document.dispatchEvent(new CustomEvent('timeReset', {
-                    detail: { ...this.timeState }
-                }));
-                
-                if (typeof EventManager !== 'undefined') {
-                    EventManager.addToEventLog('Time data has been reset', 'warning');
-                }
-            } catch (e) {
-                this.log('Error resetting time:', e);
-                if (typeof EventManager !== 'undefined') {
-                    EventManager.addToEventLog('Failed to reset time data', 'danger');
-                }
+    static _handleStorageEvent(e) {
+        try {
+            const characterId = e.key.split('_').pop();
+            if (characterId === (this.state.currentCharacterId || 'default')) {
+                this.log('Detected time state change from another tab');
+                this._loadTimeState(characterId).then(state => {
+                    this.state.timeState = state;
+                    this.updateDisplays();
+                });
             }
+        } catch (error) {
+            console.error('Error handling storage event:', error);
         }
     }
 
     /**
-     * Logs messages when debug is enabled
-     * @param {...any} args - Arguments to log
-     * @returns {void}
+     * Notify all listeners of time change
+     * @private
+     */
+    static _notifyListeners(newState) {
+        // Notify registered callbacks
+        this.state.listeners.forEach(listener => {
+            try {
+                listener(newState);
+            } catch (error) {
+                console.error('Error in time listener:', error);
+            }
+        });
+        
+        // Dispatch global event
+        document.dispatchEvent(new CustomEvent('timeAdvanced', {
+            detail: newState
+        }));
+    }
+
+    /**
+     * Handle initialization error
+     * @private
+     */
+    static _handleInitError(error) {
+        console.error('TimeManager initialization failed:', error);
+        this.state.timeState = this._getDefaultTimeState();
+    }
+
+    /**
+     * Log debug messages
+     * @private
      */
     static log(...args) {
-        if (this.debug) {
+        if (this.config.debug) {
             console.log('[TimeManager]', ...args);
         }
     }
 }
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    TimeManager.init();
-});
-
-// Cleanup when page unloads
-window.addEventListener('beforeunload', () => {
-    TimeManager.cleanup();
-});
-
-// Make TimeManager globally available
-window.TimeManager = TimeManager;
+// Export for different environments
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = TimeManager;
+} else {
+    window.TimeManager = TimeManager;
+}

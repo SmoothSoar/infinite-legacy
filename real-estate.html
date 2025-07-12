@@ -3,12 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Estate - Life Simulator</title>
+    <title>Life Simulator - Real Estate</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="css/game.css">
+    <link rel="stylesheet" href="css/theme.css"> <!-- Add this line -->
+    <link rel="stylesheet" href="css/real-estate.css"> <!-- Add this line -->
+    <style>
+        .property-card {
+            transition: transform 0.2s;
+        }
+        .property-card:hover {
+            transform: translateY(-5px);
+        }
+        .market-trend-card {
+            height: 100%;
+        }
+        .property-image {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .progress-thin {
+            height: 6px;
+        }
+        #propertyChart {
+            height: 250px;
+        }
+    </style>
 </head>
-<body class="d-flex flex-column min-vh-100 theme-transition">
+<body class="d-flex flex-column min-vh-100">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="#">
@@ -57,89 +80,197 @@
                     </li>
                 </ul>
                 <div class="d-flex align-items-center">
-                    <button id="advanceTimeBtn" class="btn btn-primary me-2">
-                        <i class="bi bi-skip-forward-fill"></i>
-                        <span class="d-none d-sm-inline">Advance 3 Months</span>
-                    </button>
-                    <button id="themeToggle" class="btn btn-outline-light">
-                        <span class="theme-icon bi bi-moon"></span>
-                        <span class="d-none d-sm-inline">Theme</span>
-                    </button>
+                 <button id="advanceTimeButton" class="btn btn-primary me-2">
+    <i class="bi bi-skip-forward-fill"></i>
+    <span>Advance Time (3 Months)</span>
+</button>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown">
+                            <i class="bi bi-gear"></i>
+                            <span class="d-none d-sm-inline">Settings</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">Character</h6></li>
+                            <li><a class="dropdown-item" href="#" id="switchCharacterBtn"><i class="bi bi-person-lines-fill me-2"></i>Switch Character</a></li>
+                            <li><a class="dropdown-item" href="create-character.html"><i class="bi bi-person-plus me-2"></i>New Character</a></li>
+                            <li><a class="dropdown-item" href="#" id="deleteCharacterBtn"><i class="bi bi-person-x me-2"></i>Delete Character</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header">Game Settings</h6></li>
+                            <li><button class="dropdown-item" id="themeToggleDropdown"><i class="bi bi-palette me-2"></i>Toggle Theme</button></li>
+                            <li><button class="dropdown-item" id="toggleSoundBtn"><i class="bi bi-volume-up me-2"></i>Toggle Sound</button></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header">Data</h6></li>
+                            <li><button class="dropdown-item" id="resetCharacterBtn"><i class="bi bi-arrow-counterclockwise me-2"></i>Reset Character</button></li>
+                            <li><button class="dropdown-item" id="exportSaveBtn"><i class="bi bi-download me-2"></i>Export Save</button></li>
+                            <li><button class="dropdown-item" id="importSaveBtn"><i class="bi bi-upload me-2"></i>Import Save</button></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </nav>
 
     <main class="container my-4 flex-grow-1">
-        <div class="row">
-            <div class="col-md-3">
-                <div class="card mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h2 class="h5 mb-0">Property Types</h2>
-                    </div>
-                    <div class="list-group list-group-flush">
-                        <a href="#" class="list-group-item list-group-item-action active" data-type="all">
-                            <i class="bi bi-grid-fill me-2"></i>All Properties
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action" data-type="residential">
-                            <i class="bi bi-house-fill me-2"></i>Residential
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action" data-type="commercial">
-                            <i class="bi bi-shop me-2"></i>Commercial
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action" data-type="vacation">
-                            <i class="bi bi-umbrella-fill me-2"></i>Vacation
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action" data-type="land">
-                            <i class="bi bi-tree-fill me-2"></i>Land
-                        </a>
+      <!-- Character Header -->
+     <div class="text-center mb-4">
+    <div class="welcome-header p-4 rounded">
+        <div class="d-flex flex-column align-items-center">
+            <h1 id="characterName" class="display-5 mb-2 fw-bold">Player</h1>
+            <div class="d-flex align-items-center justify-content-center gap-3 mb-2">
+                <span class="time-display badge bg-primary text-white px-3 py-2 rounded-pill" id="timeDisplay">
+                    <i class="bi bi-calendar3 me-1"></i> Year 1, Q1 (January)
+                </span>
+                <span class="age-display badge bg-secondary text-white px-3 py-2 rounded-pill" id="characterAge">
+                    <i class="bi bi-person me-1"></i> Age 18
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-buildings fs-1 text-primary mb-2"></i>
+                        <h3 class="h5">Properties Owned</h3>
+                        <p id="propertiesCount" class="fs-3">0</p>
                     </div>
                 </div>
-                
-                <div class="card">
-                    <div class="card-header bg-success text-white">
-                        <h2 class="h5 mb-0">Your Properties</h2>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-graph-up fs-1 text-success mb-2"></i>
+                        <h3 class="h5">Total Equity</h3>
+                        <p id="equityValue" class="fs-3">$0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-cash-coin fs-1 text-warning mb-2"></i>
+                        <h3 class="h5">Rental Income</h3>
+                        <p id="rentalIncome" class="fs-3">$0/mo</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-percent fs-1 text-info mb-2"></i>
+                        <h3 class="h5">Appreciation</h3>
+                        <p id="appreciationValue" class="fs-3">0%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h2 class="h5 mb-0"><i class="bi bi-house me-2"></i>Your Properties</h2>
+                            <button id="buyPropertyBtn" class="btn btn-sm btn-light">
+                                <i class="bi bi-plus"></i> Buy Property
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
-                        <div id="ownedPropertiesList">
-                            <p class="text-muted">You don't own any properties yet.</p>
+                        <div id="ownedProperties" class="row g-3">
+                            <div class="col-12">
+                                <div class="alert alert-info mb-0">
+                                    You don't own any properties yet.
+                                </div>
+                            </div>
                         </div>
-                        <div class="mt-3">
-                            <h5 class="h6">Total Property Value:</h5>
-                            <p id="totalPropertiesValue" class="h4 text-success">$0</p>
-                        </div>
-                        <div class="mt-2">
-                            <h5 class="h6">Monthly Rental Income:</h5>
-                            <p id="monthlyRentalIncome" class="h5 text-info">$0</p>
-                        </div>
-                        <div class="mt-2">
-                            <h5 class="h6">Monthly Expenses:</h5>
-                            <p id="monthlyExpenses" class="h5 text-danger">$0</p>
-                        </div>
-                        <div class="mt-2">
-                            <h5 class="h6">Net Monthly Income:</h5>
-                            <p id="netMonthlyIncome" class="h4">$0</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="h5 mb-0"><i class="bi bi-graph-up me-2"></i>Market Trends</h2>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="propertyChart"></canvas>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center">
+                                    <span class="me-2">Residential:</span>
+                                    <span id="residentialTrend" class="badge me-2">stable</span>
+                                    <span id="residentialChange">+0.0%</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center">
+                                    <span class="me-2">Commercial:</span>
+                                    <span id="commercialTrend" class="badge me-2">stable</span>
+                                    <span id="commercialChange">+0.0%</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center">
+                                    <span class="me-2">Vacation:</span>
+                                    <span id="vacationTrend" class="badge me-2">stable</span>
+                                    <span id="vacationChange">+0.0%</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-9">
-                <div class="card">
+
+            <div class="col-lg-4">
+                <div class="card mb-4">
                     <div class="card-header bg-primary text-white">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h2 class="h5 mb-0">Available Properties</h2>
-                            <div class="input-group" style="width: 300px;">
-                                <input type="text" id="propertySearch" class="form-control" placeholder="Search properties...">
-                                <button class="btn btn-light" type="button">
-                                    <i class="bi bi-search"></i>
+                        <h2 class="h5 mb-0"><i class="bi bi-tools me-2"></i>Property Management</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="noPropertySelected" class="alert alert-info mb-0">
+                            Select a property to manage
+                        </div>
+                        <div id="propertyManagement" style="display: none;">
+                            <div class="mb-3">
+                                <h6>Maintenance</h6>
+                                <div class="progress progress-thin mb-2">
+                                    <div id="maintenanceStatus" class="progress-bar"></div>
+                                </div>
+                                <button id="repairPropertyBtn" class="btn btn-warning btn-sm w-100">
+                                    <i class="bi bi-tools"></i> Repair (2% of value)
                                 </button>
+                            </div>
+                            <div class="mb-3">
+                                <h6>Tenants</h6>
+                                <div id="tenantStatus" class="alert mb-2"></div>
+                                <div class="d-flex gap-2">
+                                    <button id="findTenantsBtn" class="btn btn-success btn-sm flex-grow-1">
+                                        <i class="bi bi-people"></i> Find
+                                    </button>
+                                    <button id="evictTenantsBtn" class="btn btn-danger btn-sm flex-grow-1" disabled>
+                                        <i class="bi bi-person-x"></i> Evict
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <h6>Upgrades</h6>
+                                <button id="upgradePropertyBtn" class="btn btn-info btn-sm w-100">
+                                    <i class="bi bi-house-gear"></i> Show Upgrades
+                                </button>
+                                <div id="upgradeOptionsContainer" class="mt-2"></div>
                             </div>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <div id="propertiesContainer" class="row row-cols-1 row-cols-md-2 g-4">
-                            <!-- Properties will be loaded here -->
+                </div>
+
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="h5 mb-0"><i class="bi bi-list-check me-2"></i>Recent Events</h2>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="realEstateEvents" class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+                            <div class="list-group-item">No events yet</div>
                         </div>
                     </div>
                 </div>
@@ -147,21 +278,62 @@
         </div>
     </main>
 
-    <!-- Property Details Modal -->
+    <!-- Property Purchase Modal -->
     <div class="modal fade" id="propertyModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="propertyModalTitle">Property Details</h5>
+                    <h5 class="modal-title" id="propertyModalTitle">Purchase Property</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" id="propertyModalBody">
-                    <!-- Property details will be loaded here -->
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <span id="propertyModalImage" class="display-4">🏠</span>
+                    </div>
+                    <h6 id="propertyModalAddress" class="mb-2"></h6>
+                    <p id="propertyModalDescription" class="text-muted mb-3"></p>
+                    
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <small class="text-muted">Type</small>
+                            <div id="propertyModalType" class="fw-bold"></div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Price</small>
+                            <div id="propertyModalPrice" class="fw-bold"></div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Size</small>
+                            <div id="propertyModalSize" class="fw-bold"></div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Rooms</small>
+                            <div id="propertyModalRooms" class="fw-bold"></div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Built</small>
+                            <div id="propertyModalYear" class="fw-bold"></div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Location</small>
+                            <div id="propertyModalLocation" class="fw-bold"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="propertyPurchaseMethod" class="form-label">Purchase Method</label>
+                        <select id="propertyPurchaseMethod" class="form-select">
+                            <option value="cash">Cash (100%)</option>
+                            <option value="mortgage">Mortgage (20% down)</option>
+                            <option value="investment">Investment (10% for 50% equity)</option>
+                        </select>
+                    </div>
+
+                    <div id="propertyModalFinanceInfo" class="alert alert-info mb-0"></div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" id="buyPropertyBtn" class="btn btn-primary">Buy Property</button>
-                    <button type="button" id="sellPropertyBtn" class="btn btn-danger d-none">Sell Property</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button id="confirmPurchaseBtn" type="button" class="btn btn-primary">Purchase</button>
                 </div>
             </div>
         </div>
@@ -169,19 +341,26 @@
 
     <footer class="bg-dark text-white py-3 mt-auto">
         <div class="container text-center">
-            <p class="mb-0">© <span id="currentYear">2023</span> Life Simulator</p>
+            <p class="mb-0">© <span id="currentYear">2023</span> Life Simulator - Real Estate</p>
         </div>
     </footer>
 
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <script src="js/time.js"></script>
+    <script src="js/player.js"></script>
+       <script src="js/main.js"></script>
+    <script src="js/eventManager.js"></script>
     <script src="js/finances.js"></script>
-    <script src="js/real-estate.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('currentYear').textContent = new Date().getFullYear();
-        });
-    </script>
+    <script src="js/careerManager.js"></script>
+    <script src="js/careers-data.js"></script>
+    <script src="js/settingsDropdown.js"></script>
+ <script>
+  // Only this is needed - MainManager handles the rest
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+  });
+</script>
 </body>
 </html>
-[file content end]

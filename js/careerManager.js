@@ -1,191 +1,244 @@
-// careerManager.js - Career System (Redesigned for Finances Integration)
+// Universal CareerManager.js - Works Across All Pages
 class CareerManager {
-    static gameState = null;
-    static initialized = false;
-    static elements = {};
-    static selectedJob = null;
-    static careersData = {};
-    
-    // Event listener references for cleanup
-    static eventListeners = [];
-    
     // Configuration
     static debug = true;
+    static initialized = false;
+    
+    // State management
+    static gameState = null;
+    static careersData = [];
+    static selectedJob = null;
+    
+    // UI elements cache (optional, only used on career page)
+    static elements = {};
+    
+    // Event listeners for cleanup
+    static eventListeners = [];
+    
+    // Constants
+    static PERFORMANCE_RANGE = { min: 0, max: 100 };
+    static DEFAULT_SATISFACTION = 50;
+    static MIN_SATISFACTION = 0;
+    static MAX_SATISFACTION = 100;
+    static PROMOTION_THRESHOLD = 80;
+    static BASE_PERFORMANCE_INCREASE = 1;
+    static MAX_PERFORMANCE_INCREASE = 5;
 
     /**
      * Initializes the CareerManager system
      */
- /**
- * Initializes the CareerManager system
- */
-static init() {
-    try {
-        if (this.initialized) return;
-        
-        this.log('Initializing CareerManager...');
-        
-        // Load data first with validation
-        this.loadCareerData();
-        
-        // Validate loaded data
-        if (!Array.isArray(this.careersData)) {
-            console.error('Career data failed to load properly - initializing empty array');
-            this.careersData = [];
-        } else {
-            this.log(`Successfully loaded ${this.careersData.length} careers`);
+    static init() {
+        try {
+            if (this.initialized) {
+                this.log('Already initialized');
+                return;
+            }
+            
+            this.log('Initializing CareerManager...');
+            
+            // Load data with validation
+            this.loadCareerData();
+            this.validateCareerData();
+            
+            // Load and validate game state
+            this.loadGameState();
+            this.validateGameState();
+            
+            // Setup UI only if on career page
+            if (this.isCareerPage()) {
+                this.cacheElements();
+                this.setupEventListeners();
+                this.renderAll();
+            } else {
+                // Universal setup for other pages
+                this.setupUniversalListeners();
+            }
+            
+            // Register debug method
+            window.reloadCareerData = () => this.reloadCareerData();
+            
+            this.initialized = true;
+            this.log('Initialization complete');
+        } catch (error) {
+            console.error('CareerManager initialization failed:', error);
+            this.fallbackInitialization();
+            throw error;
         }
-        
-        // Then load state
-        this.loadGameState();
-        
-        // Validate game state
-        this.validateGameState();
-        
-        // Setup UI only if on career page
-        if (document.querySelector('.job-listings-container')) {
-            this.cacheElements();
-            this.setupEventListeners();
-            this.renderAll();
+    }
+
+    /**
+     * Sets up universal event listeners for all pages
+     */
+  static setupUniversalListeners() {
+    // Time advancement listener
+    const timeAdvancedListener = (e) => {
+        this.handleTimeAdvanced(e.detail);
+    };
+    document.addEventListener('timeAdvanced', timeAdvancedListener);
+    this.eventListeners.push({
+        element: document,
+        type: 'timeAdvanced',
+        listener: timeAdvancedListener
+    });
+    
+    // Enhanced storage listener
+    const storageListener = (e) => {
+        if (e.key === 'careerGameState') {
+            try {
+                const newState = JSON.parse(e.newValue);
+                if (newState && newState.lastUpdated !== this.gameState.lastUpdated) {
+                    this.gameState = newState;
+                    if (this.isCareerPage()) this.renderAll();
+                    this.log('State updated from storage');
+                }
+            } catch (error) {
+                console.error('Error parsing career state:', error);
+            }
         }
-        
-        // Register reload method for debugging
-        window.reloadCareerData = () => this.reloadCareerData();
-        
-        this.initialized = true;
-        this.log('CareerManager initialized successfully');
-    } catch (error) {
-        console.error('CareerManager initialization failed:', error);
-        
-        // Fallback initialization
+    };
+    
+    window.addEventListener('storage', storageListener);
+    this.eventListeners.push({
+        element: window,
+        type: 'storage',
+        listener: storageListener
+    });
+}
+
+    /**
+     * Fallback initialization when main init fails
+     */
+    static fallbackInitialization() {
         this.careersData = [];
         this.gameState = this.getDefaultGameState();
         this.initialized = false;
-        
-        throw error;
     }
-}
 
-/**
- * Reloads career data (for debugging/recovery)
- */
-static reloadCareerData() {
-    try {
-        this.log('Reloading career data...');
-        const currentJobId = this.gameState.currentJob?.id;
+    static cleanup() {
+        // Remove event listeners if any
+        this.removeEventListeners();
         
-        // Save current state
-        const savedState = this.gameState;
+        // Clear any cached elements
+        this.elements = {};
         
-        // Reload data
-        this.loadCareerData();
+        // Reset initialization flag
+        this.initialized = false;
         
-        // Validate loaded data
-        if (!Array.isArray(this.careersData)) {
-            console.error('Failed to reload career data - using empty array');
-            this.careersData = [];
+        // Log the cleanup
+        if (this.debug) {
+            console.log('[CareerManager] Cleaned up successfully');
         }
-        
-        // Restore current job if it still exists
-        if (currentJobId) {
-            const currentJob = this.careersData.find(j => j.id === currentJobId);
-            if (currentJob) {
-                this.gameState.currentJob = {
-                    ...currentJob,
-                    startDate: savedState.currentJob.startDate,
-                    performance: savedState.currentJob.performance,
-                    monthsWorked: savedState.currentJob.monthsWorked
-                };
+    }
+
+    static removeEventListeners() {
+        this.eventListeners.forEach(({element, type, listener}) => {
+            element.removeEventListener(type, listener);
+        });
+        this.eventListeners = [];
+    }
+
+    // ===================================================================
+    // DATA MANAGEMENT
+    // ===================================================================
+
+    /**
+     * Loads career data from window.CAREERS with validation
+     */
+    static loadCareerData() {
+        try {
+            // Initialize as empty array if not set
+            if (!Array.isArray(this.careersData)) {
+                this.careersData = [];
+            }
+            
+            // Only overwrite if window.CAREERS is valid
+            if (Array.isArray(window.CAREERS)) {
+                this.careersData = [...window.CAREERS]; // Create copy
+                this.log(`Loaded ${this.careersData.length} careers`);
+            } else {
+                console.warn('window.CAREERS is not an array, using existing data');
+            }
+        } catch (e) {
+            this.log('Error loading career data:', e);
+            if (!Array.isArray(this.careersData)) {
+                this.careersData = [];
             }
         }
-        
-        this.log(`Reloaded ${this.careersData.length} careers`);
-        this.renderAll();
-        return true;
-    } catch (e) {
-        console.error('Error reloading career data:', e);
-        return false;
     }
-}
-
-/**
- * Validates the game state structure
- */
-static validateGameState() {
-    if (!this.gameState) {
-        this.gameState = this.getDefaultGameState();
-        return;
-    }
-    
-    // Ensure all required properties exist
-    if (!this.gameState.currentJob) this.gameState.currentJob = null;
-    if (!Array.isArray(this.gameState.jobHistory)) this.gameState.jobHistory = [];
-    if (typeof this.gameState.experience !== 'object') this.gameState.experience = {};
-    if (typeof this.gameState.skills !== 'object') this.gameState.skills = {};
-    
-    // Validate current job structure if exists
-    if (this.gameState.currentJob) {
-        const requiredJobProps = ['id', 'title', 'salary', 'performance', 'monthsWorked'];
-        const isValidJob = requiredJobProps.every(prop => prop in this.gameState.currentJob);
-        
-        if (!isValidJob) {
-            console.warn('Invalid current job structure - resetting');
-            this.gameState.currentJob = null;
-        }
-    }
-}
-
-    static getCurrentJob() {
-    return this.gameState?.currentJob || null;
-}
 
     /**
-     * Load career data with fallback
+     * Validates loaded career data structure
      */
-static loadCareerData() {
-    try {
-        // Initialize as empty array if not already set
+    static validateCareerData() {
         if (!Array.isArray(this.careersData)) {
+            console.error('Invalid career data - initializing empty array');
             this.careersData = [];
+            return;
         }
         
-        // Only overwrite if window.CAREERS is a valid array
-        if (Array.isArray(window.CAREERS)) {
-            this.careersData = [...window.CAREERS]; // Create a new array copy
-        } else {
-            console.warn('window.CAREERS is not an array, using existing career data');
-        }
-        this.log(`Loaded ${this.careersData.length} careers`);
-    } catch (e) {
-        this.log('Error loading career data:', e);
-        // Maintain existing data if possible
-        if (!Array.isArray(this.careersData)) {
-            this.careersData = [];
-        }
+        // Basic validation for each career entry
+        this.careersData = this.careersData.filter(job => {
+            const isValid = 
+                typeof job.id === 'string' &&
+                typeof job.title === 'string' &&
+                typeof job.salary === 'number' &&
+                typeof job.description === 'string';
+            
+            if (!isValid) {
+                console.warn('Removing invalid career entry:', job);
+            }
+            return isValid;
+        });
     }
-}
 
     /**
-     * Cleans up resources
+     * Reloads career data (debug/recovery)
      */
-    static cleanup() {
-        this.log('Cleaning up CareerManager...');
-        this.removeEventListeners();
-        this.elements = {};
-        this.initialized = false;
+    static reloadCareerData() {
+        try {
+            this.log('Reloading career data...');
+            const currentJobId = this.gameState.currentJob?.id;
+            const savedState = {...this.gameState};
+            
+            this.loadCareerData();
+            this.validateCareerData();
+            
+            // Restore current job if it still exists
+            if (currentJobId) {
+                const currentJob = this.careersData.find(j => j.id === currentJobId);
+                if (currentJob) {
+                    this.gameState.currentJob = {
+                        ...currentJob,
+                        startDate: savedState.currentJob.startDate,
+                        performance: savedState.currentJob.performance,
+                        monthsWorked: savedState.currentJob.monthsWorked
+                    };
+                }
+            }
+            
+            this.log(`Reloaded ${this.careersData.length} careers`);
+            if (this.isCareerPage()) this.renderAll();
+            return true;
+        } catch (e) {
+            console.error('Error reloading career data:', e);
+            return false;
+        }
     }
 
     // ===================================================================
-    // DATA & STATE MANAGEMENT
+    // STATE MANAGEMENT
     // ===================================================================
 
+    /**
+     * Loads game state from localStorage
+     */
     static loadGameState() {
         try {
             const savedState = localStorage.getItem('careerGameState');
             if (!savedState) {
                 this.gameState = this.getDefaultGameState();
             } else {
-                const parsedState = JSON.parse(savedState);
-                this.gameState = parsedState;
+                this.gameState = JSON.parse(savedState);
                 this.validateGameState();
             }
             this.log("Game state loaded");
@@ -195,37 +248,591 @@ static loadCareerData() {
         }
     }
 
+    /**
+     * Validates game state structure
+     */
     static validateGameState() {
-        if (!this.gameState.currentJob) this.gameState.currentJob = null;
-        if (!this.gameState.jobHistory) this.gameState.jobHistory = [];
-        if (!this.gameState.experience) this.gameState.experience = {};
-        if (!this.gameState.skills) this.gameState.skills = {};
+        if (!this.gameState) {
+            this.gameState = this.getDefaultGameState();
+            return;
+        }
+        
+        // Ensure all required properties exist
+        const defaults = this.getDefaultGameState();
+        for (const key in defaults) {
+            if (this.gameState[key] === undefined) {
+                this.gameState[key] = defaults[key];
+            }
+        }
+        
+        // Validate current job if exists
+        if (this.gameState.currentJob) {
+            const requiredProps = ['id', 'title', 'salary', 'performance', 'monthsWorked'];
+            const isValid = requiredProps.every(prop => prop in this.gameState.currentJob);
+            
+            if (!isValid) {
+                console.warn('Invalid current job - resetting');
+                this.gameState.currentJob = null;
+            }
+        }
     }
 
+    /**
+     * Returns default game state structure
+     */
     static getDefaultGameState() {
         return {
             currentJob: null,
             jobHistory: [],
             experience: {},
-            skills: {}
+            skills: {},
+            lastUpdated: new Date().toISOString()
         };
     }
 
-    static saveGameState() {
+    /**
+     * Saves current game state to localStorage
+     */
+static saveGameState() {
+    try {
+        // Update timestamp
+        this.gameState.lastUpdated = Date.now();
+        
+        // Save to localStorage
+        localStorage.setItem('careerGameState', JSON.stringify(this.gameState));
+        
+        // Trigger storage event (for cross-tab sync)
+        localStorage.setItem('careerUpdateTrigger', Date.now().toString());
+        
+        this.log('Game state saved');
+        return true;
+    } catch (e) {
+        console.error('Error saving game state:', e);
+        return false;
+    }
+}
+
+    // In CareerManager.js, modify the getCurrentDateString method:
+static getCurrentDateString() {
+    if (window.timeState?.currentDate) {
+        return formatDate(window.timeState.currentDate);
+    }
+    if (typeof TimeManager !== 'undefined' && TimeManager.getCurrentDateString) {
+        return TimeManager.getCurrentDateString();
+    }
+    
+    // Fallback implementation
+    const now = new Date();
+    return now.toLocaleDateString();
+}
+
+    // ===================================================================
+    // CORE FUNCTIONALITY
+    // ===================================================================
+
+    /**
+     * Gets current job or null if unemployed
+     */
+    static getCurrentJob() {
+        return this.gameState?.currentJob || null;
+    }
+
+    /**
+     * Checks if player meets all requirements for a job
+     */
+    static canApplyForJob(jobId) {
         try {
-            localStorage.setItem('careerGameState', JSON.stringify(this.gameState));
-            localStorage.setItem('careerUpdateTrigger', Date.now().toString());
-            this.log('Game state saved and sync triggered');
-        } catch (e) {
-            this.log('Error saving game state:', e);
-            throw e;
+            if (typeof jobId !== 'string' || !jobId.trim()) {
+                console.error('Invalid jobId:', jobId);
+                return false;
+            }
+            
+            if (!Array.isArray(this.careersData)) {
+                console.error('Invalid careersData');
+                return false;
+            }
+            
+            const job = this.careersData.find(j => j.id === jobId);
+            if (!job) {
+                console.warn(`Job not found: ${jobId}`);
+                return false;
+            }
+            
+            const playerAge = TimeManager?.timeState?.age || 18;
+            const playerEducation = window.EducationManager?.gameState?.education?.completedPrograms || [];
+            const playerSkills = window.EducationManager?.gameState?.education?.skills || {};
+            
+            return this.checkAgeRequirement(job, playerAge) &&
+                   this.checkEducationRequirement(job, playerEducation) &&
+                   this.checkSkillRequirements(job, playerSkills) &&
+                   this.checkExperienceRequirements(job);
+        } catch (error) {
+            console.error(`Error in canApplyForJob:`, error);
+            return false;
         }
     }
 
+    /**
+     * Checks age requirement for a job
+     */
+    static checkAgeRequirement(job, playerAge) {
+        if (!job.requirements?.age) return true;
+        if (playerAge >= job.requirements.age) return true;
+        
+        this.log(`Age requirement not met: ${playerAge} < ${job.requirements.age}`);
+        return false;
+    }
+
+    /**
+     * Checks education requirement for a job
+     */
+    static checkEducationRequirement(job, playerEducation) {
+        if (!job.requirements?.education) return true;
+        if (job.requirements.education.includes('none')) return true;
+        
+        const hasEducation = job.requirements.education.some(edu => 
+            playerEducation.includes(edu)
+        );
+        
+        if (!hasEducation) {
+            this.log('Education requirement not met');
+        }
+        return hasEducation;
+    }
+
+    /**
+     * Checks skill requirements for a job
+     */
+    static checkSkillRequirements(job, playerSkills) {
+        if (!job.requirements?.skills) return true;
+        
+        return job.requirements.skills.every(skill => {
+            const skillData = playerSkills[skill];
+            return skillData && skillData.level > 0;
+        });
+    }
+
+    /**
+     * Checks experience requirements for a job
+     */
+    static checkExperienceRequirements(job) {
+        if (!job.requirements?.experience) return true;
+        
+        return job.requirements.experience.every(exp => 
+            this.gameState.experience[exp] > 0
+        );
+    }
+
+    /**
+     * Gets missing requirements for a job
+     */
+    static getMissingRequirements(jobId) {
+        const missing = {
+            age: false,
+            education: [],
+            skills: [],
+            experience: []
+        };
+
+        try {
+            if (typeof jobId !== 'string' || !jobId.trim()) {
+                console.error('Invalid jobId:', jobId);
+                return missing;
+            }
+            
+            if (!Array.isArray(this.careersData)) {
+                console.error('Invalid careersData');
+                return missing;
+            }
+            
+            const job = this.careersData.find(j => j.id === jobId);
+            if (!job) {
+                console.warn(`Job not found: ${jobId}`);
+                return missing;
+            }
+            
+            const playerAge = TimeManager?.timeState?.age || 18;
+            const playerEducation = window.EducationManager?.gameState?.education?.completedPrograms || [];
+            const playerSkills = window.EducationManager?.gameState?.education?.skills || {};
+            
+            // Check age
+            if (job.requirements?.age && playerAge < job.requirements.age) {
+                missing.age = job.requirements.age;
+            }
+            
+            // Check education
+            if (job.requirements?.education && !job.requirements.education.includes('none')) {
+                missing.education = job.requirements.education.filter(edu => 
+                    !playerEducation.includes(edu)
+                );
+            }
+            
+            // Check skills
+            if (job.requirements?.skills) {
+                missing.skills = job.requirements.skills.filter(skill => {
+                    const skillData = playerSkills[skill];
+                    return !skillData || skillData.level === 0;
+                });
+            }
+            
+            // Check experience
+            if (job.requirements?.experience) {
+                missing.experience = job.requirements.experience.filter(exp => 
+                    !this.gameState.experience[exp] || this.gameState.experience[exp] === 0
+                );
+            }
+            
+            return missing;
+        } catch (error) {
+            console.error(`Error in getMissingRequirements:`, error);
+            return missing;
+        }
+    }
+
+    /**
+     * Applies for a job
+     */
+    static applyForJob(jobId) {
+        if (!this.canApplyForJob(jobId)) {
+            return false;
+        }
+        
+        const job = this.careersData.find(j => j.id === jobId);
+        if (!job) {
+            return false;
+        }
+        
+        // Create new job record
+        const newJob = { 
+            ...job,
+            startDate: this.getCurrentDateString(),
+            performance: 50, // Starting performance
+            monthsWorked: 0
+        };
+        
+        // Add current job to history if exists
+        if (this.gameState.currentJob) {
+            this.addJobToHistory(this.gameState.currentJob);
+        }
+        
+        // Set new job
+        this.gameState.currentJob = newJob;
+        this.saveGameState();
+        
+        // Update UI if on career page
+        if (this.isCareerPage()) {
+            this.renderAll();
+            this.hideModal();
+        }
+        
+        EventManager.addToEventLog(`Started new job as ${job.title}`, 'success');
+        
+        // Dispatch event to notify other systems
+        document.dispatchEvent(new CustomEvent('careerUpdated', {
+            detail: {
+                jobChanged: true,
+                newJob: newJob
+            }
+        }));
+        
+        return true;
+    }
+
+    /**
+     * Adds current job to history with end date
+     */
+    static addJobToHistory(job) {
+        this.gameState.jobHistory.push({
+            ...job,
+            endDate: this.getCurrentDateString()
+        });
+    }
+
+    /**
+     * Quits current job
+     */
+    static quitJob() {
+        if (!this.gameState.currentJob) {
+            return;
+        }
+        
+        const jobTitle = this.gameState.currentJob.title;
+        this.addJobToHistory(this.gameState.currentJob);
+        this.gameState.currentJob = null;
+        this.saveGameState();
+        
+        // Update UI if on career page
+        if (this.isCareerPage()) {
+            this.renderAll();
+        }
+        
+        EventManager.addToEventLog(`Quit job as ${jobTitle}`, 'warning');
+        
+        // Dispatch event to notify other systems
+        document.dispatchEvent(new CustomEvent('careerUpdated', {
+            detail: {
+                jobChanged: true,
+                newJob: null
+            }
+        }));
+    }
+
+    /**
+     * Handles time advancement events (universal across all pages)
+     */
+  static handleTimeAdvanced(timeState) {
+    if (!this.gameState.currentJob) return;
+
+    // Track months advanced (default to 3 if not specified)
+    const monthsAdvanced = timeState.monthsAdvanced || 3;
+
+    // Update job duration
+    this.gameState.currentJob.monthsWorked += monthsAdvanced;
+
+    // Process salary payment (3 months at a time)
+    const salaryPayment = this.gameState.currentJob.salary * monthsAdvanced;
+    this.processSalaryPayment(salaryPayment);
+
+    // Update performance and check for promotion
+    this.updatePerformance(monthsAdvanced);
+    this.gainExperience(monthsAdvanced);
+    this.gainSkills(monthsAdvanced);
+    
+    // Handle quarterly events
+    if (timeState.isQuarterly) {
+        this.handleQuarterTransition();
+    }
+
+    // Check for promotion after all updates
+    this.checkForPromotion();
+
+    // Save career state and trigger sync
+    this.saveGameState();
+
+    // Update UI if on career page
+    if (this.isCareerPage()) {
+        this.renderAll();
+    }
+
+    // Notify other systems
+    document.dispatchEvent(new CustomEvent('careerUpdated', {
+        detail: {
+            jobChanged: false,
+            performanceChanged: true,
+            monthsAdvanced: monthsAdvanced
+        }
+    }));
+}
+
+static handleQuarterTransition() {
+    if (!this.gameState.currentJob) return;
+    
+    // Add quarterly performance review
+    const performanceChange = Math.floor(Math.random() * 10) - 3; // -3 to +6
+    this.gameState.currentJob.performance = Math.max(0, 
+        Math.min(100, this.gameState.currentJob.performance + performanceChange));
+    
+    // Add quarterly satisfaction adjustment
+    const satisfactionChange = Math.floor(Math.random() * 8) - 2; // -2 to +5
+    const currentSatisfaction = this.calculateJobSatisfaction();
+    this.gameState.currentJob.satisfaction = Math.max(0, 
+        Math.min(100, currentSatisfaction + satisfactionChange));
+    
+    // Save changes
+    this.saveGameState();
+    
+    // Add to event log
+    if (typeof EventManager !== 'undefined') {
+        EventManager.addToEventLog(
+            `Quarterly review: Performance ${performanceChange > 0 ? '+' : ''}${performanceChange}%`, 
+            'info'
+        );
+    }
+}
+
+    /**
+     * Universal salary payment processor
+     */
+  static processSalaryPayment(amount) {
+    if (typeof amount !== 'number' || amount <= 0) {
+        console.error('Invalid salary amount:', amount);
+        return;
+    }
+
+    try {
+        // Try FinancesManager first
+        if (typeof FinancesManager !== 'undefined' && FinancesManager.addMoney) {
+            FinancesManager.addMoney(amount, 'Salary payment', 'salary');
+            this.log('Processed salary via FinancesManager');
+        } 
+        // Fallback to direct character storage
+        else {
+            try {
+                const currentCharId = localStorage.getItem('currentCharacterId');
+                if (currentCharId) {
+                    const characterKey = `lifeSimCharacter_${currentCharId}`;
+                    const character = JSON.parse(localStorage.getItem(characterKey)) || {};
+                    
+                    // Initialize finances if not exists
+                    if (!character._finances) {
+                        character._finances = { 
+                            cash: 0, 
+                            bank: 0,
+                            monthlyIncome: 0,
+                            monthlyExpenses: 0
+                        };
+                    }
+                    
+                    // Add salary to cash
+                    character._finances.cash = (character._finances.cash || 0) + amount;
+                    localStorage.setItem(characterKey, JSON.stringify(character));
+                    this.log('Processed salary via direct storage');
+                } else {
+                    // Ultimate fallback to simple storage
+                    const finances = JSON.parse(localStorage.getItem('characterFinances')) || { 
+                        cash: 0, 
+                        bank: 0 
+                    };
+                    finances.cash += amount;
+                    localStorage.setItem('characterFinances', JSON.stringify(finances));
+                    this.log('Processed salary via fallback storage');
+                }
+            } catch (e) {
+                console.error('Error processing salary payment:', e);
+                throw e; // Re-throw to be caught by outer try-catch
+            }
+        }
+        
+        // Add to event log if available
+        if (typeof EventManager !== 'undefined' && EventManager.addToEventLog) {
+            EventManager.addToEventLog(`Received salary: $${amount.toLocaleString()}`, 'success');
+        }
+    } catch (error) {
+        console.error('Salary payment processing failed completely:', error);
+        if (typeof EventManager !== 'undefined' && EventManager.addToEventLog) {
+            EventManager.addToEventLog('Failed to process salary payment', 'error');
+        }
+    }
+}
+
+    // In GameManager class, update the updateTimeDisplay method:
+static updateTimeDisplay() {
+    const timeState = TimeManager.getTimeState();
+    const month = timeState.currentDate.getMonth() + 1;
+    const quarter = timeState.quarter; // Use the stored quarter from TimeManager
+    const year = timeState.currentDate.getFullYear();
+    
+    // Update all age displays
+    document.querySelectorAll('.age-display, .characterAge').forEach(el => {
+        el.textContent = `Age ${timeState.age}`;
+    });
+    
+    // Update all date displays
+    document.querySelectorAll('.time-display').forEach(el => {
+        el.textContent = `Year ${year}, Q${quarter} (${timeState.currentDate.toLocaleString('default', { month: 'long' })})`;
+    });
+}
+
+    /**
+     * Updates job performance
+     */
+    static updatePerformance(monthsAdvanced) {
+        const increase = Math.floor(Math.random() * this.MAX_PERFORMANCE_INCREASE) + this.BASE_PERFORMANCE_INCREASE;
+        this.gameState.currentJob.performance = Math.min(
+            this.PERFORMANCE_RANGE.max,
+            this.gameState.currentJob.performance + increase
+        );
+    }
+
+    /**
+     * Gains experience from current job
+     */
+    static gainExperience(monthsAdvanced) {
+        if (!this.gameState.currentJob.experienceGained) {
+            return;
+        }
+        
+        this.gameState.currentJob.experienceGained.forEach(exp => {
+            this.gameState.experience[exp] = (this.gameState.experience[exp] || 0) + monthsAdvanced;
+        });
+    }
+
+    /**
+     * Gains skills from current job
+     */
+    static gainSkills(monthsAdvanced) {
+        if (!window.EducationManager?.gameState || !this.gameState.currentJob.skillsGained) {
+            return;
+        }
+        
+        this.gameState.currentJob.skillsGained.forEach(skill => {
+            if (window.EducationManager.gameState.education.skills[skill]) {
+                window.EducationManager.gameState.education.skills[skill].xp += 100 * monthsAdvanced;
+                window.EducationManager.gameState.education.skills[skill].level = 
+                    Math.floor(window.EducationManager.gameState.education.skills[skill].xp / 1000) + 1;
+            }
+        });
+    }
+
+    /**
+     * Checks if player qualifies for promotion
+     */
+    static checkForPromotion() {
+        if (!this.gameState.currentJob?.nextPositions || 
+            this.gameState.currentJob.performance < this.PROMOTION_THRESHOLD) {
+            return;
+        }
+        
+        if (!Array.isArray(this.careersData)) {
+            console.error('Cannot check promotions - invalid careersData');
+            return;
+        }
+        
+        // Find available promotions
+        const possiblePromotions = this.gameState.currentJob.nextPositions
+            .filter(pos => this.canApplyForJob(pos));
+        
+        if (possiblePromotions.length > 0) {
+            this.applyForJob(possiblePromotions[0]);
+            EventManager.addToEventLog(`Promoted to ${this.gameState.currentJob.title}!`, 'success');
+        }
+    }
+
+    /**
+     * Calculates job satisfaction (0-100)
+     */
+    static calculateJobSatisfaction() {
+        if (!this.gameState.currentJob) {
+            return 0;
+        }
+        
+        const job = this.gameState.currentJob;
+        let satisfaction = this.DEFAULT_SATISFACTION;
+        
+        // Adjust based on performance
+        satisfaction += (job.performance - 50) * 0.3;
+        
+        // Adjust based on duration
+        satisfaction -= Math.min(30, job.monthsWorked * 0.2);
+        
+        // Ensure within bounds
+        return Math.max(this.MIN_SATISFACTION, Math.min(this.MAX_SATISFACTION, satisfaction));
+    }
+
     // ===================================================================
-    // UI MANAGEMENT
+    // UI MANAGEMENT (Only used on career page)
     // ===================================================================
 
+    /**
+     * Checks if current page is career page
+     */
+    static isCareerPage() {
+        return !!document.querySelector('.job-listings-container');
+    }
+
+    /**
+     * Caches DOM elements (only on career page)
+     */
     static cacheElements() {
         const getElement = (id) => document.getElementById(id) || null;
         
@@ -244,7 +851,7 @@ static loadCareerData() {
             modalRequirements: getElement('jobDetailsRequirements'),
             modalSkills: getElement('jobDetailsSkills')
         };
-
+        
         // Initialize modal if exists
         const modalElement = getElement('jobDetailsModal');
         if (modalElement) {
@@ -252,38 +859,22 @@ static loadCareerData() {
         }
     }
 
+    /**
+     * Sets up event listeners (only on career page)
+     */
     static setupEventListeners() {
-        const jobClickListener = (e) => {
-            const button = e.target.closest('.job-action-btn');
-            if (button) {
-                e.preventDefault();
-                this.showJobDetails(button.dataset.jobId);
-            }
-        };
-
-        const timeAdvancedListener = (e) => this.handleTimeAdvanced(e.detail);
-        document.addEventListener('timeAdvanced', timeAdvancedListener);
-        this.eventListeners.push({
-            element: document,
-            type: 'timeAdvanced',
-            listener: timeAdvancedListener
-        });
-
-        const applyClickListener = () => {
-            if (this.selectedJob) {
-                this.applyForJob(this.selectedJob.id);
-            }
-        };
-
-        const storageListener = (e) => {
-            if (e.key === 'careerGameState' || e.key === 'careerUpdateTrigger') {
-                this.log('Detected career state change from storage');
-                this.loadGameState();
-                this.renderAll();
-            }
-        };
-
+        this.removeEventListeners();
+        
+        // Job click listener
         if (this.elements.jobsContainer) {
+            const jobClickListener = (e) => {
+                const button = e.target.closest('.job-action-btn');
+                if (button) {
+                    e.preventDefault();
+                    this.showJobDetails(button.dataset.jobId);
+                }
+            };
+            
             this.elements.jobsContainer.addEventListener('click', jobClickListener);
             this.eventListeners.push({
                 element: this.elements.jobsContainer,
@@ -291,8 +882,15 @@ static loadCareerData() {
                 listener: jobClickListener
             });
         }
-
+        
+        // Apply job button
         if (this.elements.applyJobBtn) {
+            const applyClickListener = () => {
+                if (this.selectedJob) {
+                    this.applyForJob(this.selectedJob.id);
+                }
+            };
+            
             this.elements.applyJobBtn.addEventListener('click', applyClickListener);
             this.eventListeners.push({
                 element: this.elements.applyJobBtn,
@@ -300,445 +898,37 @@ static loadCareerData() {
                 listener: applyClickListener
             });
         }
-
-        window.addEventListener('storage', storageListener);
-        this.eventListeners.push({
-            element: window,
-            type: 'storage',
-            listener: storageListener
-        });
-    }
-
-    static removeEventListeners() {
-        this.eventListeners.forEach(({ element, type, listener }) => {
-            element.removeEventListener(type, listener);
-        });
-        this.eventListeners = [];
-    }
-
-    // ===================================================================
-    // CORE FUNCTIONALITY
-    // ===================================================================
-
-    /**
-     * Checks if player meets job requirements
-     * @param {string} jobId - ID of the job to check
-     * @returns {boolean} True if player meets all requirements
-     */
-/**
- * Checks if player meets job requirements
- * @param {string} jobId - ID of the job to check
- * @returns {boolean} True if player meets all requirements
- */
-static canApplyForJob(jobId) {
-    try {
-        // Validate input
-        if (typeof jobId !== 'string' || jobId.trim() === '') {
-            console.error('Invalid jobId:', jobId);
-            return false;
-        }
-
-        // Ensure careersData is valid
-        if (!Array.isArray(this.careersData)) {
-            console.error('careersData is not an array');
-            return false;
-        }
-
-        // Find the job
-        const job = this.careersData.find(j => j.id === jobId);
-        if (!job) {
-            console.warn(`Job not found: ${jobId}`);
-            return false;
-        }
-
-        // Get player data with safe checks
-        const playerAge = TimeManager?.timeState?.age || 18;
-        const playerEducation = window.EducationManager?.gameState?.education?.completedPrograms || [];
-        const playerSkills = window.EducationManager?.gameState?.education?.skills || {};
-
-        // Age check
-        if (job.requirements?.age && playerAge < job.requirements.age) {
-            this.log(`Age requirement not met for ${jobId}: ${playerAge} < ${job.requirements.age}`);
-            return false;
-        }
-
-        // Education check - special case for "none" requirement
-        if (job.requirements?.education) {
-            if (job.requirements.education.includes('none')) {
-                // No education required
-            } else {
-                const hasEducation = job.requirements.education.some(edu => 
-                    playerEducation.includes(edu)
-                );
-                if (!hasEducation) {
-                    this.log(`Education requirement not met for ${jobId}`);
-                    return false;
-                }
-            }
-        }
-
-        // Skills check
-        if (job.requirements?.skills) {
-            const hasSkills = job.requirements.skills.every(skill => {
-                const skillData = playerSkills[skill];
-                return skillData && skillData.level > 0;
-            });
-            if (!hasSkills) {
-                this.log(`Skill requirement not met for ${jobId}`);
-                return false;
-            }
-        }
-
-        // Experience check
-        if (job.requirements?.experience) {
-            const hasExperience = job.requirements.experience.every(exp => 
-                this.gameState.experience[exp] && this.gameState.experience[exp] > 0
-            );
-            if (!hasExperience) {
-                this.log(`Experience requirement not met for ${jobId}`);
-                return false;
-            }
-        }
-
-        return true;
-    } catch (error) {
-        console.error(`Error in canApplyForJob(${jobId}):`, error);
-        return false;
-    }
-}
-
-/**
- * Gets missing requirements for a job
- * @param {string} jobId - ID of the job to check
- * @returns {Object} Object with arrays of missing requirements by type
- */
-static getMissingRequirements(jobId) {
-    const missing = {
-        age: false,
-        education: [],
-        skills: [],
-        experience: []
-    };
-
-    try {
-        // Validate input
-        if (typeof jobId !== 'string' || jobId.trim() === '') {
-            console.error('Invalid jobId:', jobId);
-            return missing;
-        }
-
-        // Ensure careersData is valid
-        if (!Array.isArray(this.careersData)) {
-            console.error('careersData is not an array');
-            return missing;
-        }
-
-        const job = this.careersData.find(j => j.id === jobId);
-        if (!job) {
-            console.warn(`Job not found: ${jobId}`);
-            return missing;
-        }
-
-        // Get player data with safe checks
-        const playerAge = TimeManager?.timeState?.age || 18;
-        const playerEducation = window.EducationManager?.gameState?.education?.completedPrograms || [];
-        const playerSkills = window.EducationManager?.gameState?.education?.skills || {};
-
-        // Age check
-        if (job.requirements?.age && playerAge < job.requirements.age) {
-            missing.age = job.requirements.age;
-        }
-
-        // Education check - special case for "none" requirement
-        if (job.requirements?.education && !job.requirements.education.includes('none')) {
-            missing.education = job.requirements.education.filter(edu => 
-                !playerEducation.includes(edu)
-            );
-        }
-
-        // Skills check
-        if (job.requirements?.skills) {
-            missing.skills = job.requirements.skills.filter(skill => {
-                const skillData = playerSkills[skill];
-                return !skillData || skillData.level === 0;
-            });
-        }
-
-        // Experience check
-        if (job.requirements?.experience) {
-            missing.experience = job.requirements.experience.filter(exp => 
-                !this.gameState.experience[exp] || this.gameState.experience[exp] === 0
-            );
-        }
-
-        return missing;
-    } catch (error) {
-        console.error(`Error in getMissingRequirements(${jobId}):`, error);
-        return missing;
-    }
-}
-
-    /**
-     * Gets missing requirements for a job
-     * @param {string} jobId - ID of the job to check
-     * @returns {Object} Object with arrays of missing requirements by type
-     */
-    static getMissingRequirements(jobId) {
-        const job = this.careersData.find(j => j.id === jobId);
-        if (!job) return {};
-
-        const missing = {
-            age: false,
-            education: [],
-            skills: [],
-            experience: []
-        };
-
-        // Get player data with safe checks
-        const playerAge = TimeManager?.timeState?.age || 18;
-        const playerEducation = window.EducationManager?.gameState?.education?.completedPrograms || [];
-        const playerSkills = window.EducationManager?.gameState?.education?.skills || {};
-
-        // Age check
-        if (job.requirements?.age && playerAge < job.requirements.age) {
-            missing.age = job.requirements.age;
-        }
-
-        // Education check - special case for "none" requirement
-        if (job.requirements?.education && !job.requirements.education.includes('none')) {
-            missing.education = job.requirements.education.filter(edu => 
-                !playerEducation.includes(edu)
-            );
-        }
-
-        // Skills check
-        if (job.requirements?.skills) {
-            missing.skills = job.requirements.skills.filter(skill => {
-                const skillData = playerSkills[skill];
-                return !skillData || skillData.level === 0;
-            });
-        }
-
-        // Experience check
-        if (job.requirements?.experience) {
-            missing.experience = job.requirements.experience.filter(exp => 
-                !this.gameState.experience[exp] || this.gameState.experience[exp] === 0
-            );
-        }
-
-        return missing;
     }
 
     /**
-     * Applies for a job
-     * @param {string} jobId - ID of the job to apply for
-     * @returns {boolean} True if application was successful
+     * Hides the job details modal
      */
-    static applyForJob(jobId) {
-        if (!this.canApplyForJob(jobId)) return false;
-        
-        const job = this.careersData.find(j => j.id === jobId);
-        if (!job) return false;
-
-        // Create new job record
-        const newJob = { 
-            ...job,
-            startDate: this.getCurrentDateString(),
-            performance: 50, // Starting performance (0-100)
-            monthsWorked: 0
-        };
-
-        // If currently employed, add to history
-        if (this.gameState.currentJob) {
-            this.gameState.jobHistory.push({
-                ...this.gameState.currentJob,
-                endDate: this.getCurrentDateString()
-            });
-        }
-
-        // Set new job
-        this.gameState.currentJob = newJob;
-        this.saveGameState();
-        
-        // Update UI
-        this.renderAll();
+    static hideModal() {
         this.elements.modal?.hide();
-        
-        // Log event
-        EventManager.addToEventLog(`Started new job as ${job.title}`, 'success');
-        return true;
-    }
-
-    /**
-     * Quits current job
-     */
-    static quitJob() {
-        if (!this.gameState.currentJob) return;
-        
-        const jobTitle = this.gameState.currentJob.title;
-        
-        // Add to history
-        this.gameState.jobHistory.push({
-            ...this.gameState.currentJob,
-            endDate: this.getCurrentDateString()
-        });
-
-        // Clear current job
-        this.gameState.currentJob = null;
-        this.saveGameState();
-        
-        if (typeof FinancesManager !== 'undefined') {
-    FinancesManager.renderAll(); // Force FinancesManager to update
-}
-        // Update UI
-        this.renderAll();
-        
-        // Log event
-        EventManager.addToEventLog(`Quit job as ${jobTitle}`, 'warning');
-    }
-
-    /**
-     * Handles time advancement (called from EventManager)
-     * @param {Object} timeState - Current time state
-     */
-    static handleTimeAdvanced(timeState) {
-    if (!this.gameState.currentJob) return;
-
-    // Update job duration
-    this.gameState.currentJob.monthsWorked += timeState.monthsAdvanced;
-    
-    // Update performance (random 1-5 points)
-    this.gameState.currentJob.performance = Math.min(
-        100, 
-        this.gameState.currentJob.performance + Math.floor(Math.random() * 5) + 1
-    );
-
-    // Gain experience
-    this.gameState.currentJob.experienceGained?.forEach(exp => {
-        this.gameState.experience[exp] = (this.gameState.experience[exp] || 0) + timeState.monthsAdvanced;
-    });
-
-    // Gain skills if EducationManager is available
-    if (window.EducationManager?.gameState && this.gameState.currentJob.skillsGained) {
-        this.gameState.currentJob.skillsGained.forEach(skill => {
-            if (window.EducationManager.gameState.education.skills[skill]) {
-                window.EducationManager.gameState.education.skills[skill].xp += 100 * timeState.monthsAdvanced;
-                window.EducationManager.gameState.education.skills[skill].level = 
-                    Math.floor(window.EducationManager.gameState.education.skills[skill].xp / 1000) + 1;
-            }
-        });
-    }
-
-    // Process salary payment through FinancesManager
-    if (this.gameState.currentJob.salary) {
-        const salaryPayment = this.gameState.currentJob.salary * timeState.monthsAdvanced;
-        
-        // First try FinancesManager if available
-        if (typeof FinancesManager !== 'undefined' && FinancesManager.addMoney) {
-            try {
-                FinancesManager.addMoney(salaryPayment, 'Salary payment', 'salary');
-                EventManager.addToEventLog(`Received salary payment: $${salaryPayment.toLocaleString()}`, 'success');
-            } catch (e) {
-                console.error('Error adding money via FinancesManager:', e);
-                // Fallback to direct storage
-                this.addMoneyFallback(salaryPayment);
-            }
-        } else {
-            // Fallback if FinancesManager isn't available
-            this.addMoneyFallback(salaryPayment);
-        }
-    }
-
-    // Check for promotions
-    this.checkForPromotion();
-
-    // Save state
-    this.saveGameState();
-    this.renderAll();
-}
-
-// Fallback method for adding money when FinancesManager isn't available
-static addMoneyFallback(amount) {
-    try {
-        const currentMoney = parseInt(localStorage.getItem('characterMoney') || '0');
-        localStorage.setItem('characterMoney', (currentMoney + amount).toString());
-        EventManager.addToEventLog(`Received salary payment: $${amount.toLocaleString()}`, 'success');
-    } catch (e) {
-        console.error('Error in money fallback:', e);
-        EventManager.addToEventLog(`Salary payment failed to process`, 'danger');
-    }
-}
-
-    /**
-     * Checks if player qualifies for a promotion
-     */
-static checkForPromotion() {
-    if (!this.gameState.currentJob?.nextPositions) return;
-    
-    // Ensure careersData is valid
-    if (!Array.isArray(this.careersData)) {
-        console.error('Cannot check promotions - careersData is invalid');
-        return;
-    }
-    
-    // Check performance threshold (e.g., 80+)
-    if (this.gameState.currentJob.performance < 80) return;
-    
-    // Find available promotions
-    const possiblePromotions = this.gameState.currentJob.nextPositions
-        .filter(pos => this.canApplyForJob(pos));
-
-    if (possiblePromotions.length > 0) {
-        // Automatically promote to first available position
-        this.applyForJob(possiblePromotions[0]);
-        EventManager.addToEventLog(`Promoted to ${this.gameState.currentJob.title}!`, 'success');
-    }
-}
-
-static reloadCareerData() {
-    this.log('Reloading career data...');
-    this.loadCareerData();
-    if (!Array.isArray(this.careersData)) {
-        this.careersData = [];
-        console.error('Failed to reload career data - using empty array');
-    }
-    this.renderAll();
-}
-
-    /**
-     * Calculates job satisfaction (0-100)
-     * @returns {number} Satisfaction percentage
-     */
-    static calculateJobSatisfaction() {
-        if (!this.gameState.currentJob) return 0;
-        
-        const job = this.gameState.currentJob;
-        let satisfaction = 50; // Base satisfaction
-        
-        // Adjust based on performance
-        satisfaction += (job.performance - 50) * 0.3;
-        
-        // Adjust based on duration (longer duration decreases satisfaction)
-        satisfaction -= Math.min(30, job.monthsWorked * 0.2);
-        
-        // Ensure within bounds
-        return Math.max(0, Math.min(100, satisfaction));
     }
 
     // ===================================================================
-    // RENDERING
+    // RENDERING (Only used on career page)
     // ===================================================================
 
+    /**
+     * Renders all UI components
+     */
     static renderAll() {
+        if (!this.isCareerPage()) return;
+        
         this.renderJobListings();
         this.renderCurrentJob();
         this.renderJobHistory();
         this.updateStats();
     }
 
+    /**
+     * Renders job listings
+     */
     static renderJobListings() {
         if (!this.elements.jobsContainer) return;
-
+        
         this.elements.jobsContainer.innerHTML = this.careersData.map(job => {
             const canApply = this.canApplyForJob(job.id);
             const isCurrentJob = this.gameState.currentJob?.id === job.id;
@@ -746,7 +936,7 @@ static reloadCareerData() {
             let buttonText = 'View Details';
             let buttonDisabled = false;
             let statusBadge = '';
-
+            
             if (isCurrentJob) {
                 statusBadge = '<span class="badge bg-primary">Current Job</span>';
                 buttonDisabled = true;
@@ -778,9 +968,12 @@ static reloadCareerData() {
         }).join('');
     }
 
+    /**
+     * Renders current job details
+     */
     static renderCurrentJob() {
         if (!this.elements.currentJobDetails) return;
-
+        
         if (!this.gameState.currentJob) {
             this.elements.currentJobDetails.innerHTML = `
                 <div class="alert alert-info mb-0">
@@ -789,7 +982,7 @@ static reloadCareerData() {
             `;
             return;
         }
-
+        
         const job = this.gameState.currentJob;
         const satisfaction = this.calculateJobSatisfaction();
         
@@ -823,7 +1016,7 @@ static reloadCareerData() {
                 </button>
             </div>
         `;
-
+        
         // Add quit job button listener
         const quitBtn = document.getElementById('quitJobBtn');
         if (quitBtn) {
@@ -831,9 +1024,12 @@ static reloadCareerData() {
         }
     }
 
+    /**
+     * Renders job history
+     */
     static renderJobHistory() {
         if (!this.elements.jobHistory) return;
-
+        
         if (this.gameState.jobHistory.length === 0) {
             this.elements.jobHistory.innerHTML = `
                 <div class="alert alert-info mb-0">
@@ -842,7 +1038,7 @@ static reloadCareerData() {
             `;
             return;
         }
-
+        
         this.elements.jobHistory.innerHTML = this.gameState.jobHistory.map(job => `
             <div class="job-history-item">
                 <div class="d-flex justify-content-between">
@@ -857,18 +1053,26 @@ static reloadCareerData() {
         `).join('');
     }
 
+    /**
+     * Updates stats displays
+     */
     static updateStats() {
+        if (!this.isCareerPage()) return;
+        
         if (this.elements.currentJob) {
             this.elements.currentJob.textContent = this.gameState.currentJob?.title || 'Unemployed';
         }
+        
         if (this.elements.salaryDisplay) {
             this.elements.salaryDisplay.textContent = this.gameState.currentJob ? 
                 `$${this.gameState.currentJob.salary.toLocaleString()}/month` : '$0/month';
         }
+        
         if (this.elements.performanceDisplay) {
             this.elements.performanceDisplay.textContent = this.gameState.currentJob ? 
                 `${this.gameState.currentJob.performance}%` : '0%';
         }
+        
         if (this.elements.satisfactionDisplay) {
             const satisfaction = this.calculateJobSatisfaction();
             this.elements.satisfactionDisplay.textContent = this.gameState.currentJob ? 
@@ -876,21 +1080,24 @@ static reloadCareerData() {
         }
     }
 
+    /**
+     * Shows job details in modal
+     */
     static showJobDetails(jobId) {
         const job = this.careersData.find(j => j.id === jobId);
         if (!job || !this.elements.modal) return;
-
+        
         this.selectedJob = job;
-
+        
         // Populate modal content
         this.elements.modalTitle.textContent = job.title;
         this.elements.modalDescription.textContent = job.description;
         this.elements.modalSalary.textContent = `$${job.salary.toLocaleString()}/month`;
-
+        
         // Populate requirements
         const missingReqs = this.getMissingRequirements(jobId);
         this.elements.modalRequirements.innerHTML = '';
-
+        
         // Age requirement
         if (job.requirements?.age) {
             const met = TimeManager?.timeState?.age >= job.requirements.age;
@@ -901,7 +1108,7 @@ static reloadCareerData() {
                 </li>
             `;
         }
-
+        
         // Education requirements
         if (job.requirements?.education) {
             if (job.requirements.education.includes('none')) {
@@ -922,7 +1129,7 @@ static reloadCareerData() {
                 });
             }
         }
-
+        
         // Skill requirements
         if (job.requirements?.skills) {
             job.requirements.skills.forEach(skill => {
@@ -936,7 +1143,7 @@ static reloadCareerData() {
                 `;
             });
         }
-
+        
         // Experience requirements
         if (job.requirements?.experience) {
             job.requirements.experience.forEach(exp => {
@@ -949,13 +1156,13 @@ static reloadCareerData() {
                 `;
             });
         }
-
+        
         // Populate skills gained
         this.elements.modalSkills.innerHTML = (job.skillsGained || []).map(skill => {
             const skillName = window.SKILLS?.[skill]?.name || skill;
             return `<li>${skillName}</li>`;
         }).join('') || '<li>No specific skills listed</li>';
-
+        
         // Update apply button
         const canApply = this.canApplyForJob(jobId);
         const isCurrentJob = this.gameState.currentJob?.id === jobId;
@@ -965,7 +1172,7 @@ static reloadCareerData() {
             isCurrentJob ? 'Current Job' :
             !canApply ? 'Requirements Not Met' :
             'Apply';
-
+        
         this.elements.modal.show();
     }
 
@@ -973,8 +1180,10 @@ static reloadCareerData() {
     // UTILITIES
     // ===================================================================
 
+    /**
+     * Gets current date string
+     */
     static getCurrentDateString() {
-        // Try to use TimeManager if available
         if (typeof TimeManager !== 'undefined' && TimeManager.getCurrentDateString) {
             return TimeManager.getCurrentDateString();
         }
@@ -987,6 +1196,9 @@ static reloadCareerData() {
         return `Year ${year - 2023 + 1}, Q${quarter}`;
     }
 
+    /**
+     * Logs messages if debug is enabled
+     */
     static log(...args) {
         if (this.debug) {
             console.log('[CareerManager]', ...args);
@@ -994,15 +1206,15 @@ static reloadCareerData() {
     }
 }
 
-// Initialize when DOM is loaded
+// Initialize when DOM is loaded (works on all pages)
 document.addEventListener('DOMContentLoaded', () => {
-    // Only initialize if on career page
-    if (document.querySelector('.job-listings-container')) {
-        CareerManager.init();
-    }
+    CareerManager.init();
 });
 
 // Cleanup when page unloads
 window.addEventListener('beforeunload', () => {
     CareerManager.cleanup();
 });
+
+// Make CareerManager globally available
+window.CareerManager = CareerManager;

@@ -15,6 +15,16 @@ window.SKILLS = {
         description: "Basic medical emergency response.",
         category: "physical"
     },
+    yoga_meditation: {
+        name: "Yoga & Meditation",
+        description: "Practices for physical flexibility and mental relaxation.",
+        category: "physical"
+    },
+    swimming: {
+        name: "Swimming",
+        description: "Ability to move through water efficiently.",
+        category: "physical"
+    },
 
     // Mental & Intellectual
     critical_thinking: {
@@ -25,6 +35,21 @@ window.SKILLS = {
     time_management: {
         name: "Time Management",
         description: "Organizing tasks efficiently.",
+        category: "mental"
+    },
+    problem_solving: {
+        name: "Problem Solving",
+        description: "Finding solutions to complex issues.",
+        category: "mental"
+    },
+    memory_techniques: {
+        name: "Memory Techniques",
+        description: "Methods to improve recall and retention.",
+        category: "mental"
+    },
+    financial_literacy: {
+        name: "Financial Literacy",
+        description: "Understanding money management and investments.",
         category: "mental"
     },
 
@@ -44,6 +69,16 @@ window.SKILLS = {
         description: "Communicating effectively to groups.",
         category: "social"
     },
+    teamwork: {
+        name: "Teamwork",
+        description: "Collaborating effectively with others.",
+        category: "social"
+    },
+    conflict_resolution: {
+        name: "Conflict Resolution",
+        description: "Resolving disagreements constructively.",
+        category: "social"
+    },
 
     // Technical & Digital
     programming: {
@@ -54,6 +89,21 @@ window.SKILLS = {
     data_analysis: {
         name: "Data Analysis",
         description: "Interpreting data with tools like Excel or SQL.",
+        category: "technical"
+    },
+    cybersecurity: {
+        name: "Cybersecurity",
+        description: "Protecting systems and data from digital threats.",
+        category: "technical"
+    },
+    digital_marketing: {
+        name: "Digital Marketing",
+        description: "Promoting products or services online.",
+        category: "technical"
+    },
+    basic_it_support: {
+        name: "Basic IT Support",
+        description: "Troubleshooting common tech issues.",
         category: "technical"
     },
 
@@ -68,6 +118,21 @@ window.SKILLS = {
         description: "Crafting written content.",
         category: "creative"
     },
+    photography: {
+        name: "Photography",
+        description: "Capturing and editing images.",
+        category: "creative"
+    },
+    music_instruments: {
+        name: "Playing Musical Instruments",
+        description: "Performing music using instruments.",
+        category: "creative"
+    },
+    storytelling: {
+        name: "Storytelling",
+        description: "Engaging audiences with narratives.",
+        category: "creative"
+    },
 
     // Trade
     automotive_repair: {
@@ -78,6 +143,21 @@ window.SKILLS = {
     construction: {
         name: "Construction",
         description: "Building and repairing structures.",
+        category: "trade"
+    },
+    plumbing: {
+        name: "Plumbing",
+        description: "Installing and maintaining piping systems.",
+        category: "trade"
+    },
+    electrical_work: {
+        name: "Electrical Work",
+        description: "Handling wiring and electrical systems.",
+        category: "trade"
+    },
+    gardening: {
+        name: "Gardening",
+        description: "Cultivating plants and maintaining outdoor spaces.",
         category: "trade"
     }
 };

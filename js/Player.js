@@ -1,80 +1,343 @@
-export class Player {
-    constructor() {
-        // Load with verbose debugging
-        const savedData = this.loadCharacterData();
+/**
+ * Player - Core player character class
+ * @version 2.1
+ * @description Handles all player data including stats, skills, finances, and persistence
+ */
+class Player {
+    /**
+     * Creates a new Player instance
+     * @param {string} [characterId='default'] - Unique identifier for the character
+     */
+    constructor(characterId = 'default') {
+        this.id = characterId;
+        this._name = 'Player';
+        this._age = 18;
+        this._gender = 'Unknown';
+        this._country = { name: 'Unknown', code: 'UNK' };
+        this._culture = { name: 'Unknown', code: 'UNK' };
+        this._stats = this._getDefaultStats();
+        this._skills = this._getDefaultSkills();
+        this._finances = this._getDefaultFinances();
+        this._education = [];
+        this._jobs = [];
+        this._relationships = [];
+        this._inventory = [];
+        this._properties = [];
         
-        // Core properties with fallbacks
-        this.name = savedData.name || 'Player';
-        this.gender = savedData.gender || 'Unknown';
-        this.age = savedData.age || 18;
-        
-        // Country handling with deep fallbacks
-        this.country = {
-            code: savedData.country?.code || 'UN',
-            name: savedData.country?.name || this.getCountryName(savedData.country?.code) || 'Unknown'
-        };
-        
-        // Culture handling
-        this.culture = {
-            name: savedData.culture?.name || 'Unknown',
-            code: savedData.culture?.code || 'UNK'
-        };
-        
-        // Skills system
-        this.skills = savedData.skills || {
-            programming: 0,
-            communication: 0,
-            leadership: 0
-        };
-        
-        // Stats
-        this.stats = savedData.stats || {
-            health: 100,
-            happiness: 75,
-            education: 50,
-            wealth: 25
-        };
-        
-        // Life progression
-        this.education = savedData.education || [];
-        this.jobHistory = savedData.jobHistory || [];
-        
-        // Debug output
-        console.log("Player initialized:", this);
+        // Load existing data if available
+        this._loadCharacterData();
+    }
+
+    // --------------------------
+    // Core Properties
+    // --------------------------
+
+    /**
+     * Gets the player's name
+     * @returns {string}
+     */
+    get name() { return this._name; }
+
+    /**
+     * Sets the player's name
+     * @param {string} value - New name
+     */
+ set name(value) {
+    this._name = value?.trim() || 'Player';
+    this._save();
+    this._dispatchCharacterUpdate();
+}
+    
+    /**
+     * Gets the player's age
+     * @returns {number}
+     */
+    get age() { return this._age; }
+
+    /**
+     * Sets the player's age
+     * @param {number} value - New age
+     */
+    set age(value) {
+        this._age = Math.max(0, parseInt(value) || 18);
+        this._save();
     }
     
-    loadCharacterData() {
+    /**
+     * Gets the player's gender
+     * @returns {string}
+     */
+    get gender() { return this._gender; }
+
+    /**
+     * Sets the player's gender
+     * @param {string} value - New gender
+     */
+    set gender(value) {
+        this._gender = value || 'Unknown';
+        this._save();
+    }
+    
+    /**
+     * Gets the player's country info
+     * @returns {Object} {name: string, code: string}
+     */
+    get country() { return this._country; }
+
+    /**
+     * Sets the player's country
+     * @param {string|Object} value - Country name or {name, code} object
+     */
+   set country(value) {
+    this._country = typeof value === 'string' ? 
+        { code: value.toUpperCase(), name: value } : 
+        { name: 'Unknown', code: 'UNK', ...value };
+    this._save();
+    this._dispatchCharacterUpdate(); // Add this line
+}
+    /**
+     * Gets the player's culture info
+     * @returns {Object} {name: string, code: string}
+     */
+    get culture() { return this._culture; }
+
+    /**
+     * Sets the player's culture
+     * @param {string|Object} value - Culture name or {name, code} object
+     */
+  set culture(value) {
+    this._culture = typeof value === 'string' ? 
+        { code: value.toUpperCase(), name: value } : 
+        { name: 'Unknown', code: 'UNK', ...value };
+    this._save();
+    this._dispatchCharacterUpdate(); // Add this line
+}
+    /**
+     * Gets the player's total money (cash + bank)
+     * @returns {number}
+     */
+    get totalMoney() { 
+        return (this._finances?.cash || 0) + (this._finances?.bank || 0); 
+    }
+
+_dispatchCharacterUpdate() {
+    document.dispatchEvent(new CustomEvent('characterStateChanged', {
+        detail: this.getCharacterSnapshot()
+    }));
+}
+
+getCharacterSnapshot() {
+    return {
+        name: this._name,
+        age: this._age,
+        health: this._stats.health,
+        stats: {...this._stats},
+        country: {...this._country},
+        culture: {...this._culture},
+        finances: {...this._finances}
+    };
+}
+
+
+    // --------------------------
+    // Stats Management
+    // --------------------------
+
+    /**
+     * Gets all player stats
+     * @returns {Object}
+     */
+    get stats() { return this._stats; }
+    
+    /**
+     * Gets a specific stat value
+     * @param {string} statName - Name of the stat to retrieve
+     * @returns {number}
+     */
+    getStat(statName) {
+        return this._stats[statName] || 0;
+    }
+    
+    /**
+     * Updates a stat by a given amount (clamped between 0-100)
+     * @param {string} statName - Stat to update
+     * @param {number} amount - Amount to add (can be negative)
+     */
+    updateStat(statName, amount) {
+        if (!this._stats[statName]) return;
+        this._stats[statName] = Math.max(0, Math.min(100, this._stats[statName] + amount));
+        this._save();
+    }
+
+    // --------------------------
+    // Financial Management
+    // --------------------------
+
+    /**
+     * Gets all financial data
+     * @returns {Object}
+     */
+    get finances() { return this._finances; }
+    
+    /**
+     * Adds money to player's finances
+     * @param {number} amount - Amount to add
+     * @param {string} [source='cash'] - 'cash' or 'bank'
+     */
+    addMoney(amount, source = 'cash') {
+        if (source === 'cash') {
+            this._finances.cash = (this._finances.cash || 0) + amount;
+        } else {
+            this._finances.bank = (this._finances.bank || 0) + amount;
+        }
+        this._save();
+    }
+
+    // --------------------------
+    // Time Advancement Handler
+    // --------------------------
+
+    /**
+     * Handles time advancement events
+     * @param {Object} timeState - Time state from TimeManager
+     * @async
+     */
+    async onTimeAdvanced(timeState) {
+        if (!timeState) return;
+        
+        // Update age if needed
+        if (timeState.age !== this._age) {
+            this._age = timeState.age;
+            this._save();
+        }
+        
+        // Dispatch character state change event
+        document.dispatchEvent(new CustomEvent('characterStateChanged', {
+            detail: {
+                name: this._name,
+                age: this._age,
+                health: this._stats.health,
+                stats: this._stats
+            }
+        }));
+    }
+
+    // --------------------------
+    // Private Methods
+    // --------------------------
+
+    /**
+     * Loads character data from localStorage
+     * @private
+     */
+    _loadCharacterData() {
         try {
-            const data = JSON.parse(localStorage.getItem('lifeSimCharacter'));
-            console.log("Loaded from localStorage:", data);
-            return data || {};
+            const data = JSON.parse(localStorage.getItem(`lifeSimCharacter_${this.id}`)) || {};
+            
+            // Only assign properties that exist in our class
+            for (const [key, value] of Object.entries(data)) {
+                if (this.hasOwnProperty(`_${key}`)) {
+                    this[`_${key}`] = value;
+                }
+            }
+            
+            // Ensure required properties exist
+            this._stats = this._stats || this._getDefaultStats();
+            this._skills = this._skills || this._getDefaultSkills();
+            this._finances = this._finances || this._getDefaultFinances();
+            
         } catch (e) {
             console.error("Error loading character data:", e);
-            return {};
         }
     }
     
-    getCountryName(code) {
-        if (!code || !window.COUNTRIES) return null;
-        const country = window.COUNTRIES.find(c => c.code === code);
-        return country?.name || null;
+    /**
+     * Saves current character data to localStorage
+     * @private
+     */
+    _save() {
+        try {
+            const saveData = {
+                name: this._name,
+                age: this._age,
+                gender: this._gender,
+                country: this._country,
+                culture: this._culture,
+                stats: this._stats,
+                skills: this._skills,
+                finances: this._finances,
+                education: this._education,
+                jobs: this._jobs,
+                relationships: this._relationships,
+                inventory: this._inventory,
+                properties: this._properties
+            };
+            
+            localStorage.setItem(`lifeSimCharacter_${this.id}`, JSON.stringify(saveData));
+            
+            // Notify listeners of changes
+            document.dispatchEvent(new CustomEvent('characterStateChanged', {
+                detail: {
+                    name: this._name,
+                    age: this._age,
+                    health: this._stats.health,
+                    stats: this._stats
+                }
+            }));
+        } catch (e) {
+            console.error("Error saving character data:", e);
+        }
     }
     
-    save() {
-        const saveData = {
-            name: this.name,
-            gender: this.gender,
-            age: this.age,
-            country: this.country,
-            culture: this.culture,
-            skills: this.skills,
-            stats: this.stats,
-            education: this.education,
-            jobHistory: this.jobHistory,
-            createdAt: new Date().toISOString()
+    /**
+     * Creates default stats object
+     * @returns {Object}
+     * @private
+     */
+    _getDefaultStats() {
+        return {
+            health: 100,
+            happiness: 75,
+            education: 50,
+            wealth: 25,
+            fitness: 50,
+            intelligence: 50,
+            charisma: 50
         };
-        
-        localStorage.setItem('lifeSimCharacter', JSON.stringify(saveData));
-        console.log("Character saved:", saveData);
+    }
+    
+    /**
+     * Creates default skills object
+     * @returns {Object}
+     * @private
+     */
+    _getDefaultSkills() {
+        return {
+            programming: 0,
+            communication: 0,
+            leadership: 0,
+            cooking: 0,
+            driving: 0,
+            creativity: 0
+        };
+    }
+    
+    /**
+     * Creates default finances object
+     * @returns {Object}
+     * @private
+     */
+    _getDefaultFinances() {
+        return {
+            cash: 0,
+            bank: 0,
+            debt: 0,
+            creditScore: 650,
+            monthlyIncome: 0,
+            monthlyExpenses: 0
+        };
     }
 }
+
+// Make globally available
+window.Player = Player;

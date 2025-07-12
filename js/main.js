@@ -1,241 +1,463 @@
-// main.js - Optimized Version
+/**
+ * Universal Main Manager - Core Game System
+ * @version 3.1
+ * @description Cross-page time advancement system with robust button handling
+ * 
+ * Key Improvements:
+ * - Fixed initialization sequence
+ * - 100% reliable button handling
+ * - Self-contained initialization
+ * - Better error recovery
+ * - Simplified architecture
+ */
+
 class MainManager {
-    // Event listener references for cleanup
-    static eventListeners = [];
-    
-    // Configuration
-    static debug = true;
-
-    
     /**
-     * Initializes the main application
-     * @throws {Error} If required dependencies are not available
-     * @returns {void}
+     * Configuration with safe defaults
+     * @static
      */
-// In main.js - Update the init method:
-
-static init() {
-    try {
-        this.log('Initializing MainManager...');
-        this.verifyDependencies();
-        
-        // Setup theme first
-        this.setupTheme();
-        
-        // Initialize core managers in correct order
-        TimeManager.init();
-        
-        // Load character info before other managers
-        this.loadCharacterInfo();
-        
-        // Initialize money system (which initializes FinancesManager)
-        this.initMoneySystem
-        
-        // Initialize other managers
-        EventManager.init();
-        
-        // Initialize EducationManager if available
-        if (typeof EducationManager !== 'undefined') {
-            EducationManager.syncState();
-        }
-        
-        // Initialize CareerManager if available
-        if (typeof CareerManager !== 'undefined') {
-            CareerManager.init();
-        }
-        
-        this.setupEventListeners();
-        
-        // Initial display updates
-        if (TimeManager.timeState) {
-            TimeManager.updateDisplays();
-        }
-        
-        this.log('MainManager initialized successfully');
-    } catch (error) {
-        console.error('MainManager initialization failed:', error);
-        throw error;
-    }
-}
+    static config = {
+        debug: true,
+        requiredSystems: ['TimeManager', 'Player'],
+        optionalSystems: ['EventManager', 'FinancesManager'],
+        buttonCheckInterval: 1000,
+        maxInitAttempts: 3
+    };
 
     /**
-     * Cleans up event listeners and references
-     * @returns {void}
+     * Current system state
+     * @static
      */
-    static cleanup() {
-        this.log('Cleaning up MainManager...');
-        this.eventListeners.forEach(({ element, type, listener }) => {
-            element.removeEventListener(type, listener);
-        });
-        this.eventListeners = [];
-    }
+    static state = {
+        initialized: false,
+        initAttempts: 0,
+        systemsReady: false,
+        pendingTimeAdvance: false,
+        boundHandlers: new Map(),
+        intervals: new Set(),
+        observers: new Set()
+    };
+
+    /* ========================
+     * PUBLIC INTERFACE
+     * ======================== */
 
     /**
-     * Verifies required dependencies are available
-     * @throws {Error} If required dependencies are missing
-     * @returns {void}
+     * Initializes the entire game system
+     * @static
+     * @async
      */
-    static verifyDependencies() {
-        if (typeof TimeManager === 'undefined') {
-            throw new Error('Required dependency TimeManager is missing');
+    static async init() {
+        if (this.state.initialized) {
+            this._log('Already initialized');
+            return;
         }
-    }
 
-    /**
-     * Sets up all event listeners
-     * @returns {void}
-     */
-    static setupEventListeners() {
-        const advanceTimeBtn = document.getElementById('advanceTimeBtn');
-        const themeToggle = document.getElementById('themeToggle');
+        this.state.initAttempts++;
         
-        if (advanceTimeBtn) {
-            const advanceTimeListener = () => this.handleAdvanceTime();
-            advanceTimeBtn.addEventListener('click', advanceTimeListener);
-            this.eventListeners.push({
-                element: advanceTimeBtn,
-                type: 'click',
-                listener: advanceTimeListener
-            });
-        }
-        
-        if (themeToggle) {
-            const themeToggleListener = () => this.toggleTheme();
-            themeToggle.addEventListener('click', themeToggleListener);
-            this.eventListeners.push({
-                element: themeToggle,
-                type: 'click',
-                listener: themeToggleListener
-            });
+        try {
+            // Phase 1: Core Setup
+            await this._setupCore();
+            
+            // Phase 2: System Verification
+            await this._verifySystems();
+            
+            // Phase 3: Event System Setup
+            this._setupEventSystem();
+            
+            // Phase 4: Button Handling
+            this._setupButtonHandlers();
+            
+            this.state.initialized = true;
+            this._log('System ready');
+            
+            // Notify other systems
+            document.dispatchEvent(new CustomEvent('mainManagerReady'));
+            
+        } catch (error) {
+            this._handleInitError(error);
         }
     }
 
     /**
      * Handles time advancement
-     * @returns {void}
+     * @static
+     * @async
+     * @param {Event} [event] - Optional DOM event
      */
-    static handleAdvanceTime() {
-        const btn = document.getElementById('advanceTimeBtn');
-        if (!btn) return;
+    static async advanceTime(event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
 
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Advancing...';
-        
+        if (this.state.pendingTimeAdvance) {
+            this._log('Time advance already in progress');
+            return;
+        }
+
+        this.state.pendingTimeAdvance = true;
+        const button = event?.target?.closest('#advanceTimeButton') || 
+                      document.getElementById('advanceTimeButton');
+
         try {
-            TimeManager.advanceTime(3);
-            EventManager.addToEventLog('Time advanced by 3 months');
+            // Visual feedback
+            if (button) {
+                const originalText = button.innerHTML;
+                button.disabled = true;
+                button.innerHTML = 'Processing...';
+                
+                // Core advancement
+                const newTime = await TimeManager.advanceTime();
+                this._log(`Advanced to ${newTime.year} Q${newTime.quarter}`);
+                
+                // Update systems
+                await this._updateAllSystems(newTime);
+                
+                // Restore button
+                button.disabled = false;
+                button.innerHTML = originalText;
+            } else {
+                // Fallback if no button found
+                const newTime = await TimeManager.advanceTime();
+                await this._updateAllSystems(newTime);
+            }
+            
         } catch (error) {
-            console.error('Error advancing time:', error);
-            EventManager.addToEventLog('Failed to advance time', 'danger');
+            this._handleError('Time advance failed', error);
+            if (button) {
+                button.disabled = false;
+                button.innerHTML = 'Advance Time (3 Months)';
+            }
         } finally {
-            setTimeout(() => {
-                btn.disabled = false;
-                btn.textContent = 'Advance Time';
-            }, 500);
+            this.state.pendingTimeAdvance = false;
         }
     }
 
     /**
-     * Loads and displays character information
-     * @returns {void}
+     * Cleans up all resources
+     * @static
      */
-static loadCharacterInfo() {
-    try {
-        const character = JSON.parse(localStorage.getItem('lifeSimCharacter')) || {
-            name: 'Player',
-            gender: 'Unknown',
-            country: { name: 'Unknown' }, // Default structure
-            culture: { name: 'Unknown' },
-            age: 18
-        };
-
-        // Update all fields with proper fallbacks
-        const updateField = (id, value) => {
-            const element = document.getElementById(id);
-            if (element) element.textContent = value || 'Unknown';
-        };
-
-        updateField('characterName', character.name);
-        updateField('characterGender', character.gender);
+    static cleanup() {
+        // Clear intervals
+        this.state.intervals.forEach(clearInterval);
+        this.state.intervals.clear();
         
-        // Handle both old and new country formats
-        const countryName = character.country?.name || character.countryName || 'Unknown';
-        updateField('characterCountry', countryName);
+        // Disconnect observers
+        this.state.observers.forEach(obs => obs.disconnect());
+        this.state.observers.clear();
         
-        // Handle both old and new culture formats
-        const cultureName = character.culture?.name || character.culture || 'Unknown';
-        updateField('characterCulture', cultureName);
-
-        // Get age from timeState if available
-        const timeState = JSON.parse(localStorage.getItem('timeState')) || { age: character.age || 18 };
-        updateField('characterAge', `Age ${timeState.age}`);
-
-    } catch (error) {
-        console.error('[MainManager] Error loading character info:', error);
-        // Fallback display
-        document.getElementById('characterName').textContent = 'Error Loading Data';
-        document.getElementById('characterCountry').textContent = 'Error';
+        // Remove event listeners
+        this.state.boundHandlers.forEach((handler, element) => {
+            element?.removeEventListener?.('click', handler);
+        });
+        this.state.boundHandlers.clear();
+        
+        // Reset state
+        this.state.initialized = false;
+        this.state.systemsReady = false;
+        this.state.pendingTimeAdvance = false;
     }
-}
+
+    /* ========================
+     * CORE SYSTEM SETUP
+     * ======================== */
 
     /**
-     * Sets up the application theme
-     * @returns {void}
+     * Sets up core functionality
+     * @static
+     * @async
+     * @private
      */
-    static setupTheme() {
-        try {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            
-            const themeToggle = document.getElementById('themeToggle');
-            if (themeToggle) {
-                themeToggle.innerHTML = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+    static async _setupCore() {
+        // Ensure TimeManager exists
+        if (!window.TimeManager) {
+            throw new Error('TimeManager is required but not loaded');
+        }
+        
+        // Initialize TimeManager with safe defaults
+        await TimeManager.init({
+            characterId: this._getCharacterId(),
+            startYear: new Date().getFullYear(),
+            startQuarter: 1
+        });
+        
+        this._log('Core systems ready');
+    }
+
+    /**
+     * Verifies all required systems
+     * @static
+     * @async
+     * @private
+     */
+    static async _verifySystems() {
+        const missing = this.config.requiredSystems.filter(sys => !window[sys]);
+        
+        if (missing.length > 0) {
+            throw new Error(`Missing required systems: ${missing.join(', ')}`);
+        }
+        
+        // Initialize optional systems if they exist
+        await Promise.all(this.config.optionalSystems.map(async sys => {
+            if (window[sys]?.init) {
+                await window[sys].init();
+                this._log(`${sys} initialized`);
             }
-        } catch (error) {
-            this.log('Error setting up theme:', error);
+        }));
+        
+        this.state.systemsReady = true;
+    }
+
+    /**
+     * Gets current character ID
+     * @static
+     * @private
+     * @returns {string}
+     */
+    static _getCharacterId() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('characterId') || 'default';
+    }
+
+    /* ========================
+     * EVENT SYSTEM
+     * ======================== */
+
+    /**
+     * Sets up the event system
+     * @static
+     * @private
+     */
+    static _setupEventSystem() {
+        // System-wide events
+        document.addEventListener('timeAdvanced', async (e) => {
+            await this._updateAllSystems(e.detail);
+        });
+        
+        // Financial updates
+        if (window.FinancesManager) {
+            FinancesManager.onUpdate(() => {
+                document.dispatchEvent(new CustomEvent('financialUpdate'));
+            });
+        }
+        
+        this._log('Event system ready');
+    }
+
+    /* ========================
+     * BUTTON HANDLING
+     * ======================== */
+
+    /**
+     * Sets up all button handlers
+     * @static
+     * @private
+     */
+    static _setupButtonHandlers() {
+        // 1. Direct binding for existing buttons
+        this._bindExistingButtons();
+        
+        // 2. Document-level delegation for dynamic buttons
+        const handler = (e) => {
+            if (e.target?.closest('#advanceTimeButton')) {
+                this.advanceTime(e);
+            }
+        };
+        
+        document.addEventListener('click', handler);
+        this.state.boundHandlers.set(document, handler);
+        
+        // 3. Periodic check for new buttons
+        this._setupButtonChecker();
+        
+        // 4. MutationObserver for modern SPAs
+        this._setupMutationObserver();
+        
+        this._log('Button handlers ready');
+    }
+
+    /**
+     * Binds handlers to existing buttons
+     * @static
+     * @private
+     */
+    static _bindExistingButtons() {
+        document.querySelectorAll('#advanceTimeButton').forEach(button => {
+            if (!this.state.boundHandlers.has(button)) {
+                const handler = (e) => this.advanceTime(e);
+                button.addEventListener('click', handler);
+                this.state.boundHandlers.set(button, handler);
+            }
+        });
+    }
+
+    /**
+     * Sets up periodic button checker
+     * @static
+     * @private
+     */
+    static _setupButtonChecker() {
+        const interval = setInterval(() => {
+            this._bindExistingButtons();
+        }, this.config.buttonCheckInterval);
+        
+        this.state.intervals.add(interval);
+    }
+
+    /**
+     * Sets up DOM mutation observer
+     * @static
+     * @private
+     */
+    static _setupMutationObserver() {
+        if (typeof MutationObserver === 'undefined') return;
+        
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(mutation => {
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        const buttons = node.querySelectorAll('#advanceTimeButton');
+                        buttons.forEach(button => {
+                            if (!this.state.boundHandlers.has(button)) {
+                                const handler = (e) => this.advanceTime(e);
+                                button.addEventListener('click', handler);
+                                this.state.boundHandlers.set(button, handler);
+                            }
+                        });
+                    }
+                });
+            });
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+        
+        this.state.observers.add(observer);
+    }
+
+    /* ========================
+     * SYSTEM UPDATES
+     * ======================== */
+
+    /**
+     * Updates all game systems
+     * @static
+     * @async
+     * @private
+     * @param {Object} timeState - Current time data
+     */
+    static async _updateAllSystems(timeState) {
+        const systems = [
+            'Player',
+            'FinancesManager',
+            'EventManager',
+            'EducationManager',
+            'CareerManager'
+        ];
+        
+        await Promise.all(systems.map(sys => {
+            if (window[sys]?.onTimeAdvanced) {
+                return window[sys].onTimeAdvanced(timeState);
+            }
+        }));
+        
+        document.dispatchEvent(new CustomEvent('timeAdvancedConsolidated', {
+            detail: { timeState }
+        }));
+    }
+
+    /* ========================
+     * ERROR HANDLING
+     * ======================== */
+
+    /**
+     * Handles initialization errors
+     * @static
+     * @private
+     * @param {Error} error
+     */
+    static _handleInitError(error) {
+        console.error('Initialization error:', error);
+        
+        if (this.state.initAttempts < this.config.maxInitAttempts) {
+            setTimeout(() => this.init(), 1000 * this.state.initAttempts);
+            this._log(`Retrying initialization (attempt ${this.state.initAttempts})`);
+        } else {
+            document.dispatchEvent(new CustomEvent('initFailed', {
+                detail: { error: error.message }
+            }));
         }
     }
 
     /**
-     * Toggles between light and dark theme
-     * @returns {void}
+     * Handles runtime errors
+     * @static
+     * @private
+     * @param {string} context
+     * @param {Error} error
      */
-    static toggleTheme() {
-        try {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            
-            const themeToggle = document.getElementById('themeToggle');
-            if (themeToggle) {
-                themeToggle.innerHTML = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
-            }
-        } catch (error) {
-            this.log('Error toggling theme:', error);
+    static _handleError(context, error) {
+        console.warn(`${context}:`, error);
+        
+        if (window.EventManager) {
+            EventManager.addToEventLog(`${context}: ${error.message}`, 'warning');
         }
     }
 
     /**
-     * Logs messages when debug is enabled
-     * @param {...any} args - Arguments to log
-     * @returns {void}
+     * Debug logging
+     * @static
+     * @private
+     * @param {...any} args
      */
-    static log(...args) {
-        if (this.debug) {
+    static _log(...args) {
+        if (this.config.debug) {
             console.log('[MainManager]', ...args);
         }
     }
 }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    MainManager.init();
-    document.getElementById('currentYear')?.textContent = new Date().getFullYear();
-});
+/* ========================
+ * AUTOMATIC INITIALIZATION
+ * ======================== */
 
-// Cleanup when page unloads
-window.addEventListener('beforeunload', () => {
-    MainManager.cleanup();
-});
+// Self-registering initialization
+(function() {
+    // Ensure we're in a browser environment
+    if (typeof window === 'undefined') return;
+    
+    // Register the manager globally
+    window.MainManager = MainManager;
+    
+    // Initialize when ready
+    function start() {
+        MainManager.init().catch(error => {
+            console.error('Failed to initialize MainManager:', error);
+        });
+        
+        // Update copyright year if element exists
+        const yearElement = document.getElementById('currentYear');
+        if (yearElement) {
+            yearElement.textContent = new Date().getFullYear();
+        }
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', start);
+    } else {
+        start();
+    }
+    
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = MainManager;
+} else {
+    window.MainManager = MainManager;
+}
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => MainManager.cleanup());
+})();

@@ -109,15 +109,44 @@ class RelationshipManager {
     static currentRelationship = null;
 
     // Initialization
-    static init() {
-        if (!localStorage.getItem('relationships')) {
-            this.resetRelationships();
+   static init() {
+    if (!localStorage.getItem('relationships')) {
+        this.resetRelationships();
+    }
+    
+    this.cacheDOMElements();
+    this.setupEventListeners();
+    this.renderAllRelationships();
+    
+    // Add time listener
+    document.addEventListener('timeAdvanced', (e) => {
+        this.handleTimeAdvanced(e.detail);
+    });
+}
+
+static handleTimeAdvanced(timeState) {
+    // Process monthly relationship changes
+    const relationships = this.getRelationships();
+    let changed = false;
+    
+    for (const type in relationships) {
+        for (const rel of relationships[type]) {
+            const change = Math.floor(Math.random() * 11) - 5;
+            const newCloseness = Math.max(0, Math.min(100, rel.closeness + change));
+            
+            if (newCloseness !== rel.closeness) {
+                rel.closeness = newCloseness;
+                changed = true;
+            }
         }
-        
-        this.cacheDOMElements();
-        this.setupEventListeners();
+    }
+    
+    if (changed) {
+        this.saveRelationships(relationships);
         this.renderAllRelationships();
     }
+}
+
 
     static cacheDOMElements() {
         this.domElements = {
@@ -351,11 +380,24 @@ class RelationshipManager {
         }
     }
 
-    static startDating() {
-        const relationships = this.getRelationships();
-        const character = JSON.parse(localStorage.getItem('lifeSimCharacter')) || {};
-        
- if (!this.canDateAgain()) {
+static startDating() {
+    const relationships = this.getRelationships();
+    const character = JSON.parse(localStorage.getItem('lifeSimCharacter')) || {};
+    
+    // Check if already in a romantic relationship
+    if (relationships.romantic.length > 0) {
+        this.domElements.modalTitle.textContent = 'Already in a Relationship';
+        this.domElements.modalBody.innerHTML = `
+            <div class="alert alert-warning">
+                You're already in a romantic relationship with ${relationships.romantic[0].name}.
+            </div>
+        `;
+        this.domElements.relationshipModal.show();
+        return;
+    }
+    
+    // Check breakup cooldown
+    if (!this.canDateAgain()) {
         const cooldown = JSON.parse(localStorage.getItem('breakupCooldown'));
         const remainingDays = Math.ceil(cooldown.duration - (new Date().getTime() - cooldown.date) / (1000 * 60 * 60 * 24));
         
@@ -371,39 +413,75 @@ class RelationshipManager {
         return;
     }
 
-        if (relationships.romantic.length > 0) {
-            this.domElements.modalTitle.textContent = 'Already in a Relationship';
-            this.domElements.modalBody.innerHTML = `
-                <div class="alert alert-warning">
-                    You're already in a romantic relationship with ${relationships.romantic[0].name}.
+    // Show dating options modal
+    this.domElements.modalTitle.textContent = 'How would you like to meet someone?';
+    this.domElements.modalBody.innerHTML = `
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="card h-100 option-card" data-method="friends">
+                    <div class="card-body text-center">
+                        <i class="bi bi-people-fill display-4 text-primary mb-3"></i>
+                        <h5>Through Friends</h5>
+                        <p class="text-muted">Meet a friend of a friend</p>
+                        <div class="mt-2 small">
+                            <span class="badge bg-success">+ Higher closeness</span>
+                            <span class="badge bg-info">Shared interests</span>
+                        </div>
+                    </div>
                 </div>
-            `;
-            this.domElements.interactBtn.style.display = 'none';
-            this.domElements.relationshipModal.show();
-            return;
-        }
-        
-        const person = this.generateRandomPerson(character.countryCode);
-        const newPartner = {
-            id: `romantic-${Math.random().toString(36).substring(2, 9)}`,
-            name: person.fullName,
-            closeness: 50 + Math.floor(Math.random() * 20),
-            age: (character.age || 18) + Math.floor(Math.random() * 5) - 2,
-            gender: person.gender,
-            country: person.country,
-            countryCode: person.countryCode,
-            description: `You started dating ${person.fullName.split(' ')[0]} after meeting ${Math.random() > 0.5 ? 'at work' : 'through friends'}. ${person.description}`,
-            traits: person.traits
-        };
-        
-        relationships.romantic.push(newPartner);
-        this.saveRelationships(relationships);
-        this.renderRelationshipList(this.RELATIONSHIP_TYPES.ROMANTIC, relationships.romantic);
-        
-        if (typeof EventManager !== 'undefined') {
-            EventManager.addToEventLog(`Started dating ${newPartner.name} from ${newPartner.country}!`, 'danger');
-        }
-    }
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100 option-card" data-method="app">
+                    <div class="card-body text-center">
+                        <i class="bi bi-phone display-4 text-info mb-3"></i>
+                        <h5>Dating App</h5>
+                        <p class="text-muted">Swipe right on someone new</p>
+                        <div class="mt-2 small">
+                            <span class="badge bg-warning">Random traits</span>
+                            <span class="badge bg-secondary">Wide age range</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100 option-card" data-method="work">
+                    <div class="card-body text-center">
+                        <i class="bi bi-briefcase display-4 text-warning mb-3"></i>
+                        <h5>At Work</h5>
+                        <p class="text-muted">Find romance in the workplace</p>
+                        <div class="mt-2 small">
+                            <span class="badge bg-primary">Similar income</span>
+                            <span class="badge bg-success">Stable</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100 option-card" data-method="random">
+                    <div class="card-body text-center">
+                        <i class="bi bi-stars display-4 text-danger mb-3"></i>
+                        <h5>Chance Encounter</h5>
+                        <p class="text-muted">Meet someone unexpectedly</p>
+                        <div class="mt-2 small">
+                            <span class="badge bg-danger">High risk/reward</span>
+                            <span class="badge bg-info">Surprising traits</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Add click handlers
+    this.domElements.modalBody.querySelectorAll('.option-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const method = card.dataset.method;
+            this.generateNewPartner(method);
+        });
+    });
+
+    this.domElements.relationshipModal.show();
+}
 
     // Activity System
     static showActivityOptions() {
