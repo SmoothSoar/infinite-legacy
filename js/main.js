@@ -169,21 +169,60 @@ class MainManager {
      * @async
      * @private
      */
-    static async _setupCore() {
-        // Ensure TimeManager exists
-        if (!window.TimeManager) {
-            throw new Error('TimeManager is required but not loaded');
-        }
-        
-        // Initialize TimeManager with safe defaults
-        await TimeManager.init({
-            characterId: this._getCharacterId(),
-            startYear: new Date().getFullYear(),
-            startQuarter: 1
+static async _setupCore() {
+    const characterId = this._getCharacterId();
+    
+    // Initialize Player - this will load from localStorage or create new
+    this.state.player = new Player(characterId);
+    
+    // Debug log to verify player data
+    if (this.config.debug) {
+        console.log('Player initialized with:', {
+            name: this.state.player.name,
+            country: this.state.player.country,
+            culture: this.state.player.culture
         });
-        
-        this._log('Core systems ready');
     }
+    
+    // Ensure TimeManager exists
+    if (!window.TimeManager) {
+        throw new Error('TimeManager is required but not loaded');
+    }
+    
+    // Initialize TimeManager with player's age
+    await TimeManager.init({
+        characterId: characterId,
+        startYear: new Date().getFullYear(),
+        startQuarter: 1,
+        age: this.state.player.age
+    });
+    
+    // Initialize EventManager if available
+    if (window.EventManager) {
+        await EventManager.init();
+    }
+    
+    // Force initial UI update after all systems are ready
+    this._forceInitialUIUpdate();
+    
+    this._log('Core systems ready');
+}
+
+static _forceInitialUIUpdate() {
+    // Update all character displays immediately
+    document.dispatchEvent(new CustomEvent('characterStateChanged', {
+        detail: this.state.player.getCharacterSnapshot()
+    }));
+    
+    // Force update financial displays
+    document.dispatchEvent(new CustomEvent('financialDataUpdated'));
+    
+    // If EventManager is available, trigger its updates
+    if (window.EventManager) {
+        EventManager._updateDisplays();
+        EventManager._updateCharacterDisplays();
+    }
+}
 
     /**
      * Verifies all required systems
@@ -215,10 +254,12 @@ class MainManager {
      * @private
      * @returns {string}
      */
-    static _getCharacterId() {
-        const params = new URLSearchParams(window.location.search);
-        return params.get('characterId') || 'default';
-    }
+   static _getCharacterId() {
+    const params = new URLSearchParams(window.location.search);
+    const characterId = params.get('characterId') || localStorage.getItem('lastCharacterId') || 'default';
+    localStorage.setItem('lastCharacterId', characterId); // Remember this character
+    return characterId;
+}
 
     /* ========================
      * EVENT SYSTEM

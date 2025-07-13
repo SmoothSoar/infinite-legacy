@@ -1,4 +1,4 @@
-/* assets.css - Assets Module Styling */
+/* relationships.css - Relationships Module Styling */
 :root {
   /* Base spacing unit */
   --base-spacing: 1rem;
@@ -70,160 +70,129 @@ body {
 }
 
 /* ==================== */
-/* ASSET CARDS */
+/* RELATIONSHIP CARDS */
 /* ==================== */
-.asset-card {
+.relationship-card {
   background-color: rgb(var(--color-card));
   border: 1px solid rgb(var(--color-card-border));
   border-radius: var(--radius-md);
   padding: var(--base-spacing);
   margin-bottom: var(--base-spacing);
   transition: all var(--transition-medium) ease;
-  height: 100%;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: var(--base-spacing);
 }
 
-.asset-card:hover {
-  transform: translateY(-5px);
+.relationship-card:hover {
+  transform: translateY(-3px);
   box-shadow: var(--shadow-md);
 }
 
-.asset-img-container {
-  position: relative;
-  padding-top: 75%; /* 4:3 aspect ratio */
-  overflow: hidden;
-  border-radius: var(--radius-sm);
-  margin-bottom: 0.75rem;
-  background-color: rgb(var(--color-bg-secondary));
-}
-
-.asset-img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+.relationship-avatar {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
   object-fit: cover;
+  border: 2px solid rgb(var(--color-primary));
 }
 
-.asset-name {
+.relationship-details {
+  flex: 1;
+}
+
+.relationship-name {
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
   color: rgb(var(--color-text));
 }
 
-.asset-price {
-  font-weight: 700;
-  color: rgb(var(--color-success));
-  margin-bottom: 0.75rem;
-}
-
-.asset-meta {
+.relationship-meta {
+  display: flex;
+  gap: 0.75rem;
   font-size: 0.85rem;
   color: rgb(var(--color-text-secondary));
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
-.asset-category {
+.relationship-type {
   display: inline-block;
   padding: 0.25rem 0.5rem;
   font-size: 0.75rem;
   font-weight: 600;
   border-radius: var(--radius-sm);
-  margin-bottom: 0.5rem;
 }
 
-.asset-category.cars {
+.relationship-type.family {
   background-color: rgba(var(--color-primary), 0.15);
   color: rgb(var(--color-primary));
 }
 
-.asset-category.boats {
-  background-color: rgba(var(--color-info), 0.15);
-  color: rgb(var(--color-info));
+.relationship-type.friend {
+  background-color: rgba(var(--color-success), 0.15);
+  color: rgb(var(--color-success));
 }
 
-.asset-category.planes {
-  background-color: rgba(var(--color-warning), 0.15);
-  color: rgb(var(--color-warning));
-}
-
-.asset-category.motorcycles {
+.relationship-type.romantic {
   background-color: rgba(var(--color-danger), 0.15);
   color: rgb(var(--color-danger));
 }
 
-/* ==================== */
-/* TAB SYSTEM */
-/* ==================== */
-.category-tabs {
-  border-bottom: 1px solid rgb(var(--color-border));
-  margin-bottom: var(--base-spacing);
-}
-
-.category-tabs .nav-link {
-  color: rgb(var(--color-text-secondary));
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  padding: 0.75rem 1.25rem;
-  transition: all var(--transition-medium) ease;
-  font-weight: 500;
+/* Flag icon styling */
+.flag-icon {
+  width: 1.2em;
+  height: 1.2em;
+  border-radius: 2px;
   margin-right: 0.25rem;
-  background-color: rgba(var(--color-primary), 0.05);
-}
-
-.category-tabs .nav-link:hover {
-  color: rgb(var(--color-primary));
-  background-color: rgba(var(--color-primary), 0.1);
-  border-color: rgb(var(--color-border));
-}
-
-.category-tabs .nav-link.active {
-  color: rgb(var(--color-primary));
-  background-color: rgb(var(--color-card));
-  border-color: rgb(var(--color-border)) rgb(var(--color-border)) transparent;
-  border-bottom-color: rgb(var(--color-card)) !important;
-  position: relative;
-  font-weight: 600;
-}
-
-.category-tabs .nav-link.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background-color: rgb(var(--color-primary));
 }
 
 /* ==================== */
-/* BUTTON STYLES */
+/* RELATIONSHIP PROGRESS */
 /* ==================== */
-.purchase-btn {
-  transition: all var(--transition-fast) ease;
-  font-weight: 500;
+.relationship-progress {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.progress {
+  height: 0.5rem;
+  background-color: rgb(var(--color-bg-secondary));
   border-radius: var(--radius-sm);
-  margin-top: auto;
 }
 
-.purchase-btn:hover {
-  transform: scale(1.03);
+.progress-bar {
+  background-color: rgb(var(--color-primary));
+  transition: width var(--transition-medium) ease;
 }
 
 /* ==================== */
-/* ALERT STYLES */
+/* RELATIONSHIP ACTIONS */
 /* ==================== */
-.alert {
-  border-radius: var(--radius-md);
-  transition: background-color var(--transition-fast) ease, color var(--transition-fast) ease;
+.relationship-actions {
+  display: flex;
+  gap: 0.5rem;
 }
 
-.alert-info {
-  background-color: rgba(var(--color-info), 0.2);
-  border-color: rgba(var(--color-info), 0.3);
-  color: rgb(var(--color-text));
+.btn-relationship-action {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.85rem;
+  border-radius: var(--radius-sm);
+}
+
+/* ==================== */
+/* RELATIONSHIPS LIST */
+/* ==================== */
+.relationships-list {
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.empty-relationships {
+  text-align: center;
+  padding: 2rem;
+  color: rgb(var(--color-text-secondary));
 }
 
 /* ==================== */
@@ -246,32 +215,39 @@ body {
 }
 
 /* ==================== */
-/* CURRENT ASSETS GRID */
+/* BUTTON STYLES */
 /* ==================== */
-.current-asset {
-  display: flex;
-  align-items: center;
-  padding: 0.75rem;
-  border: 1px solid rgb(var(--color-border));
-  border-radius: var(--radius-md);
-  margin-bottom: 0.75rem;
-  background-color: rgb(var(--color-bg-secondary));
-}
-
-.current-asset-img {
-  width: 3rem;
-  height: 3rem;
-  object-fit: cover;
+.btn {
+  transition: all var(--transition-fast) ease;
+  font-weight: 500;
   border-radius: var(--radius-sm);
-  margin-right: 0.75rem;
 }
 
-.current-asset-details {
-  flex: 1;
+.btn-success {
+  background-color: rgb(var(--color-success));
+  border-color: rgb(var(--color-success));
 }
 
-.current-asset-actions {
-  margin-left: auto;
+.btn-danger {
+  background-color: rgb(var(--color-danger));
+  border-color: rgb(var(--color-danger));
+}
+
+/* ==================== */
+/* SPINNER STYLES */
+/* ==================== */
+.spinner-border {
+  width: 2rem;
+  height: 2rem;
+  border-width: 0.2em;
+}
+
+/* ==================== */
+/* BADGE STYLES */
+/* ==================== */
+.badge {
+  font-weight: 500;
+  padding: 0.35em 0.65em;
 }
 
 /* ==================== */
@@ -279,22 +255,17 @@ body {
 /* ==================== */
 [data-theme="dark"] {
   .card,
-  .asset-card {
+  .relationship-card {
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   }
   
   .card:hover,
-  .asset-card:hover {
+  .relationship-card:hover {
     box-shadow: 0 4px 8px rgba(0,0,0,0.4);
   }
   
-  .category-tabs .nav-link {
-    background-color: rgba(var(--color-primary), 0.1);
-    color: rgb(var(--color-text-muted));
-  }
-  
-  .category-tabs .nav-link.active {
-    background-color: rgb(var(--color-bg));
+  .progress {
+    background-color: rgb(var(--color-bg-tertiary));
   }
   
   .modal-content {
@@ -306,27 +277,21 @@ body {
 /* RESPONSIVE ADJUSTMENTS */
 /* ==================== */
 @media (max-width: 768px) {
-  .category-tabs .nav-link {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.9rem;
-  }
-  
-  .asset-card {
-    padding: 0.75rem;
-  }
-  
-  .current-asset {
+  .relationship-card {
     flex-direction: column;
     text-align: center;
   }
   
-  .current-asset-img {
-    margin-right: 0;
-    margin-bottom: 0.5rem;
+  .relationship-avatar {
+    width: 4rem;
+    height: 4rem;
   }
   
-  .current-asset-actions {
-    margin-left: 0;
-    margin-top: 0.5rem;
+  .relationship-meta {
+    justify-content: center;
+  }
+  
+  .relationship-actions {
+    justify-content: center;
   }
 }

@@ -69,26 +69,31 @@ class EventManager {
      * @static
      * @throws {Error} If initialization fails after retries
      */
-    static async init() {
-        if (this.state.initialized) {
-            this.log('Already initialized');
-            return;
-        }
-
-        try {
-            this._validateConfig();
-            this._cacheElements();
-            this._setupEventListeners();
-            
-            this.state.initialized = true;
-            this.log('Initialized successfully');
-            
-            this._updateDisplays();
-        } catch (error) {
-            console.error('Initialization failed:', error);
-            await this._retryInit();
-        }
+  static async init() {
+    if (this.state.initialized) {
+        this.log('Already initialized');
+        return;
     }
+
+    try {
+        this._validateConfig();
+        this._cacheElements();
+        this._setupEventListeners();
+        
+        this.state.initialized = true;
+        this.log('Initialized successfully');
+        
+        // Immediately update all displays
+        this._updateDisplays();
+        this._updateCharacterDisplays(); // Add this line
+        
+    } catch (error) {
+        console.error('Initialization failed:', error);
+        await this._retryInit();
+    }
+}
+
+
 
     /**
      * Validate configuration settings
@@ -110,18 +115,27 @@ class EventManager {
      * @private
      * @static
      */
-    static _cacheElements() {
-        this.state.elements = {
-            eventLogContainer: document.getElementById('eventLog'),
-            timeDisplay: document.getElementById('timeDisplay'),
-            ageDisplay: document.getElementById('characterAge'),
-            moneyDisplay: document.getElementById('moneyDisplay')
-        };
-        
-        if (this.config.debug && !this.state.elements.eventLogContainer) {
-            this.log('Warning: eventLogContainer element not found');
-        }
+  static _cacheElements() {
+    this.state.elements = {
+        eventLogContainer: document.getElementById('eventLog'),
+        timeDisplay: document.getElementById('timeDisplay'),
+        ageDisplay: document.getElementById('characterAge'),
+        moneyDisplay: document.getElementById('moneyDisplay'),
+        characterName: document.getElementById('characterName'),
+        characterCountry: document.getElementById('characterCountry'),
+        characterCulture: document.getElementById('characterCulture'),
+        healthDisplay: document.getElementById('healthDisplay')
+    };
+    
+    if (this.config.debug) {
+        Object.entries(this.state.elements).forEach(([name, element]) => {
+            if (!element) {
+                this.log(`Warning: ${name} element not found`);
+            }
+        });
     }
+}
+    
 
     /* --------------------------
      * Event System
@@ -389,25 +403,68 @@ class EventManager {
      * @private
      * @static
      */
-    static _updateCharacterDisplays() {
-        if (!MainManager.state.player) return;
+  // In eventManager.js, modify the _updateCharacterDisplays method:
+static _updateCharacterDisplays() {
+    try {
+        // Try to get player from MainManager first
+        const player = MainManager.state?.player;
+        
+        if (player) {
+            console.log('Updating character displays with player data:', {
+                name: player.name,
+                country: player.country,
+                culture: player.culture
+            });
+            
+            const fields = {
+                'characterName': player.name,
+                'characterAge': `Age ${player.age || 18}`,
+                'characterCountry': player.country?.name || 'Unknown',
+                'characterCulture': player.culture?.name || 'Unknown',
+                'healthDisplay': `${player.getStat?.('health') || 100}%`,
+                'moneyDisplay': `$${(player.totalMoney || 0).toLocaleString()}`
+            };
 
-        const player = MainManager.state.player;
-        const fields = {
-            'characterName': player.name,
-            'characterAge': `Age ${player.age || 18}`,
-            'characterCountry': player.country?.name || 'Unknown',
-            'characterCulture': player.culture?.name || 'Unknown',
-            'healthDisplay': `${player.getStat?.('health') || 100}%`,
-            'moneyDisplay': `$${(player.totalMoney || 0).toLocaleString()}`
-        };
+            Object.entries(fields).forEach(([id, value]) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.textContent = value;
+                    if (this.config.debug) {
+                        console.log(`Updating ${id} with:`, value);
+                    }
+                } else if (this.config.debug) {
+                    console.warn(`Element not found: ${id}`);
+                }
+            });
+            return;
+        }
+        
+        // Fallback to last character state if available
+        if (this.state.lastCharacterState) {
+            console.log('Updating character displays with last state:', this.state.lastCharacterState);
+            const fields = {
+                'characterName': this.state.lastCharacterState.name,
+                'characterAge': `Age ${this.state.lastCharacterState.age || 18}`,
+                'characterCountry': this.state.lastCharacterState.country?.name || 'Unknown',
+                'characterCulture': this.state.lastCharacterState.culture?.name || 'Unknown',
+                'healthDisplay': `${this.state.lastCharacterState.health || 100}%`,
+                'moneyDisplay': `$${(this.state.lastCharacterState.finances?.cash + this.state.lastCharacterState.finances?.bank || 0).toLocaleString()}`
+            };
 
-        Object.entries(fields).forEach(([id, value]) => {
-            const el = document.getElementById(id);
-            if (el) el.textContent = value;
-        });
+            Object.entries(fields).forEach(([id, value]) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.textContent = value;
+                    if (this.config.debug) {
+                        console.log(`Updating ${id} with:`, value);
+                    }
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error updating character displays:', error);
     }
-
+}
     /* --------------------------
      * Event Log Management
      * -------------------------- */

@@ -5,6 +5,14 @@
  */
 class Player {
     /**
+     * Configuration settings
+     * @static
+     */
+    static config = {
+        debug: false // Default to false unless overridden
+    };
+
+    /**
      * Creates a new Player instance
      * @param {string} [characterId='default'] - Unique identifier for the character
      */
@@ -26,8 +34,23 @@ class Player {
         
         // Load existing data if available
         this._loadCharacterData();
+        
+        // Ensure we have valid data for all fields
+        this._validateData();
+        
+        // Dispatch initial update after loading data
+        this._dispatchCharacterUpdate();
     }
 
+_validateData() {
+    this._name = this._name || 'Player';
+    this._age = this._age || 18;
+    this._gender = this._gender || 'Unknown';
+    this._country = this._country || { name: 'Unknown', code: 'UNK' };
+    this._culture = this._culture || { name: 'Unknown', code: 'UNK' };
+    this._stats = this._stats || this._getDefaultStats();
+    this._finances = this._finances || this._getDefaultFinances();
+}
     // --------------------------
     // Core Properties
     // --------------------------
@@ -230,64 +253,72 @@ getCharacterSnapshot() {
      * Loads character data from localStorage
      * @private
      */
-    _loadCharacterData() {
-        try {
-            const data = JSON.parse(localStorage.getItem(`lifeSimCharacter_${this.id}`)) || {};
-            
-            // Only assign properties that exist in our class
-            for (const [key, value] of Object.entries(data)) {
-                if (this.hasOwnProperty(`_${key}`)) {
-                    this[`_${key}`] = value;
-                }
-            }
-            
-            // Ensure required properties exist
-            this._stats = this._stats || this._getDefaultStats();
-            this._skills = this._skills || this._getDefaultSkills();
-            this._finances = this._finances || this._getDefaultFinances();
-            
-        } catch (e) {
-            console.error("Error loading character data:", e);
+_loadCharacterData() {
+    try {
+        const storageKey = `lifeSimCharacter_${this.id}`;
+        const data = JSON.parse(localStorage.getItem(storageKey)) || {};
+        
+        if (Player.config.debug) {
+            console.log(`Loading character data for ${this.id}:`, data);
         }
+        
+        // Assign loaded data to properties
+        this._name = data.name || this._name;
+        this._age = data.age || this._age;
+        this._gender = data.gender || this._gender;
+        this._country = data.country || this._country;
+        this._culture = data.culture || this._culture;
+        this._stats = data.stats || this._getDefaultStats();
+        this._skills = data.skills || this._getDefaultSkills();
+        this._finances = data.finances || this._getDefaultFinances();
+        this._education = data.education || [];
+        this._jobs = data.jobs || [];
+        this._relationships = data.relationships || [];
+        this._inventory = data.inventory || [];
+        this._properties = data.properties || [];
+        
+    } catch (e) {
+        console.error("Error loading character data:", e);
     }
+}
     
     /**
      * Saves current character data to localStorage
      * @private
      */
-    _save() {
-        try {
-            const saveData = {
-                name: this._name,
-                age: this._age,
-                gender: this._gender,
-                country: this._country,
-                culture: this._culture,
-                stats: this._stats,
-                skills: this._skills,
-                finances: this._finances,
-                education: this._education,
-                jobs: this._jobs,
-                relationships: this._relationships,
-                inventory: this._inventory,
-                properties: this._properties
-            };
-            
-            localStorage.setItem(`lifeSimCharacter_${this.id}`, JSON.stringify(saveData));
-            
-            // Notify listeners of changes
-            document.dispatchEvent(new CustomEvent('characterStateChanged', {
-                detail: {
-                    name: this._name,
-                    age: this._age,
-                    health: this._stats.health,
-                    stats: this._stats
-                }
-            }));
-        } catch (e) {
-            console.error("Error saving character data:", e);
+ _save() {
+    try {
+        const saveData = {
+            name: this._name,
+            age: this._age,
+            gender: this._gender,
+            country: this._country,
+            culture: this._culture,
+            stats: this._stats,
+            skills: this._skills,
+            finances: this._finances,
+            education: this._education,
+            jobs: this._jobs,
+            relationships: this._relationships,
+            inventory: this._inventory,
+            properties: this._properties
+        };
+        
+        const storageKey = `lifeSimCharacter_${this.id}`;
+        localStorage.setItem(storageKey, JSON.stringify(saveData));
+        
+        // Debug log to verify saving
+        if (this.config?.debug) {
+            console.log('Saved character data:', saveData);
+            console.log('Storage key:', storageKey);
         }
+        
+        // Notify listeners of changes
+        this._dispatchCharacterUpdate();
+    } catch (e) {
+        console.error("Error saving character data:", e);
     }
+}
     
     /**
      * Creates default stats object
