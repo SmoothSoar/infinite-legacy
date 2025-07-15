@@ -326,3 +326,49 @@ html, body {
 .nav-link:hover {
     color: rgba(var(--color-navbar-text), 0.8) !important;
 }
+
+
+/* Current Job Section Styling */
+.current-job-details {
+    color: rgb(var(--color-text)); /* Ensures text uses the correct theme color */
+}
+
+.current-job-details .alert {
+    background-color: rgb(var(--color-card));
+    border: 1px solid rgb(var(--color-card-border));
+    color: rgb(var(--color-text));
+}
+
+.current-job-item h3 {
+    color: rgb(var(--color-text));
+    margin-bottom: 0.75rem;
+}
+
+.current-job-item p {
+    color: rgb(var(--color-text-secondary));
+    margin-bottom: 0.5rem;
+}
+
+.current-job-item .progress {
+    margin: 0.75rem 0;
+    background-color: rgb(var(--color-card-border));
+}
+
+.current-job-item .progress-bar {
+    background-color: var(--bs-primary);
+}
+
+/* Dark mode specific adjustments */
+[data-theme="dark"] .current-job-details .alert {
+    background-color: rgb(var(--color-card));
+    border-color: rgb(var(--color-card-border-dark));
+}
+
+[data-theme="dark"] .current-job-item h3 {
+    color: rgb(var(--color-text));
+}
+
+[data-theme="dark"] .current-job-item p {
+    color: rgb(var(--color-text-secondary));
+}
+

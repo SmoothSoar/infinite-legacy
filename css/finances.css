@@ -322,3 +322,84 @@
   background-color: rgb(var(--color-primary));
   border-radius: 3px;
 }
+
+/* Account Cards */
+.account-card {
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border-left: 3px solid var(--bs-primary);
+    background-color: rgb(var(--color-card));
+    transition: all 0.2s ease;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.account-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+}
+
+.account-name {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    color: rgb(var(--color-text));
+}
+
+.account-type {
+    font-size: 0.8rem;
+    color: rgb(var(--color-text-secondary));
+    margin-bottom: 0.5rem;
+}
+
+.account-balance {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--bs-success);
+    margin-bottom: 0.25rem;
+}
+
+.account-meta {
+    font-size: 0.75rem;
+    color: rgb(var(--color-text-secondary));
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .account-card {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+[data-theme="dark"] .account-card:hover {
+    box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+}
+
+/* Transaction items */
+.transaction-item {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid rgb(var(--color-card-border));
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.transaction-amount.positive {
+    color: var(--bs-success);
+    font-weight: 600;
+}
+
+.transaction-amount.negative {
+    color: var(--bs-danger);
+    font-weight: 600;
+}
+
+.transaction-details {
+    font-size: 0.85rem;
+    color: rgb(var(--color-text-secondary));
+}
+
+.transaction-date {
+    font-size: 0.75rem;
+    color: rgb(var(--color-text-muted));
+}

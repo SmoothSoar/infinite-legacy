@@ -1,216 +1,228 @@
 window.CAREERS = [
-    // ================== MINIMUM WAGE SECTOR (NO SKILLS REQUIRED) ==================
+    // ================ PART-TIME (NO EXPERIENCE) ================
     {
-        id: 'pet_groomer',
-        title: 'Pet Groomer',
-        sector: 'minimum_wage',
+        id: 'fast_food_worker',
+        title: 'Fast Food Worker',
+        sector: 'food_service',
         employmentType: 'part-time',
         experienceLevel: 'entry',
-        description: 'Bathe, brush, and groom pets at a salon or mobile service.',
-        salary: 880,
-        benefits: { flexibleHours: true },
-        requirements: {
-            age: 16,
-            education: ['none'],
-            skills: []
-        },
-        skillsGained: ['empathy'],
-        stress: 30,
-        nextPositions: ['senior_groomer']
-    },
-    {
-        id: 'delivery_driver',
-        title: 'Delivery Driver',
-        sector: 'minimum_wage',
-        employmentType: 'part-time',
-        experienceLevel: 'entry',
-        description: 'Deliver food or packages using a car or bike.',
-        salary: 920,
-        benefits: { tips: true },
-        requirements: {
-            age: 18,
-            education: ['none'],
-            skills: []
-        },
-        skillsGained: ['time_management'],
-        stress: 35,
-        nextPositions: ['logistics_coordinator']
-    },
-    {
-        id: 'library_aide',
-        title: 'Library Aide',
-        sector: 'minimum_wage',
-        employmentType: 'part-time',
-        experienceLevel: 'entry',
-        description: 'Organize books and assist patrons at a public library.',
-        salary: 850,
-        benefits: { freeBookAccess: true },
-        requirements: {
-            age: 16,
-            education: ['none'],
-            skills: []
-        },
-        skillsGained: ['public_speaking'],
-        stress: 20,
-        nextPositions: ['library_assistant']
-    },
-    {
-        id: 'farm_hand',
-        title: 'Farm Hand',
-        sector: 'minimum_wage',
-        employmentType: 'seasonal',
-        experienceLevel: 'entry',
-        description: 'Assist with planting, harvesting, and livestock care.',
-        salary: 800,
-        benefits: { outdoorWork: true },
-        requirements: {
-            age: 16,
-            education: ['none'],
-            skills: []
-        },
-        skillsGained: ['strength_fitness'],
-        stress: 25,
-        nextPositions: ['farm_manager']
-    },
-    {
-        id: 'call_center_agent',
-        title: 'Call Center Agent',
-        sector: 'minimum_wage',
-        employmentType: 'part-time',
-        experienceLevel: 'entry',
-        description: 'Handle customer inquiries via phone or chat.',
-        salary: 900,
-        benefits: { remoteWork: true },
-        requirements: {
-            age: 16,
-            education: ['none'],
-            skills: []
-        },
-        skillsGained: ['empathy'],
-        stress: 45,
-        nextPositions: ['team_lead']
-    },
-
-    // ================== TECHNOLOGY SECTOR ==================
-    {
-        id: 'it_technician',
-        title: 'IT Technician',
-        sector: 'technology',
-        employmentType: 'full-time',
-        experienceLevel: 'entry',
-        description: 'Troubleshoot hardware/software issues for employees.',
-        salary: 1600,
-        benefits: { remoteWork: true },
-        requirements: {
-            age: 18,
-            education: ['certification'],
-            skills: ['basic_it_support']
-        },
-        skillsGained: ['problem_solving'],
+        description: 'Prepare food and handle orders at a quick-service restaurant.',
+        salary: 550,
+        requirements: { age: 16, education: ['none'], skills: [] },
+        skillsGained: ['multitasking'],
         stress: 40,
-        nextPositions: ['systems_administrator']
+        nextPositions: ['shift_supervisor']
     },
     {
-        id: 'graphic_designer',
-        title: 'Graphic Designer',
-        sector: 'technology',
-        employmentType: 'full-time',
+        id: 'grocery_bagger',
+        title: 'Grocery Bagger',
+        sector: 'retail',
+        employmentType: 'part-time',
         experienceLevel: 'entry',
-        description: 'Create visual content for digital or print media.',
-        salary: 1500,
-        benefits: { creativeFreedom: true },
-        requirements: {
-            age: 18,
-            education: ['graphic-design-cert'],
-            skills: ['graphic_design']
-        },
-        skillsGained: ['storytelling'],
-        stress: 35,
-        nextPositions: ['art_director']
+        description: 'Pack groceries and assist customers at checkout.',
+        salary: 500,
+        requirements: { age: 16, education: ['none'], skills: [] },
+        skillsGained: ['customer_service'],
+        stress: 20,
+        nextPositions: ['cashier']
     },
 
-    // ================== HEALTHCARE SECTOR ==================
+    // ================ FULL-TIME ENTRY LEVEL ================
     {
-        id: 'nursing_assistant',
-        title: 'Nursing Assistant',
+        id: 'warehouse_picker',
+        title: 'Warehouse Picker',
+        sector: 'logistics',
+        employmentType: 'full-time',
+        experienceLevel: 'entry',
+        description: 'Select and prepare merchandise for shipments.',
+        salary: 1250,
+        requirements: { age: 18, education: ['none'], skills: [] },
+        skillsGained: ['inventory_management'],
+        stress: 35,
+        nextPositions: ['forklift_operator']
+    },
+    {
+        id: 'security_guard',
+        title: 'Security Guard',
+        sector: 'protective_services',
+        employmentType: 'full-time',
+        experienceLevel: 'entry',
+        description: 'Monitor premises and prevent security violations.',
+        salary: 1400,
+        requirements: { age: 18, education: ['high_school'], skills: [] },
+        skillsGained: ['situational_awareness'],
+        stress: 30,
+        nextPositions: ['security_supervisor']
+    },
+
+    // ================ SKILLED TRADES ================
+    {
+        id: 'auto_mechanic',
+        title: 'Auto Mechanic',
+        sector: 'trades',
+        employmentType: 'full-time',
+        experienceLevel: 'skilled',
+        description: 'Diagnose and repair vehicle mechanical issues.',
+        salary: 1850,
+        requirements: { 
+            age: 18, 
+            education: ['vocational'], 
+            skills: ['mechanical_aptitude'] 
+        },
+        skillsGained: ['auto_repair'],
+        stress: 45,
+        nextPositions: ['master_mechanic']
+    },
+    {
+        id: 'carpenter_apprentice',
+        title: 'Carpenter Apprentice',
+        sector: 'trades',
+        employmentType: 'full-time',
+        experienceLevel: 'skilled',
+        description: 'Assist with construction and woodworking projects.',
+        salary: 1600,
+        requirements: { 
+            age: 18, 
+            education: ['high_school'], 
+            skills: ['basic_math'] 
+        },
+        skillsGained: ['woodworking'],
+        stress: 40,
+        nextPositions: ['journeyman_carpenter']
+    },
+
+    // ================ TECHNOLOGY ================
+    {
+        id: 'help_desk_support',
+        title: 'Help Desk Support',
+        sector: 'technology',
+        employmentType: 'full-time',
+        experienceLevel: 'skilled',
+        description: 'Provide technical assistance to computer users.',
+        salary: 1950,
+        requirements: { 
+            age: 18, 
+            education: ['certification'], 
+            skills: ['computer_literacy'] 
+        },
+        skillsGained: ['troubleshooting'],
+        stress: 35,
+        nextPositions: ['it_specialist']
+    },
+    {
+        id: 'web_developer_junior',
+        title: 'Junior Web Developer',
+        sector: 'technology',
+        employmentType: 'full-time',
+        experienceLevel: 'skilled',
+        description: 'Build and maintain website components.',
+        salary: 2250,
+        requirements: { 
+            age: 18, 
+            education: ['certification'], 
+            skills: ['html_css'] 
+        },
+        skillsGained: ['javascript'],
+        stress: 50,
+        nextPositions: ['web_developer']
+    },
+
+    // ================ PROFESSIONAL ================
+    {
+        id: 'registered_nurse',
+        title: 'Registered Nurse',
         sector: 'healthcare',
         employmentType: 'full-time',
-        experienceLevel: 'entry',
-        description: 'Assist nurses with patient care in hospitals.',
-        salary: 1400,
-        benefits: { healthInsurance: true },
-        requirements: {
-            age: 18,
-            education: ['certification'],
-            skills: ['empathy', 'first_aid']
+        experienceLevel: 'professional',
+        description: 'Provide patient care and administer medications.',
+        salary: 2850,
+        requirements: { 
+            age: 21, 
+            education: ['bachelors'], 
+            skills: ['anatomy'] 
         },
-        skillsGained: ['critical_thinking'],
-        stress: 50,
-        nextPositions: ['licensed_nurse']
-    },
-
-    // ================== TRADES SECTOR ==================
-    {
-        id: 'electrician_apprentice',
-        title: 'Electrician Apprentice',
-        sector: 'trades',
-        employmentType: 'full-time',
-        experienceLevel: 'entry',
-        description: 'Assist with wiring and electrical installations.',
-        salary: 1300,
-        benefits: { unionBenefits: true },
-        requirements: {
-            age: 18,
-            education: ['high_school'],
-            skills: ['critical_thinking']
-        },
-        skillsGained: ['electrical_work'],
-        stress: 40,
-        nextPositions: ['electrician']
+        skillsGained: ['patient_care'],
+        stress: 60,
+        nextPositions: ['nurse_practitioner']
     },
     {
-        id: 'plumber_apprentice',
-        title: 'Plumber Apprentice',
-        sector: 'trades',
+        id: 'accountant_junior',
+        title: 'Junior Accountant',
+        sector: 'finance',
         employmentType: 'full-time',
-        experienceLevel: 'entry',
-        description: 'Learn to install and repair plumbing systems.',
-        salary: 1250,
-        benefits: { unionBenefits: true },
-        requirements: {
-            age: 18,
-            education: ['high_school'],
-            skills: ['problem_solving']
+        experienceLevel: 'professional',
+        description: 'Prepare financial statements and verify records.',
+        salary: 2450,
+        requirements: { 
+            age: 21, 
+            education: ['bachelors'], 
+            skills: ['basic_math'] 
         },
-        skillsGained: ['plumbing'],
+        skillsGained: ['financial_reporting'],
         stress: 45,
-        nextPositions: ['plumber']
+        nextPositions: ['senior_accountant']
     },
 
-    // ================== BUSINESS SECTOR ==================
+    // ================ MANAGEMENT ================
     {
-        id: 'sales_associate',
-        title: 'Sales Associate',
-        sector: 'business',
+        id: 'restaurant_manager',
+        title: 'Restaurant Manager',
+        sector: 'food_service',
         employmentType: 'full-time',
-        experienceLevel: 'entry',
-        description: 'Sell products/services and build client relationships.',
-        salary: 1200,
-        benefits: { commission: true },
-        requirements: {
-            age: 18,
-            education: ['high_school'],
-            skills: ['public_speaking']
+        experienceLevel: 'management',
+        description: 'Oversee daily operations of food establishment.',
+        salary: 3200,
+        requirements: { 
+            age: 21, 
+            education: ['high_school'], 
+            skills: ['leadership'],
+            experience: ['food_service'] 
         },
-        skillsGained: ['negotiation'],
-        stress: 40,
-        nextPositions: ['sales_manager']
+        skillsGained: ['operations_management'],
+        stress: 55
+    },
+    {
+        id: 'it_project_manager',
+        title: 'IT Project Manager',
+        sector: 'technology',
+        employmentType: 'full-time',
+        experienceLevel: 'management',
+        description: 'Coordinate technology projects and teams.',
+        salary: 3800,
+        requirements: { 
+            age: 25, 
+            education: ['bachelors'], 
+            skills: ['project_management'],
+            experience: ['technology'] 
+        },
+        skillsGained: ['agile_methodologies'],
+        stress: 60
     }
 ];
 
 window.JOB_FILTERS = {
-    sector: ['minimum_wage', 'technology', 'healthcare', 'creative', 'trades', 'business'],
-    employmentType: ['full-time', 'part-time', 'seasonal'],
-    experienceLevel: ['entry', 'intermediate', 'senior'],
-    education: ['none', 'high_school', 'certification', 'bachelors']
+    sector: [
+        'food_service', 
+        'retail', 
+        'logistics', 
+        'protective_services',
+        'trades', 
+        'technology', 
+        'healthcare', 
+        'finance'
+    ],
+    employmentType: ['part-time', 'full-time'],
+    experienceLevel: [
+        'entry', 
+        'skilled', 
+        'professional', 
+        'management'
+    ],
+    education: [
+        'none', 
+        'high_school', 
+        'vocational', 
+        'certification', 
+        'bachelors'
+    ]
 };

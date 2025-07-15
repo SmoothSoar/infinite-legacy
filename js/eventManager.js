@@ -146,17 +146,18 @@ class EventManager {
      * @private
      * @static
      */
-   static _setupEventListeners() {
+static _setupEventListeners() {
     this._removeEventListeners();
 
-    // Time advancement handler (cross-tab sync)
+    // Single handler for consolidated time events
     const timeHandler = (e) => {
-        this._handleTimeAdvanced(e.detail);
-        this._queueUpdate('career'); // Add career updates to time change
-        this._queueUpdate('financial'); // Add financial updates
-        // Add other systems as needed
+        if (!e.detail?.timeState) return;
+        this._handleTimeAdvanced(e.detail.timeState);
+        this._queueUpdate('financial');
+        this._queueUpdate('career');
+        this._queueUpdate('character');
     };
-    this._addListener(document, 'timeAdvanced', timeHandler);
+    this._addListener(document, 'timeAdvancedConsolidated', timeHandler);
 
     // Storage event handler for cross-tab sync
     const storageHandler = (e) => {

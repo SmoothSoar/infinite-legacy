@@ -180,7 +180,8 @@ static async _setupCore() {
         console.log('Player initialized with:', {
             name: this.state.player.name,
             country: this.state.player.country,
-            culture: this.state.player.culture
+            culture: this.state.player.culture,
+            age: this.state.player.age // Log age for debugging
         });
     }
     
@@ -189,12 +190,23 @@ static async _setupCore() {
         throw new Error('TimeManager is required but not loaded');
     }
     
-    // Initialize TimeManager with player's age
+    // Load the saved time state to get the actual age
+    const savedTimeState = await TimeManager._loadTimeState(characterId);
+    
+    // Update player's age to match the saved time state
+    if (savedTimeState && savedTimeState.age) {
+        this.state.player.age = savedTimeState.age;
+        if (this.config.debug) {
+            console.log('Updated player age from saved time state:', savedTimeState.age);
+        }
+    }
+    
+    // Initialize TimeManager with the correct age
     await TimeManager.init({
         characterId: characterId,
         startYear: new Date().getFullYear(),
         startQuarter: 1,
-        age: this.state.player.age
+        age: this.state.player.age // Use the potentially updated age
     });
     
     // Initialize EventManager if available
@@ -390,25 +402,30 @@ static _forceInitialUIUpdate() {
      * @private
      * @param {Object} timeState - Current time data
      */
-    static async _updateAllSystems(timeState) {
-        const systems = [
-            'Player',
-            'FinancesManager',
-            'EventManager',
-            'EducationManager',
-            'CareerManager'
-        ];
-        
-        await Promise.all(systems.map(sys => {
-            if (window[sys]?.onTimeAdvanced) {
-                return window[sys].onTimeAdvanced(timeState);
-            }
-        }));
-        
-        document.dispatchEvent(new CustomEvent('timeAdvancedConsolidated', {
-            detail: { timeState }
-        }));
+static async _updateAllSystems(timeState) {
+    // Create a standardized timeState object
+    const standardizedTimeState = {
+        monthsAdvanced: 3, // Fixed at 3 months
+        isQuarterly: timeState.quarterChanged,
+        ...timeState
+    };
+    
+    // Only dispatch one consolidated event
+    document.dispatchEvent(new CustomEvent('timeAdvancedConsolidated', {
+        detail: { timeState: standardizedTimeState }
+    }));
+    
+    // Update systems directly without triggering more events
+    if (window.Player?.onTimeAdvanced) {
+        await Player.onTimeAdvanced(standardizedTimeState);
     }
+    if (window.FinancesManager?.onTimeAdvanced) {
+        await FinancesManager.onTimeAdvanced(standardizedTimeState);
+    }
+    if (window.CareerManager?.onTimeAdvanced) {
+        await CareerManager.onTimeAdvanced(standardizedTimeState);
+    }
+}
 
     /* ========================
      * ERROR HANDLING

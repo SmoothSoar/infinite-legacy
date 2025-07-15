@@ -27,61 +27,66 @@ class CareerManager {
     /**
      * Initializes the CareerManager system
      */
-    static init() {
-        try {
-            if (this.initialized) {
-                this.log('Already initialized');
-                return;
-            }
-            
-            this.log('Initializing CareerManager...');
-            
-            // Load data with validation
-            this.loadCareerData();
-            this.validateCareerData();
-            
-            // Load and validate game state
-            this.loadGameState();
-            this.validateGameState();
-            
-            // Setup UI only if on career page
-            if (this.isCareerPage()) {
-                this.cacheElements();
-                this.setupEventListeners();
-                this.renderAll();
-            } else {
-                // Universal setup for other pages
-                this.setupUniversalListeners();
-            }
-            
-            // Register debug method
-            window.reloadCareerData = () => this.reloadCareerData();
-            
-            this.initialized = true;
-            this.log('Initialization complete');
-        } catch (error) {
-            console.error('CareerManager initialization failed:', error);
-            this.fallbackInitialization();
-            throw error;
+static init() {
+    try {
+        if (this.initialized) {
+            this.log('Already initialized');
+            return;
         }
+        
+        this.log('Initializing CareerManager...');
+        
+        // Load data with validation
+        this.loadCareerData();
+        this.validateCareerData();
+        
+        // Load and validate game state
+        this.loadGameState();
+        this.validateGameState();
+        
+        // Setup UI only if on career page
+        if (this.isCareerPage()) {
+            this.cacheElements();
+            this.setupEventListeners();
+            this.renderAll();
+        }
+        
+        // Always setup universal listeners
+        this.setupUniversalListeners();
+        
+        // Register debug method
+        window.reloadCareerData = () => this.reloadCareerData();
+        
+        this.initialized = true;
+        this.log('Initialization complete');
+    } catch (error) {
+        console.error('CareerManager initialization failed:', error);
+        this.fallbackInitialization();
+        throw error;
     }
-
+}
     /**
      * Sets up universal event listeners for all pages
      */
-  static setupUniversalListeners() {
-    // Time advancement listener
+static setupUniversalListeners() {
+    // Time advancement listener - updated to listen for consolidated event
     const timeAdvancedListener = (e) => {
-        this.handleTimeAdvanced(e.detail);
+        if (e.detail?.timeState) {
+            this.handleTimeAdvanced(e.detail.timeState);
+        }
     };
-    document.addEventListener('timeAdvanced', timeAdvancedListener);
+    
+    // Remove any existing listener first
+    this.removeEventListeners();
+    
+    document.addEventListener('timeAdvancedConsolidated', timeAdvancedListener);
     this.eventListeners.push({
         element: document,
-        type: 'timeAdvanced',
+        type: 'timeAdvancedConsolidated',
         listener: timeAdvancedListener
     });
     
-    // Enhanced storage listener
+    // Keep the existing storage listener
     const storageListener = (e) => {
         if (e.key === 'careerGameState') {
             try {
@@ -104,6 +109,8 @@ class CareerManager {
         listener: storageListener
     });
 }
+
+
 
     /**
      * Fallback initialization when main init fails
@@ -580,41 +587,51 @@ static getCurrentDateString() {
     /**
      * Handles time advancement events (universal across all pages)
      */
-  static handleTimeAdvanced(timeState) {
-    if (!this.gameState.currentJob) return;
+static handleTimeAdvanced(timeState) {
+    if (!this.initialized) {
+        this.log('Not initialized, skipping time update');
+        return;
+    }
+
+    if (!this.gameState.currentJob) {
+        this.log('No current job, skipping time update');
+        return;
+    }
 
     // Track months advanced (default to 3 if not specified)
-    const monthsAdvanced = timeState.monthsAdvanced || 3;
+    const monthsAdvanced = timeState?.monthsAdvanced || 3;
 
     // Update job duration
     this.gameState.currentJob.monthsWorked += monthsAdvanced;
+    this.log(`Updated job duration: ${this.gameState.currentJob.monthsWorked} months`);
 
-    // Process salary payment (3 months at a time)
+    // Process salary payment
     const salaryPayment = this.gameState.currentJob.salary * monthsAdvanced;
     this.processSalaryPayment(salaryPayment);
 
-    // Update performance and check for promotion
+    // Update performance
     this.updatePerformance(monthsAdvanced);
     this.gainExperience(monthsAdvanced);
     this.gainSkills(monthsAdvanced);
     
     // Handle quarterly events
-    if (timeState.isQuarterly) {
+    if (timeState?.isQuarterly) {
         this.handleQuarterTransition();
     }
 
-    // Check for promotion after all updates
+    // Check for promotion
     this.checkForPromotion();
 
-    // Save career state and trigger sync
+    // Save state
     this.saveGameState();
 
-    // Update UI if on career page
+    // Force full UI update on career page
     if (this.isCareerPage()) {
-        this.renderAll();
+        this.renderCurrentJob(); // Update the job details panel
+        this.updateStats();     // Update all stat displays
     }
 
-    // Notify other systems
+    // Dispatch update event
     document.dispatchEvent(new CustomEvent('careerUpdated', {
         detail: {
             jobChanged: false,
@@ -653,7 +670,7 @@ static handleQuarterTransition() {
     /**
      * Universal salary payment processor
      */
-  static processSalaryPayment(amount) {
+static processSalaryPayment(amount) {
     if (typeof amount !== 'number' || amount <= 0) {
         console.error('Invalid salary amount:', amount);
         return;
@@ -736,14 +753,14 @@ static updateTimeDisplay() {
     /**
      * Updates job performance
      */
-    static updatePerformance(monthsAdvanced) {
-        const increase = Math.floor(Math.random() * this.MAX_PERFORMANCE_INCREASE) + this.BASE_PERFORMANCE_INCREASE;
-        this.gameState.currentJob.performance = Math.min(
-            this.PERFORMANCE_RANGE.max,
-            this.gameState.currentJob.performance + increase
-        );
-    }
-
+   static updatePerformance(monthsAdvanced) {
+    // Smaller, more random performance increases
+    const increase = (Math.random() * 2) + 0.5; // 0.5 to 2.5 per month
+    this.gameState.currentJob.performance = Math.min(
+        this.PERFORMANCE_RANGE.max,
+        this.gameState.currentJob.performance + (increase * monthsAdvanced)
+    );
+}
     /**
      * Gains experience from current job
      */
@@ -777,11 +794,12 @@ static updateTimeDisplay() {
     /**
      * Checks if player qualifies for promotion
      */
-    static checkForPromotion() {
-        if (!this.gameState.currentJob?.nextPositions || 
-            this.gameState.currentJob.performance < this.PROMOTION_THRESHOLD) {
-            return;
-        }
+static checkForPromotion() {
+    if (!this.gameState.currentJob?.nextPositions || 
+        this.gameState.currentJob.performance < this.PROMOTION_THRESHOLD ||
+        this.gameState.currentJob.monthsWorked < 24) {  // Require at least 2 years
+        return;
+    }
         
         if (!Array.isArray(this.careersData)) {
             console.error('Cannot check promotions - invalid careersData');
@@ -971,58 +989,58 @@ static updateTimeDisplay() {
     /**
      * Renders current job details
      */
-    static renderCurrentJob() {
-        if (!this.elements.currentJobDetails) return;
-        
-        if (!this.gameState.currentJob) {
-            this.elements.currentJobDetails.innerHTML = `
-                <div class="alert alert-info mb-0">
-                    You are not currently employed.
-                </div>
-            `;
-            return;
-        }
-        
-        const job = this.gameState.currentJob;
-        const satisfaction = this.calculateJobSatisfaction();
-        
+static renderCurrentJob() {
+    if (!this.elements.currentJobDetails) return;
+    
+    if (!this.gameState.currentJob) {
         this.elements.currentJobDetails.innerHTML = `
-            <div class="current-job-item">
-                <h3>${job.title}</h3>
-                <p>${job.description}</p>
-                <div class="d-flex justify-content-between mb-2">
-                    <span><strong>Salary:</strong> $${job.salary.toLocaleString()}/month</span>
-                    <span><strong>Performance:</strong> ${job.performance}%</span>
-                </div>
-                <div class="progress mb-2" style="height: 10px;">
-                    <div class="progress-bar" role="progressbar" 
-                         style="width: ${job.performance}%" 
-                         aria-valuenow="${job.performance}" 
-                         aria-valuemin="0" 
-                         aria-valuemax="100">
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between mb-2">
-                    <span><strong>Satisfaction:</strong> ${Math.round(satisfaction)}%</span>
-                    <span><strong>Duration:</strong> ${job.monthsWorked} months</span>
-                </div>
-                <div class="d-flex flex-wrap gap-1 mb-3">
-                    ${(job.skillsGained || []).map(skill => 
-                        `<span class="badge bg-info">${window.SKILLS?.[skill]?.name || skill}</span>`
-                    ).join('')}
-                </div>
-                <button class="btn btn-danger w-100" id="quitJobBtn">
-                    Quit Job
-                </button>
+            <div class="alert alert-info mb-0">
+                You are not currently employed.
             </div>
         `;
-        
-        // Add quit job button listener
-        const quitBtn = document.getElementById('quitJobBtn');
-        if (quitBtn) {
-            quitBtn.addEventListener('click', () => this.quitJob());
-        }
+        return;
     }
+    
+    const job = this.gameState.currentJob;
+    const satisfaction = this.calculateJobSatisfaction();
+    
+    this.elements.currentJobDetails.innerHTML = `
+        <div class="current-job-item">
+            <h3>${job.title}</h3>
+            <p>${job.description}</p>
+            <div class="d-flex justify-content-between mb-2">
+                <span><strong>Salary:</strong> $${job.salary.toLocaleString()}/month</span>
+                <span><strong>Performance:</strong> ${job.performance}%</span>
+            </div>
+            <div class="progress mb-2" style="height: 10px;">
+                <div class="progress-bar" role="progressbar" 
+                     style="width: ${job.performance}%" 
+                     aria-valuenow="${job.performance}" 
+                     aria-valuemin="0" 
+                     aria-valuemax="100">
+                </div>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span><strong>Satisfaction:</strong> ${Math.round(satisfaction)}%</span>
+                <span><strong>Duration:</strong> <span data-duration>${job.monthsWorked}</span> months</span>
+            </div>
+            <div class="d-flex flex-wrap gap-1 mb-3">
+                ${(job.skillsGained || []).map(skill => 
+                    `<span class="badge bg-info">${window.SKILLS?.[skill]?.name || skill}</span>`
+                ).join('')}
+            </div>
+            <button class="btn btn-danger w-100" id="quitJobBtn">
+                Quit Job
+            </button>
+        </div>
+    `;
+    
+    // Add quit job button listener
+    const quitBtn = document.getElementById('quitJobBtn');
+    if (quitBtn) {
+        quitBtn.addEventListener('click', () => this.quitJob());
+    }
+}
 
     /**
      * Renders job history

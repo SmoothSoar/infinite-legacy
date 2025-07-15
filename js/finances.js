@@ -11,7 +11,7 @@ class FinancesManager {
     static accountTypes = {
         checking: {
             name: "Checking Account",
-            interestRate: 0.0005, // 0.6% annual
+            interestRate: 0.0002, // 0.6% annual
             minBalance: 0,
             color: '#0d6efd',
             monthlyFee: 5, // Monthly maintenance fee
@@ -19,7 +19,7 @@ class FinancesManager {
         },
         savings: {
             name: "Savings Account",
-            interestRate: 0.0015, // 1.8% annual
+            interestRate: 0.0008, // 1.8% annual
             minBalance: 500, // Higher minimum balance
             color: '#198754',
             monthlyFee: 0,
@@ -28,7 +28,7 @@ class FinancesManager {
         },
         investment: {
             name: "Investment Account",
-            interestRate: 0.005, // 6% annual (with volatility)
+            interestRate: 0.003, // 6% annual (with volatility)
             minBalance: 1000, // Higher minimum investment
             color: '#6f42c1',
             monthlyFee: 10, // Account maintenance fee
@@ -69,12 +69,22 @@ static processSalary(monthsAdvanced) {
         return;
     }
 
-    const salaryPayment = CareerManager.gameState.currentJob.salary * monthsAdvanced;
-    const taxRate = this.calculateTaxRate(salaryPayment);
+    // Base salary with random fluctuations (-5% to +5%)
+    const baseSalary = CareerManager.gameState.currentJob.salary;
+    const fluctuation = (Math.random() * 0.1) - 0.05; // -5% to +5%
+    const salaryPayment = baseSalary * (1 + fluctuation) * monthsAdvanced;
+    
+    // Progressive tax system (higher tax for higher incomes)
+    const taxRate = this.calculateTaxRate(baseSalary);
     const taxAmount = salaryPayment * taxRate;
-    const netSalary = salaryPayment - taxAmount;
+    
+    // Living expenses (30-50% of salary)
+    const livingExpenseRate = 0.3 + (Math.random() * 0.2);
+    const livingExpenses = salaryPayment * livingExpenseRate;
+    
+    const netSalary = salaryPayment - taxAmount - livingExpenses;
 
-    // Find or create a checking account
+    // Rest of the method remains the same...
     const checkingAccounts = this.gameState.accounts.filter(acc => acc.type === 'checking');
     const accountId = checkingAccounts.length > 0 
         ? checkingAccounts[0].id 
@@ -103,9 +113,17 @@ static processSalary(monthsAdvanced) {
         accountId
     );
 
+    this.addTransaction(
+        'expense',
+        `Living expenses`,
+        livingExpenses,
+        'living_costs',
+        accountId
+    );
+
     // Notify player
     if (typeof EventManager !== 'undefined') {
-        EventManager.addToEventLog(`Received salary: $${netSalary.toLocaleString()}`, 'success');
+        EventManager.addToEventLog(`Received salary: $${netSalary.toLocaleString()} (after taxes and expenses)`, 'success');
     }
 
     this.saveGameState();
@@ -1057,12 +1075,13 @@ static processMonthlyEvents() {
         }
     }
     
-    static calculateTaxRate(income) {
-        // Progressive tax system
-        if (income <= 3000) return 0.20; // 20% for lower incomes
-        if (income <= 7000) return 0.30; // 30% for middle incomes
-        return 0.40; // 40% for higher incomes
-    }
+   static calculateTaxRate(income) {
+    // Progressive tax system
+    if (income <= 1000) return 0.10;  // 10% for lower incomes
+    if (income <= 2000) return 0.20;  // 20% for middle incomes
+    if (income <= 3000) return 0.30;  // 30% for higher middle incomes
+    return 0.40;                      // 40% for highest incomes
+}
     
     static createDefaultCheckingAccount() {
         const checkingAccounts = this.gameState.accounts.filter(acc => acc.type === 'checking');
