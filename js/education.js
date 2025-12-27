@@ -1,4 +1,4 @@
-// education.js - Fully Refactored and Error-Resistant Version
+// education.js - Optimized Version
 class EducationManager {
     static gameState = null;
     static initialized = false;
@@ -9,68 +9,74 @@ class EducationManager {
     static visibleProgramsCount = 6;
     
     // Constants with better organization
-    static CONSTANTS = {
+    static CONSTANTS = Object.freeze({
         MIN_GPA: 1.0,
         MAX_GPA: 4.0,
         DEFAULT_GPA: 3.2,
-        EDUCATION_LEVELS: {
+        EDUCATION_LEVELS: Object.freeze({
             HIGH_SCHOOL: 'High School',
             HIGH_SCHOOL_GRAD: 'High School Graduate',
             ASSOCIATE: 'Associate Degree',
             BACHELOR: "Bachelor's Degree",
             MASTER: "Master's Degree"
-        },
-        XP: {
+        }),
+        XP: Object.freeze({
             PER_PROGRAM: 500,
             PER_LEVEL: 1000
-        },
-        DEFAULT_STATE: {
+        }),
+        DEFAULT_STATE: Object.freeze({
             balance: 10000,
             currentYear: 1,
             totalMonths: 0,
-            education: {
+            education: Object.freeze({
                 level: 'High School',
                 gpa: 3.2,
                 enrolledPrograms: [],
                 completedPrograms: [],
                 skills: {}
-            }
-        }
-    };
+            })
+        })
+    });
 
     // Error messages
-    static ERROR_MESSAGES = {
+    static ERROR_MESSAGES = Object.freeze({
         INIT_FAILED: 'Education system initialization failed',
         STATE_LOAD_FAILED: 'Failed to load education state',
         STATE_SAVE_FAILED: 'Failed to save education state',
         RENDER_FAILED: 'Failed to render education components',
         TIME_ADVANCE_FAILED: 'Failed to process time advancement'
-    };
+    });
 
     /**
      * Initializes the EducationManager system
      */
-    static init() {
-        try {
-            if (this.initialized) return;
-            
-            this.log('Initializing EducationManager...');
-            
-            // Load in specific order with validation
-            this.loadEducationData();
-            this.loadGameState();
-            this.cacheElements();
-            this.setupEventListeners();
-            this.renderAll();
-            
-            this.initialized = true;
-            this.log('EducationManager initialized successfully');
-        } catch (error) {
-            console.error(this.ERROR_MESSAGES.INIT_FAILED, error);
-            EventManager.addToEventLog(this.ERROR_MESSAGES.INIT_FAILED, 'danger');
-            throw error;
+ static init() {
+    try {
+        if (this.initialized) return;
+        
+        this.log('Initializing EducationManager...');
+        
+        // Wait for TimeManager to be ready
+        if (!TimeManager?.timeState) {
+            setTimeout(() => this.init(), 100);
+            return;
         }
+        
+        // Rest of your initialization code
+        this.loadEducationData();
+        this.loadGameState();
+        this.cacheElements();
+        this.setupEventListeners();
+        this.renderAll();
+        
+        this.initialized = true;
+        this.log('EducationManager initialized successfully');
+    } catch (error) {
+        console.error(this.ERROR_MESSAGES.INIT_FAILED, error);
+        EventManager.addToEventLog(this.ERROR_MESSAGES.INIT_FAILED, 'danger');
+        throw error;
     }
+}
 
     static cleanup() {
         this.log('Cleaning up EducationManager...');
@@ -85,14 +91,13 @@ class EducationManager {
 
     static loadEducationData() {
         try {
-            this.programs = Array.isArray(window.EDUCATION_PROGRAMS) ? window.EDUCATION_PROGRAMS : [];
-            this.skillsData = typeof window.SKILLS === 'object' ? window.SKILLS : {};
-            this.fieldSkills = typeof window.FIELD_SKILLS === 'object' ? window.FIELD_SKILLS : {};
-            this.prerequisites = typeof window.PREREQUISITES === 'object' ? window.PREREQUISITES : {};
+            this.programs = Array.isArray(window.EDUCATION_PROGRAMS) ? [...window.EDUCATION_PROGRAMS] : [];
+            this.skillsData = typeof window.SKILLS === 'object' ? {...window.SKILLS} : {};
+            this.fieldSkills = typeof window.FIELD_SKILLS === 'object' ? {...window.FIELD_SKILLS} : {};
+            this.prerequisites = typeof window.PREREQUISITES === 'object' ? {...window.PREREQUISITES} : {};
             this.log("Static education data loaded");
         } catch (e) {
             console.error('Error loading education data:', e);
-            // Initialize with empty data if loading fails
             this.programs = [];
             this.skillsData = {};
             this.fieldSkills = {};
@@ -114,33 +119,30 @@ class EducationManager {
 
     static validateGameState(state) {
         try {
-            // Deep clone to avoid modifying original
             const validated = JSON.parse(JSON.stringify(state));
             
             // Ensure education object exists
             validated.education = validated.education || {};
             
-            // Validate enrolled programs
+            // Validate arrays and objects
             validated.education.enrolledPrograms = this.validateEnrolledPrograms(
                 validated.education.enrolledPrograms || []
             );
             
-            // Validate completed programs
             validated.education.completedPrograms = this.validateProgramIds(
                 validated.education.completedPrograms || []
             );
             
-            // Initialize skills with proper structure
             validated.education.skills = this.initializeSkills(
                 validated.education.skills || {}
             );
             
-            // Validate GPA
+            // Validate GPA with bounds checking
             validated.education.gpa = this.validateGPA(
                 validated.education.gpa
             );
             
-            // Ensure other required fields exist
+            // Validate other required fields
             validated.balance = typeof validated.balance === 'number' ? validated.balance : this.CONSTANTS.DEFAULT_STATE.balance;
             validated.currentYear = typeof validated.currentYear === 'number' ? validated.currentYear : this.CONSTANTS.DEFAULT_STATE.currentYear;
             validated.totalMonths = typeof validated.totalMonths === 'number' ? validated.totalMonths : this.CONSTANTS.DEFAULT_STATE.totalMonths;
@@ -162,19 +164,18 @@ class EducationManager {
         return JSON.parse(JSON.stringify(this.CONSTANTS.DEFAULT_STATE));
     }
 
-static validateEnrolledPrograms(programs) {
-    return programs.filter(program => {
-        if (!program?.id) return false;
-        
-        // Get program data to validate duration
-        const programData = this.programs.find(p => p.id === program.id);
-        const duration = this.getDurationInMonths(programData?.duration);
-        
-        return typeof program.progress === 'number' && 
-               typeof program.monthsCompleted === 'number' &&
-               duration > 0;
-    });
-}
+    static validateEnrolledPrograms(programs) {
+        return programs.filter(program => {
+            if (!program?.id) return false;
+            
+            const programData = this.programs.find(p => p.id === program.id);
+            const duration = this.getDurationInMonths(programData?.duration);
+            
+            return typeof program.progress === 'number' && 
+                   typeof program.monthsCompleted === 'number' &&
+                   duration > 0;
+        });
+    }
 
     static validateProgramIds(programIds) {
         if (!Array.isArray(programIds)) return [];
@@ -210,6 +211,8 @@ static validateEnrolledPrograms(programs) {
             startProgramBtn: this.getElementById('startProgramBtn'),
             modalTitle: this.getElementById('programDetailsTitle'),
             modalDescription: this.getElementById('programDetailsDescription'),
+            modalDuration: this.getElementById('programDetailsDuration'), // Added duration element
+            modalCost: this.getElementById('programDetailsCost'),       // Added cost element
             modalSkills: this.getElementById('programDetailsSkills'),
             modalCareers: this.getElementById('programDetailsCareers'),
             modalPrerequisites: this.getElementById('programDetailsPrerequisites'),
@@ -217,7 +220,6 @@ static validateEnrolledPrograms(programs) {
             prereqSection: this.getElementById('prerequisitesSection')
         };
 
-        // Initialize modal if exists
         const modalElement = this.getElementById('programDetailsModal');
         if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
             elements.modal = new bootstrap.Modal(modalElement);
@@ -235,60 +237,57 @@ static validateEnrolledPrograms(programs) {
         }
     }
 
-  static setupEventListeners() {
-    this.removeEventListeners(); // Clean up any existing listeners
+ static setupEventListeners() {
+    this.removeEventListeners();
 
-    // Program click listener
     if (this.elements.programsContainer) {
         this.addListener(this.elements.programsContainer, 'click', (e) => {
+            // Check if click is on the button or its children
             const button = e.target.closest('.program-action-btn');
             if (button && button.dataset.programId) {
                 e.preventDefault();
+                e.stopPropagation();
                 this.showProgramDetails(button.dataset.programId);
             }
         });
     }
 
-    // Enroll button listener
-    if (this.elements.startProgramBtn) {
-        this.addListener(this.elements.startProgramBtn, 'click', () => {
-            if (this.selectedProgram) {
-                this.handleEnroll(this.selectedProgram.id);
+        if (this.elements.startProgramBtn) {
+            this.addListener(this.elements.startProgramBtn, 'click', () => {
+                if (this.selectedProgram) {
+                    this.handleEnroll(this.selectedProgram.id);
+                }
+            });
+        }
+
+        this.addListener(document, 'timeAdvanced', (e) => {
+            this.handleTimeAdvanced(e.detail);
+        });
+
+        this.addListener(window, 'storage', (e) => {
+            if (e.key === 'educationGameState' || e.key === 'educationUpdateTrigger') {
+                this.log('Detected education state change from storage');
+                this.loadGameState();
+                this.renderAll();
+                
+                if (typeof GameManager !== 'undefined' && GameManager.currentEducationContainer) {
+                    GameManager.renderCurrentEducation();
+                }
+            }
+        });
+
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        filterButtons.forEach(button => {
+            if (button.dataset.filter) {
+                this.addListener(button, 'click', (e) => {
+                    e.preventDefault();
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    this.renderPrograms(button.dataset.filter);
+                });
             }
         });
     }
-
-    // Time advancement listener - MODIFIED THIS PART
-    this.addListener(document, 'timeAdvanced', (e) => {
-        this.handleTimeAdvanced(e.detail);
-    });
-
-    // Storage listener
-    this.addListener(window, 'storage', (e) => {
-        if (e.key === 'educationGameState' || e.key === 'educationUpdateTrigger') {
-            this.log('Detected education state change from storage');
-            this.loadGameState();
-            this.renderAll();
-            
-            if (typeof GameManager !== 'undefined' && GameManager.currentEducationContainer) {
-                GameManager.renderCurrentEducation();
-            }
-        }
-    });
-
-    // Filter button listeners
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    filterButtons.forEach(button => {
-        if (button.dataset.filter) {
-            this.addListener(button, 'click', (e) => {
-                e.preventDefault();
-                filterButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                this.renderPrograms(button.dataset.filter);
-            });
-        }
-    });
-}
 
     static addListener(element, type, listener) {
         if (!element || !type || !listener) return;
@@ -317,49 +316,43 @@ static validateEnrolledPrograms(programs) {
     // ===================================================================
 
     static handleTimeAdvanced(timeState) {
-    try {
-        // Validate input
-        if (!timeState || typeof timeState !== 'object') {
-            this.log('Invalid timeState object');
-            return;
-        }
-
-        this.log('Handling time advancement:', timeState);
-
-        // Update progress
-        this.updateQuarterlyProgress();
-        this.updateYearlyProgress();
-
-        // Save and render
-        this.saveGameState();
-        this.debouncedRender();
-        
-        // Handle age changes
-        if (timeState.isNewAge && typeof timeState.age === 'number') {
-            this.handleAgeChange(timeState.age);
-        }
-
-        // Notify CareerManager if available
-        if (typeof CareerManager !== 'undefined') {
-            try {
-                if (typeof CareerManager.loadGameState === 'function') {
-                    CareerManager.loadGameState();
-                }
-                CareerManager.handleTimeAdvanced(timeState);
-            } catch (e) {
-                this.log('Error in CareerManager.handleTimeAdvanced:', e);
-                EventManager.addToEventLog('Career update failed', 'warning');
+        try {
+            if (!timeState || typeof timeState !== 'object') {
+                this.log('Invalid timeState object');
+                return;
             }
+
+            this.log('Handling time advancement:', timeState);
+
+            this.updateQuarterlyProgress();
+            this.updateYearlyProgress();
+
+            this.saveGameState();
+            this.debouncedRender();
+            
+            if (timeState.isNewAge && typeof timeState.age === 'number') {
+                this.handleAgeChange(timeState.age);
+            }
+
+            if (typeof CareerManager !== 'undefined') {
+                try {
+                    if (typeof CareerManager.loadGameState === 'function') {
+                        CareerManager.loadGameState();
+                    }
+                    CareerManager.handleTimeAdvanced(timeState);
+                } catch (e) {
+                    this.log('Error in CareerManager.handleTimeAdvanced:', e);
+                    EventManager.addToEventLog('Career update failed', 'warning');
+                }
+            }
+
+            this.dispatchEvent('educationTimeAdvanced', { timeState });
+
+        } catch (error) {
+            console.error(this.ERROR_MESSAGES.TIME_ADVANCE_FAILED, error);
+            EventManager.addToEventLog(this.ERROR_MESSAGES.TIME_ADVANCE_FAILED, 'danger');
         }
-
-        // Notify other systems
-        this.dispatchEvent('educationTimeAdvanced', { timeState });
-
-    } catch (error) {
-        console.error(this.ERROR_MESSAGES.TIME_ADVANCE_FAILED, error);
-        EventManager.addToEventLog(this.ERROR_MESSAGES.TIME_ADVANCE_FAILED, 'danger');
     }
-}
 
     static dispatchEvent(name, detail) {
         try {
@@ -369,57 +362,50 @@ static validateEnrolledPrograms(programs) {
         }
     }
 
-static updateQuarterlyProgress() {
-    if (!this.gameState?.education?.enrolledPrograms) return;
+    static updateQuarterlyProgress() {
+        if (!this.gameState?.education?.enrolledPrograms) return;
 
-    const { education } = this.gameState;
-    
-    // Process in reverse order to allow safe removal
-    for (let i = education.enrolledPrograms.length - 1; i >= 0; i--) {
-        const program = education.enrolledPrograms[i];
+        const { education } = this.gameState;
         
-        // Get program data from the static programs list
-        const programData = this.programs.find(p => p.id === program.id);
-        if (!programData) continue; // Skip if program data not found
-        
-        // Ensure totalDuration is set correctly
-        program.totalDuration = this.getDurationInMonths(programData.duration);
-        if (program.totalDuration <= 0) {
-            console.warn(`Invalid duration for program ${program.id}`);
-            continue; // Skip if duration is invalid
+        for (let i = education.enrolledPrograms.length - 1; i >= 0; i--) {
+            const program = education.enrolledPrograms[i];
+            const programData = this.programs.find(p => p.id === program.id);
+            if (!programData) continue;
+            
+            program.totalDuration = this.getDurationInMonths(programData.duration);
+            if (program.totalDuration <= 0) {
+                console.warn(`Invalid duration for program ${program.id}`);
+                continue;
+            }
+            
+            program.monthsCompleted += 3;
+            program.progress = Math.min(100, (program.monthsCompleted / program.totalDuration) * 100);
+
+            if (this.shouldDropout(program)) {
+                this.handleDropout(program);
+                continue;
+            }
+
+            if (program.monthsCompleted >= program.totalDuration) {
+                this.completeProgram(program.id);
+            }
         }
-        
-        // Update progress
-        program.monthsCompleted += 3;
-        program.progress = Math.min(100, (program.monthsCompleted / program.totalDuration) * 100);
 
-        // Check for dropout
-        if (this.shouldDropout(program)) {
-            this.handleDropout(program);
-            continue;
-        }
-
-        // Check for completion
-        if (program.monthsCompleted >= program.totalDuration) {
-            this.completeProgram(program.id);
+        if (typeof education.gpa === 'number') {
+            education.gpa = this.validateGPA(
+                education.gpa * (0.95 + Math.random() * 0.1)
+            );
+        } else {
+            education.gpa = this.CONSTANTS.DEFAULT_GPA;
         }
     }
-
-    // Update GPA with bounds checking
-    if (typeof education.gpa === 'number') {
-        education.gpa = this.validateGPA(
-            education.gpa * (0.95 + Math.random() * 0.1)
-        );
-    } else {
-        education.gpa = this.CONSTANTS.DEFAULT_GPA;
-    }
-}
 
     static shouldDropout(program) {
         if (!program?.id) return false;
         
         const programData = this.programs.find(p => p.id === program.id);
-        const dropoutChance = typeof programData?.failureRate === 'number' ? programData.failureRate : 0;
+        // Assuming a `failureRate` property can be added to program data if needed for dropout mechanics
+        const dropoutChance = typeof programData?.failureRate === 'number' ? programData.failureRate : 0; 
         
         const gpaFactor = this.gameState.education.gpa < 2.0 ? 2 : 1;
         return Math.random() < (dropoutChance * gpaFactor);
@@ -428,7 +414,7 @@ static updateQuarterlyProgress() {
     static handleDropout(program) {
         if (!program?.id || !program?.cost) return;
 
-        const costLost = program.cost * 0.3;
+        const costLost = program.cost * 0.3; // Example: lose 30% of cost on dropout
         this.gameState.balance -= costLost;
         this.gameState.education.enrolledPrograms = 
             this.gameState.education.enrolledPrograms.filter(p => p.id !== program.id);
@@ -452,38 +438,70 @@ static updateQuarterlyProgress() {
         }
     }
 
-    static handleEnroll(programId) {
+static handleEnroll(programId) {
     try {
+        // 1. Get the program data
         const program = this.programs.find(p => p.id === programId);
-        if (!program) return;
+        if (!program) {
+            console.error("Program not found:", programId);
+            return;
+        }
 
-        // Check enrollment status
+        // 2. DEBUG: Log all possible age sources before we check
+        console.group("Age Debugging");
+        console.log("Possible age sources:");
+        console.log("- Player.instance:", window.player?.age);
+        console.log("- Player class:", Player?.state?.player?.age);
+        console.log("- TimeManager:", TimeManager?.timeState?.age);
+        console.log("- EducationManager:", this.gameState?.age);
+        
+        // 3. Get age - try EVERY possible source with clear priority
+        const characterAge = (
+            window.player?.age ||                      // First priority
+            Player?.state?.player?.age ||             // Second priority
+            TimeManager?.timeState?.age ||            // Third priority
+            this.gameState?.age ||                    // Fourth priority
+            18                                       // Final fallback (using 18 instead of 14)
+        );
+        
+        console.log("Using age:", characterAge);
+        console.log("Program requirements:", {
+            id: program.id,
+            name: program.name,
+            minAge: program.minAge,
+            maxAge: program.maxAge
+        });
+        console.groupEnd();
+
+     const verifiedAge = characterAge;
+        // 5. Age verification (using verifiedAge)
+        if (program.maxAge && verifiedAge > program.maxAge) {
+            const msg = `Too old for ${program.name} (max age ${program.maxAge})`;
+            EventManager.addToEventLog(msg, 'warning');
+            console.warn(msg, "Your age:", verifiedAge);
+            return;
+        }
+
+        if (program.minAge && verifiedAge < program.minAge) {
+            const msg = program.type === 'high-school' ?
+                `Too young for high school (min age ${program.minAge})` :
+                `Too young for ${program.name} (min age ${program.minAge})`;
+            EventManager.addToEventLog(msg, 'warning');
+            console.warn(msg, "Your age:", verifiedAge);
+            return;
+        }
+
+        // 6. Other checks (unchanged)
         if (this.isProgramEnrolled(programId)) {
-            EventManager.addToEventLog('Already enrolled in this program', 'warning');
+            EventManager.addToEventLog(`Already enrolled in ${program.name}`, 'warning');
             return;
         }
 
         if (this.isProgramCompleted(programId)) {
-            EventManager.addToEventLog('Already completed this program', 'warning');
+            EventManager.addToEventLog(`Already completed ${program.name}`, 'warning');
             return;
         }
 
-        // Age validation - only for high school programs
-        const characterAge = TimeManager?.timeState?.age || 14;
-        
-        if (program.type === 'high-school') {
-            if (program.maxAge && characterAge > program.maxAge) {
-                EventManager.addToEventLog(`Too old for this program (max age: ${program.maxAge})`, 'warning');
-                return;
-            }
-
-            if (program.minAge && characterAge < program.minAge) {
-                EventManager.addToEventLog(`Too young for this program (min age: ${program.minAge})`, 'warning');
-                return;
-            }
-        }
-
-        // Rest of the enrollment logic remains the same...
         const missingPrereqs = this.getMissingPrerequisites(programId);
         if (missingPrereqs.length > 0) {
             const prereqNames = missingPrereqs.map(id => 
@@ -493,56 +511,56 @@ static updateQuarterlyProgress() {
             return;
         }
 
-        // Check funds
         if (this.gameState.balance < program.cost) {
-            EventManager.addToEventLog(`Insufficient funds for ${program.name} ($${program.cost})`, 'danger');
+            EventManager.addToEventLog(`Need $${program.cost.toLocaleString()} for ${program.name}`, 'danger');
             return;
         }
 
-        // All checks passed - enroll student
+        // 7. Success
         this.enrollStudent(program);
+        EventManager.addToEventLog(`Successfully enrolled in ${program.name}!`, 'success');
 
-    } catch (e) {
-        console.error('Error enrolling in program:', e);
-        EventManager.addToEventLog('Failed to enroll in program', 'danger');
+    } catch (error) {
+        console.error("Enrollment error:", error);
+        EventManager.addToEventLog("Enrollment system error", 'danger');
     }
 }
 
-static enrollStudent(program) {
-    if (!program?.id || !program?.name || !program?.field || !program?.type || !program?.duration) {
-        console.error('Invalid program data:', program);
-        return;
-    }
+    static enrollStudent(program) {
+        if (!program?.id || !program?.name || !program?.field || !program?.type || !program?.duration) {
+            console.error('Invalid program data:', program);
+            return;
+        }
 
-    const durationMonths = this.getDurationInMonths(program.duration);
-    if (durationMonths <= 0) {
-        console.error('Invalid program duration:', program.duration);
-        return;
-    }
+        const durationMonths = this.getDurationInMonths(program.duration);
+        if (durationMonths <= 0) {
+            console.error('Invalid program duration:', program.duration);
+            return;
+        }
 
-    this.gameState.balance -= program.cost;
-    
-    const enrolledProgram = {
-        id: program.id,
-        name: program.name,
-        field: program.field,
-        type: program.type,
-        progress: 0,
-        monthsCompleted: 0,
-        totalDuration: durationMonths,
-        cost: program.cost
-    };
-    
-    this.gameState.education.enrolledPrograms.push(enrolledProgram);
-    this.saveGameState();
-    
-    if (this.elements.modal?.hide) {
-        this.elements.modal.hide();
+        this.gameState.balance -= program.cost;
+        
+        const enrolledProgram = {
+            id: program.id,
+            name: program.name,
+            field: program.field,
+            type: program.type,
+            progress: 0,
+            monthsCompleted: 0,
+            totalDuration: durationMonths,
+            cost: program.cost
+        };
+        
+        this.gameState.education.enrolledPrograms.push(enrolledProgram);
+        this.saveGameState();
+        
+        if (this.elements.modal?.hide) {
+            this.elements.modal.hide();
+        }
+        
+        this.debouncedRender();
+        EventManager.addToEventLog(`Enrolled in ${program.name}`, 'success');
     }
-    
-    this.debouncedRender();
-    EventManager.addToEventLog(`Enrolled in ${program.name}`, 'success');
-}
 
     static completeProgram(programId) {
         if (!programId || !this.gameState?.education) return;
@@ -582,18 +600,17 @@ static enrollStudent(program) {
     static updateEducationLevel(program) {
         if (!program?.type || !program?.id || !program?.name) return;
 
-        if (program.type === 'degree') {
-            if (program.name.includes('Master')) {
-                this.gameState.education.level = this.CONSTANTS.EDUCATION_LEVELS.MASTER;
-            } else if (program.name.includes('Bachelor')) {
-                this.gameState.education.level = this.CONSTANTS.EDUCATION_LEVELS.BACHELOR;
-            } else if (program.name.includes('Associate')) {
-                this.gameState.education.level = this.CONSTANTS.EDUCATION_LEVELS.ASSOCIATE;
-            }
-        } else if (['hs-diploma', 'ged'].includes(program.id)) {
+        if (program.type === 'master' && this.gameState.education.level !== this.CONSTANTS.EDUCATION_LEVELS.MASTER) {
+            this.gameState.education.level = this.CONSTANTS.EDUCATION_LEVELS.MASTER;
+        } else if (program.type === 'bachelor' && this.gameState.education.level !== this.CONSTANTS.EDUCATION_LEVELS.BACHELOR && this.gameState.education.level !== this.CONSTANTS.EDUCATION_LEVELS.MASTER) {
+            this.gameState.education.level = this.CONSTANTS.EDUCATION_LEVELS.BACHELOR;
+        } else if (program.type === 'associate' && this.gameState.education.level !== this.CONSTANTS.EDUCATION_LEVELS.ASSOCIATE && this.gameState.education.level !== this.CONSTANTS.EDUCATION_LEVELS.BACHELOR && this.gameState.education.level !== this.CONSTANTS.EDUCATION_LEVELS.MASTER) {
+            this.gameState.education.level = this.CONSTANTS.EDUCATION_LEVELS.ASSOCIATE;
+        } else if (['high-school-diploma', 'ged'].includes(program.id) && this.gameState.education.level === this.CONSTANTS.EDUCATION_LEVELS.HIGH_SCHOOL) {
             this.gameState.education.level = this.CONSTANTS.EDUCATION_LEVELS.HIGH_SCHOOL_GRAD;
         }
     }
+
 
     // ===================================================================
     // RENDERING
@@ -618,11 +635,7 @@ static enrollStudent(program) {
             const filteredPrograms = this.getFilteredPrograms(filter);
             
             if (filteredPrograms.length === 0) {
-                this.elements.programsContainer.innerHTML = `
-                    <div class="col-12">
-                        <div class="alert alert-info">No programs match the selected filter</div>
-                    </div>
-                `;
+                this.elements.programsContainer.innerHTML = '<p class="text-muted">No education programs available for this filter.</p>';
                 return;
             }
 
@@ -630,19 +643,140 @@ static enrollStudent(program) {
                 ? filteredPrograms.slice(0, this.visibleProgramsCount)
                 : filteredPrograms;
 
-            this.elements.programsContainer.innerHTML = programsToDisplay
-                .map(program => this.renderProgramCard(program))
-                .join('');
+            this.elements.programsContainer.innerHTML = '';
+            programsToDisplay.forEach(program => {
+                const card = this.createProgramCard(program);
+                if (card) {
+                    this.elements.programsContainer.appendChild(card);
+                }
+            });
 
             this.addLoadMoreButton(filter, filteredPrograms);
         } catch (e) {
             console.error('Error rendering programs:', e);
-            this.elements.programsContainer.innerHTML = `
-                <div class="col-12">
-                    <div class="alert alert-danger">Error loading programs</div>
-                </div>
-            `;
+            this.elements.programsContainer.innerHTML = '<p class="text-danger">Error loading programs.</p>';
         }
+    }
+
+    static createProgramCard(program) {
+        if (!program?.id || !program?.name || !program?.type || !program?.field || !program?.duration) {
+            return null;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'col-12 col-sm-6 col-lg-4 mb-4'; // Bootstrap grid classes
+        
+        const cardBody = document.createElement('div');
+        cardBody.className = 'education-program-card card h-100 bg-transparent';
+        
+        const cardContent = document.createElement('div');
+        cardContent.className = 'card-body d-flex flex-column p-3';
+        
+        // Program Header (compact)
+        const header = document.createElement('div');
+        header.className = 'd-flex justify-content-between align-items-start mb-2 gap-2';
+        
+        const title = document.createElement('h5');
+        title.className = 'card-title mb-0 text-truncate flex-grow-1';
+        title.textContent = program.name;
+        title.title = program.name; // Tooltip for truncated text
+        
+        const typeBadge = document.createElement('span');
+        typeBadge.className = 'badge text-nowrap';
+        // Set badge color based on program type
+        const badgeClasses = {
+            'high-school': 'bg-info text-dark',
+            'certification': 'bg-warning text-dark',
+            'associate': 'bg-success',
+            'bachelor': 'bg-primary',
+            'master': 'bg-purple' // Requires .bg-purple in CSS
+        };
+        typeBadge.className = `badge ${badgeClasses[program.type] || 'bg-secondary'} text-nowrap`;
+        typeBadge.textContent = program.type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        
+        header.appendChild(title);
+        header.appendChild(typeBadge);
+        
+        // Compact details grid
+        const detailsGrid = document.createElement('div');
+        detailsGrid.className = 'grid-container mb-2'; // Requires .grid-container and .grid-cell in CSS
+        
+        // Field
+        const fieldCell = document.createElement('div');
+        fieldCell.className = 'grid-cell';
+        fieldCell.innerHTML = `<i class="bi bi-tag-fill me-1"></i><span class="text-truncate">${program.field}</span>`;
+        
+        // Duration
+        const durationCell = document.createElement('div');
+        durationCell.className = 'grid-cell';
+        durationCell.innerHTML = `<i class="bi bi-clock-fill me-1"></i>${program.duration}`;
+        
+        // Cost
+        const costCell = document.createElement('div');
+        costCell.className = 'grid-cell';
+        costCell.innerHTML = `<i class="bi bi-cash-stack me-1"></i>$${program.cost.toLocaleString()}`;
+        
+        // Difficulty
+        const difficultyCell = document.createElement('div');
+        difficultyCell.className = 'grid-cell';
+        difficultyCell.innerHTML = `<i class="bi bi-speedometer2 me-1"></i>${'★'.repeat(program.difficulty)}${'☆'.repeat(5 - program.difficulty)}`;
+        
+        detailsGrid.appendChild(fieldCell);
+        detailsGrid.appendChild(durationCell);
+        detailsGrid.appendChild(costCell);
+        detailsGrid.appendChild(difficultyCell);
+        
+        // Skills Section (compact)
+        const skillsContainer = document.createElement('div');
+        skillsContainer.className = 'mb-2';
+        
+        const skillsTitle = document.createElement('h6');
+        skillsTitle.className = 'small mb-1 text-muted';
+        skillsTitle.textContent = 'Skills:';
+        
+        const skillsList = document.createElement('div');
+        skillsList.className = 'd-flex flex-wrap gap-1';
+        
+        const programSkills = program.skillsGained || [];
+        if (programSkills.length > 0) {
+            programSkills.forEach(skill => {
+                const skillBadge = document.createElement('span');
+                skillBadge.className = 'badge bg-secondary text-truncate';
+                skillBadge.style.maxWidth = '100px';
+                skillBadge.textContent = skill.replace(/_/g, ' ');
+                skillsList.appendChild(skillBadge);
+            });
+        } else {
+            const noSkills = document.createElement('span');
+            noSkills.className = 'small text-muted';
+            noSkills.textContent = 'General skills';
+            skillsList.appendChild(noSkills);
+        }
+        
+        skillsContainer.appendChild(skillsTitle);
+        skillsContainer.appendChild(skillsList);
+        
+        // Action Button
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'mt-auto pt-2'; // mt-auto pushes button to bottom
+        
+        const actionButton = document.createElement('button');
+        actionButton.className = 'btn btn-sm btn-outline-primary w-100 program-action-btn';
+        actionButton.dataset.programId = program.id;
+        actionButton.innerHTML = '<i class="bi bi-info-circle me-1"></i>Details';
+        
+        buttonContainer.appendChild(actionButton);
+        
+        // Assemble the card
+        cardContent.appendChild(header);
+        cardContent.appendChild(detailsGrid);
+        cardContent.appendChild(skillsContainer);
+        cardContent.appendChild(buttonContainer);
+        
+        cardBody.appendChild(cardContent);
+        card.appendChild(cardBody);
+        
+        return card;
     }
 
     static getFilteredPrograms(filter) {
@@ -654,119 +788,35 @@ static enrollStudent(program) {
             switch (filter) {
                 case 'all': return true;
                 case 'high-school': return program.type === 'high-school';
-                case 'certificates': return program.type === 'certificate';
-                case 'associate': 
-                    return program.type === 'degree' && 
-                        (program.name.includes('Associate') || program.level === 'associate');
-                case 'bachelor': 
-                    return program.type === 'degree' && 
-                        (program.name.includes('Bachelor') || program.level === 'bachelor');
-                case 'master': 
-                    return program.type === 'degree' && 
-                        (program.name.includes('Master') || program.level === 'master');
+                case 'certificates': return program.type === 'certification';
+                case 'associate': return program.type === 'associate';
+                case 'bachelor': return program.type === 'bachelor';
+                case 'master': return program.type === 'master';
                 default: return false;
             }
         });
     }
 
-    static renderProgramCard(program) {
-        if (!program?.id || !program?.name || !program?.type || !program?.field || !program?.duration) {
-            return ''; // Skip invalid programs
-        }
-
-        const isEnrolled = this.isProgramEnrolled(program.id);
-        const isCompleted = this.isProgramCompleted(program.id);
-        const canEnroll = this.getMissingPrerequisites(program.id).length === 0;
-
-        let buttonText = 'View Details';
-        let buttonDisabled = false;
-        let statusBadge = '';
-
-        if (isCompleted) {
-            statusBadge = '<span class="badge bg-success">Completed</span>';
-            buttonDisabled = true;
-        } else if (isEnrolled) {
-            const enrolled = this.getEnrolledProgram(program.id);
-            const progress = enrolled?.progress || 0;
-            statusBadge = `<span class="badge bg-primary">${Math.round(progress)}%</span>`;
-        } else if (!canEnroll) {
-            statusBadge = '<span class="badge bg-secondary">Locked</span>';
-            buttonDisabled = true;
-        }
-        
-        // Safely get difficulty stars
-        const difficultyStars = typeof program.difficulty === 'number' ? 
-            '★'.repeat(Math.min(5, Math.max(1, program.difficulty))) : '★';
-        
-        // Safely format cost
-        const cost = typeof program.cost === 'number' ? 
-            program.cost.toLocaleString() : '0';
-
-        return `
-            <div class="col-md-6 col-lg-4">
-                <div class="education-program-card card h-100">
-                    <div class="card-body">
-                        ${statusBadge}
-                        <div class="program-card-header">
-                            <h3 class="h5">${program.name}</h3>
-                            <span class="badge bg-dark">${program.type.toUpperCase()}</span>
-                        </div>
-                        <p><strong>${program.field}</strong> • ${program.duration}</p>
-                        <div class="program-details">
-                            <span class="badge bg-warning">${difficultyStars}</span>
-                            <span class="badge bg-success">$${cost}</span>
-                        </div>
-                        ${this.renderCareerRelevance(program)}
-                        <button class="btn btn-primary program-action-btn mt-2" 
-                                data-program-id="${program.id}" ${buttonDisabled ? 'disabled' : ''}>
-                            ${buttonText}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
     static addLoadMoreButton(filter, filteredPrograms) {
         if (filter !== 'all' || this.visibleProgramsCount >= filteredPrograms.length) return;
 
-        const loadMoreBtn = document.createElement('div');
-        loadMoreBtn.className = 'col-12 text-center mt-3';
-        loadMoreBtn.innerHTML = `
-            <button class="btn btn-outline-primary" id="loadMoreProgramsBtn">
-                Load More (${filteredPrograms.length - this.visibleProgramsCount} remaining)
-            </button>
-        `;
-        this.elements.programsContainer.appendChild(loadMoreBtn);
-
-        this.addListener(document.getElementById('loadMoreProgramsBtn'), 'click', () => {
-            this.visibleProgramsCount += 6;
+        const loadMoreBtn = document.createElement('button');
+        loadMoreBtn.id = 'loadMoreProgramsBtn';
+        loadMoreBtn.className = 'btn btn-outline-primary';
+        loadMoreBtn.textContent = `Load More (${filteredPrograms.length - this.visibleProgramsCount} remaining)`;
+        
+        this.addListener(loadMoreBtn, 'click', () => {
+            this.visibleProgramsCount += 6; // Load 6 more programs
             this.renderPrograms(filter);
         });
+
+        const container = document.createElement('div');
+        container.className = 'col-12 text-center mt-3'; // Full width column for the button
+        container.appendChild(loadMoreBtn);
+        
+        this.elements.programsContainer.appendChild(container);
     }
     
-    static renderCareerRelevance(program) {
-        if (!window.CAREERS || !Array.isArray(window.CAREERS)) return '';
-        
-        const relevantCareers = window.CAREERS.filter(c => 
-            c?.requirements?.education?.includes(program.id)
-        );
-        
-        if (relevantCareers.length === 0) return '';
-        
-        return `
-            <div class="career-relevance">
-                <small>Leads to:</small>
-                <div class="d-flex flex-wrap gap-1">
-                    ${relevantCareers.slice(0, 2).map(c => 
-                        `<span class="badge bg-info">${c?.title || 'Unknown Career'}</span>`
-                    ).join('')}
-                    ${relevantCareers.length > 2 ? 
-                        `<span class="badge bg-secondary">+${relevantCareers.length - 2}</span>` : ''}
-                </div>
-            </div>`;
-    }
-
     static renderCurrentProgress() {
         if (!this.elements.currentProgress) return;
 
@@ -774,25 +824,30 @@ static enrollStudent(program) {
             const enrolled = this.gameState?.education?.enrolledPrograms || [];
             
             if (enrolled.length === 0) {
-                this.elements.currentProgress.innerHTML = '<div class="alert alert-info">Not enrolled in any programs</div>';
+                this.elements.currentProgress.innerHTML = `
+                    <div class="alert alert-info mb-0">
+                        Not currently enrolled in any programs
+                    </div>
+                `;
                 return;
             }
 
-            this.elements.currentProgress.innerHTML = enrolled.map(program => `
-                <div class="current-program-item">
-                    <div class="d-flex justify-content-between">
-                        <strong>${program.name || 'Unknown Program'}</strong>
-                        <span>${Math.round(program.progress || 0)}%</span>
+            this.elements.currentProgress.innerHTML = '';
+            enrolled.forEach(program => {
+                const item = document.createElement('div');
+                item.className = 'current-program-item p-3 mb-2 border rounded bg-light';
+                item.innerHTML = `
+                    <h6 class="mb-1">${program.name} (${program.type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())})</h6>
+                    <div class="progress mb-1" style="height: 10px;">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: ${program.progress}%" aria-valuenow="${program.progress}" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
-                    <div class="progress">
-                        <div class="progress-bar" style="width: ${program.progress || 0}%"></div>
-                    </div>
-                    <small>${program.monthsCompleted || 0}/${program.totalDuration || 0} months</small>
-                </div>
-            `).join('');
+                    <small class="text-muted">${program.monthsCompleted} / ${program.totalDuration} months completed (${program.progress.toFixed(1)}%)</small>
+                `;
+                this.elements.currentProgress.appendChild(item);
+            });
         } catch (e) {
             console.error('Error rendering current progress:', e);
-            this.elements.currentProgress.innerHTML = '<div class="alert alert-danger">Error loading progress</div>';
+            this.elements.currentProgress.innerHTML = '<p class="text-danger">Error loading current programs.</p>';
         }
     }
 
@@ -804,37 +859,33 @@ static enrollStudent(program) {
             const activeSkills = Object.values(skills).filter(s => s?.xp > 0);
             
             if (activeSkills.length === 0) {
-                this.elements.skillMeter.innerHTML = '<div class="alert alert-info">No skills developed yet</div>';
+                this.elements.skillMeter.innerHTML = `
+                    <div class="alert alert-info mb-0">
+                        Complete programs to develop skills
+                    </div>
+                `;
                 return;
             }
 
-            this.elements.skillMeter.innerHTML = activeSkills
+            this.elements.skillMeter.innerHTML = '';
+            activeSkills
                 .sort((a, b) => (b?.level || 0) - (a?.level || 0) || (b?.xp || 0) - (a?.xp || 0))
-                .map(skill => this.renderSkillItem(skill))
-                .join('');
+                .forEach(skill => {
+                    const skillElement = document.createElement('div');
+                    skillElement.className = 'skill-item mb-2';
+                    skillElement.innerHTML = `
+                        <strong>${skill.name || skill.id.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}:</strong> Level ${skill.level || 1}
+                        <div class="progress mt-1" style="height: 8px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: ${((skill.xp % this.CONSTANTS.XP.PER_LEVEL) / this.CONSTANTS.XP.PER_LEVEL) * 100}%" aria-valuenow="${skill.xp % this.CONSTANTS.XP.PER_LEVEL}" aria-valuemin="0" aria-valuemax="${this.CONSTANTS.XP.PER_LEVEL}"></div>
+                        </div>
+                        <small class="text-muted">${skill.xp % this.CONSTANTS.XP.PER_LEVEL} / ${this.CONSTANTS.XP.PER_LEVEL} XP to next level</small>
+                    `;
+                    this.elements.skillMeter.appendChild(skillElement);
+                });
         } catch (e) {
             console.error('Error rendering skills:', e);
-            this.elements.skillMeter.innerHTML = '<div class="alert alert-danger">Error loading skills</div>';
+            this.elements.skillMeter.innerHTML = '<p class="text-danger">Error loading skills.</p>';
         }
-    }
-
-    static renderSkillItem(skill) {
-        if (!skill?.name || !skill?.xp || !skill?.level) return '';
-        
-        const currentLevelXp = skill.xp % this.CONSTANTS.XP.PER_LEVEL;
-        const progressPercent = (currentLevelXp / this.CONSTANTS.XP.PER_LEVEL) * 100;
-        
-        return `
-            <div class="skill-item">
-                <div class="d-flex justify-content-between">
-                    <span>${skill.name}</span>
-                    <span>Lvl ${skill.level}</span>
-                </div>
-                <div class="progress">
-                    <div class="progress-bar" style="width: ${progressPercent}%"></div>
-                </div>
-                <small>${currentLevelXp}/${this.CONSTANTS.XP.PER_LEVEL} XP</small>
-            </div>`;
     }
 
     static updateStats() {
@@ -861,97 +912,209 @@ static enrollStudent(program) {
         }
     }
     
-    static showProgramDetails(programId) {
-        try {
-            if (!programId || !this.elements.modal) return;
+  static showProgramDetails(programId) {
+    try {
+        if (!programId || !this.elements.modal) return;
 
-            const program = this.programs.find(p => p.id === programId);
-            if (!program) return;
-
-            this.selectedProgram = program;
-
-            // Populate modal content with safe checks
-            if (this.elements.modalTitle) {
-                this.elements.modalTitle.textContent = program.name || 'Unknown Program';
-            }
-
-            if (this.elements.modalDescription) {
-                this.elements.modalDescription.innerHTML = `
-                    <p><strong>Field:</strong> ${program.field || 'Unknown'}</p>
-                    <p><strong>Type:</strong> ${program.type || 'Unknown'}</p>
-                    <p><strong>Duration:</strong> ${program.duration || 'Unknown'} (${this.getDurationInMonths(program.duration)} months)</p>
-                    <p><strong>Cost:</strong> $${typeof program.cost === 'number' ? program.cost.toLocaleString() : '0'}</p>
-                `;
-            }
-
-            // Populate skills
-            if (this.elements.modalSkills) {
-                const fieldSkills = program.field ? this.fieldSkills[program.field] || [] : [];
-                this.elements.modalSkills.innerHTML = fieldSkills.map(id => {
-                    const skill = this.skillsData[id];
-                    return skill ? `<li>${skill.name} <span class="badge bg-success">+${this.CONSTANTS.XP.PER_PROGRAM} XP</span></li>` : '';
-                }).join('') || '<li>No specific skills listed</li>';
-            }
-
-            // Populate careers
-            if (this.elements.careerSection && this.elements.modalCareers) {
-                const relevantCareers = window.CAREERS?.filter(c => 
-                    c?.requirements?.education?.includes(program.id)
-                ) || [];
-                
-                if (relevantCareers.length > 0) {
-                    this.elements.careerSection.style.display = 'block';
-                    this.elements.modalCareers.innerHTML = `<ul>${
-                        relevantCareers.map(c => 
-                            `<li>${c.title || 'Unknown'} ($${typeof c.baseSalary === 'number' ? 
-                                c.baseSalary.toLocaleString() : '0'}/yr)</li>`
-                        ).join('')
-                    }</ul>`;
-                } else {
-                    this.elements.careerSection.style.display = 'none';
-                }
-            }
-
-            // Populate prerequisites
-            if (this.elements.prereqSection && this.elements.modalPrerequisites) {
-                const prereqs = this.prerequisites[program.id] || [];
-                if (prereqs.length > 0) {
-                    this.elements.prereqSection.style.display = 'block';
-                    this.elements.modalPrerequisites.innerHTML = prereqs.map(id => {
-                        const p = this.programs.find(prog => prog.id === id);
-                        const isCompleted = this.isProgramCompleted(id);
-                        return `<li class="${isCompleted ? 'text-success' : 'text-danger'}">${
-                            p ? p.name : id
-                        } ${isCompleted ? '(Completed)' : '(Required)'}</li>`;
-                    }).join('');
-                } else {
-                    this.elements.prereqSection.style.display = 'none';
-                }
-            }
-
-            // Update enroll button
-            if (this.elements.startProgramBtn) {
-                const isEnrolled = this.isProgramEnrolled(programId);
-                const isCompleted = this.isProgramCompleted(programId);
-                const canEnroll = this.getMissingPrerequisites(programId).length === 0;
-                
-                this.elements.startProgramBtn.disabled = isEnrolled || isCompleted || !canEnroll;
-                this.elements.startProgramBtn.textContent = 
-                    isCompleted ? 'Completed' :
-                    isEnrolled ? 'Currently Enrolled' :
-                    !canEnroll ? 'Prerequisites Not Met' :
-                    'Begin Program';
-            }
-
-            // Show modal
-            if (this.elements.modal?.show) {
-                this.elements.modal.show();
-            }
-
-        } catch (e) {
-            console.error('Error showing program details:', e);
+        const program = this.programs.find(p => p.id === programId);
+        if (!program) {
+            console.warn(`Program with ID ${programId} not found.`);
+            return;
         }
+
+        this.selectedProgram = program;
+
+        // Set basic program info
+        if (this.elements.modalTitle) {
+            this.elements.modalTitle.textContent = program.name || 'Unknown Program';
+        }
+
+        if (this.elements.modalDescription) {
+            this.elements.modalDescription.textContent = program.description || 
+                `This ${program.type.replace(/-/g, ' ')} program provides comprehensive training in ${program.field}.`;
+        }
+
+        if (this.elements.modalDuration) {
+            this.elements.modalDuration.textContent = program.duration || '--';
+        }
+
+        if (this.elements.modalCost) {
+            this.elements.modalCost.textContent = `$${program.cost ? program.cost.toLocaleString() : '0'}`;
+        }
+
+        // Add new fields
+        if (this.getElementById('programDetailsDifficulty')) {
+            const difficultyStars = '★'.repeat(program.difficulty || 1) + '☆'.repeat(5 - (program.difficulty || 1));
+            this.getElementById('programDetailsDifficulty').textContent = difficultyStars;
+        }
+
+        if (this.getElementById('programDetailsField')) {
+            this.getElementById('programDetailsField').textContent = program.field || 'General';
+        }
+
+        // Update skills display
+        if (this.elements.modalSkills) {
+            this.elements.modalSkills.innerHTML = '';
+            const programSkills = program.skillsGained || [];
+            const fieldSkills = this.fieldSkills[program.field] || [];
+            const allSkills = [...new Set([...programSkills, ...fieldSkills])];
+
+            if (allSkills.length > 0) {
+                allSkills.forEach(skillId => {
+                    const skillBadge = document.createElement('span');
+                    skillBadge.className = 'badge bg-secondary';
+                    skillBadge.textContent = skillId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    this.elements.modalSkills.appendChild(skillBadge);
+                });
+            } else {
+                const noSkills = document.createElement('span');
+                noSkills.className = 'badge bg-secondary';
+                noSkills.textContent = 'General skills';
+                this.elements.modalSkills.appendChild(noSkills);
+            }
+        }
+
+        // Update careers display
+        if (this.elements.careerSection && this.elements.modalCareers) {
+            const relevantCareers = window.CAREERS?.filter(c => 
+                c?.requirements?.education?.includes(program.id)
+            ) || [];
+            
+            if (relevantCareers.length > 0) {
+                this.elements.careerSection.style.display = 'block';
+                this.elements.modalCareers.innerHTML = '';
+                relevantCareers.forEach(career => {
+                    const careerBadge = document.createElement('span');
+                    careerBadge.className = 'badge bg-info';
+                    careerBadge.textContent = career.name;
+                    this.elements.modalCareers.appendChild(careerBadge);
+                });
+            } else {
+                this.elements.careerSection.style.display = 'none';
+            }
+        }
+
+        // Update prerequisites display
+        if (this.elements.prereqSection && this.getElementById('programDetailsPrerequisites')) {
+            const prereqIds = this.prerequisites[program.id] || [];
+            
+            if (prereqIds.length > 0) {
+                this.elements.prereqSection.style.display = 'block';
+                this.getElementById('programDetailsPrerequisites').innerHTML = '';
+                prereqIds.forEach(reqId => {
+                    const reqProgram = this.programs.find(p => p.id === reqId);
+                    const prereqItem = document.createElement('div');
+                    prereqItem.className = 'd-flex align-items-center mb-1';
+                    
+                    const statusBadge = document.createElement('span');
+                    statusBadge.className = this.isProgramCompleted(reqId) ? 'badge bg-success me-2' : 'badge bg-danger me-2';
+                    statusBadge.innerHTML = this.isProgramCompleted(reqId) ? '<i class="bi bi-check-circle-fill"></i>' : '<i class="bi bi-x-circle-fill"></i>';
+                    
+                    const nameSpan = document.createElement('span');
+                    nameSpan.textContent = reqProgram ? reqProgram.name : reqId;
+                    
+                    prereqItem.appendChild(statusBadge);
+                    prereqItem.appendChild(nameSpan);
+                    this.getElementById('programDetailsPrerequisites').appendChild(prereqItem);
+                });
+            } else {
+                this.elements.prereqSection.style.display = 'none';
+            }
+        }
+
+        // Update enrollment status section
+        if (this.getElementById('enrollmentStatusSection') && this.getElementById('enrollmentStatusMessage')) {
+            const isEnrolled = this.isProgramEnrolled(programId);
+            const isCompleted = this.isProgramCompleted(programId);
+            const missingPrereqs = this.getMissingPrerequisites(programId);
+            const insufficientFunds = this.gameState.balance < program.cost;
+            const age = TimeManager?.timeState?.age || 0;
+            const tooYoung = program.minAge && age < program.minAge;
+            const tooOld = program.maxAge && age > program.maxAge;
+            
+            let statusMessage = '';
+            let statusClass = '';
+            
+            if (isCompleted) {
+                statusMessage = 'You have already completed this program!';
+                statusClass = 'text-success';
+            } else if (isEnrolled) {
+                statusMessage = 'You are currently enrolled in this program!';
+                statusClass = 'text-primary';
+            } else if (missingPrereqs.length > 0) {
+                const prereqNames = missingPrereqs.map(id => 
+                    this.programs.find(p => p.id === id)?.name || id
+                ).join(', ');
+                statusMessage = `Missing prerequisites: ${prereqNames}`;
+                statusClass = 'text-danger';
+            } else if (insufficientFunds) {
+                statusMessage = `Insufficient funds. You need $${(program.cost - this.gameState.balance).toLocaleString()} more.`;
+                statusClass = 'text-danger';
+            } else if (tooYoung) {
+                statusMessage = `Too young. Minimum age: ${program.minAge}. Current age: ${age}.`;
+                statusClass = 'text-warning';
+            } else if (tooOld) {
+                statusMessage = `Too old. Maximum age: ${program.maxAge}. Current age: ${age}.`;
+                statusClass = 'text-warning';
+            } else {
+                statusMessage = 'You meet all requirements for this program!';
+                statusClass = 'text-success';
+            }
+            
+            this.getElementById('enrollmentStatusMessage').textContent = statusMessage;
+            this.getElementById('enrollmentStatusMessage').className = statusClass;
+            this.getElementById('enrollmentStatusSection').style.borderLeftColor = 
+                statusClass.includes('success') ? 'var(--bs-success)' :
+                statusClass.includes('danger') ? 'var(--bs-danger)' :
+                statusClass.includes('warning') ? 'var(--bs-warning)' : 'var(--bs-info)';
+        }
+
+        // Update enroll button
+        if (this.elements.startProgramBtn) {
+            let buttonText = 'Enroll Now';
+            let buttonDisabled = false;
+            let buttonClass = 'btn-primary';
+
+            if (isCompleted) {
+                buttonText = 'Completed';
+                buttonDisabled = true;
+                buttonClass = 'btn-success';
+            } else if (isEnrolled) {
+                buttonText = 'Currently Enrolled';
+                buttonDisabled = true;
+                buttonClass = 'btn-primary';
+            } else if (missingPrereqs.length > 0) {
+                buttonText = 'Prerequisites Not Met';
+                buttonDisabled = true;
+                buttonClass = 'btn-danger';
+            } else if (insufficientFunds) {
+                buttonText = 'Insufficient Funds';
+                buttonDisabled = true;
+                buttonClass = 'btn-danger';
+            } else if (tooYoung) {
+                buttonText = `Too Young (Min Age: ${program.minAge})`;
+                buttonDisabled = true;
+                buttonClass = 'btn-warning';
+            } else if (tooOld) {
+                buttonText = `Too Old (Max Age: ${program.maxAge})`;
+                buttonDisabled = true;
+                buttonClass = 'btn-warning';
+            }
+            
+            this.elements.startProgramBtn.disabled = buttonDisabled;
+            this.elements.startProgramBtn.textContent = buttonText;
+            this.elements.startProgramBtn.className = `btn ${buttonClass}`;
+        }
+
+        if (this.elements.modal?.show) {
+            this.elements.modal.show();
+        }
+
+    } catch (e) {
+        console.error('Error showing program details:', e);
+        EventManager.addToEventLog('Failed to show program details', 'danger');
     }
+}
 
     static debounce(func, wait) {
         let timeout;
@@ -1003,20 +1166,20 @@ static enrollStudent(program) {
     }
 
     static getDurationInMonths(durationString) {
-    if (!durationString) return 0;
-    
-    const num = parseInt(durationString, 10);
-    if (isNaN(num)) return 0;
-    
-    const lowerDuration = durationString.toLowerCase();
-    
-    if (lowerDuration.includes('year') || lowerDuration.includes('yr')) return num * 12;
-    if (lowerDuration.includes('month') || lowerDuration.includes('mo')) return num;
-    if (lowerDuration.includes('week') || lowerDuration.includes('wk')) return Math.ceil(num / 4);
-    if (lowerDuration.includes('semester')) return num * 6; // Assuming 6 months per semester
-    if (lowerDuration.includes('quarter')) return num * 3; // Assuming 3 months per quarter
-    return num; // Default to months if no unit specified
-}
+        if (!durationString) return 0;
+        
+        const num = parseInt(durationString, 10);
+        if (isNaN(num)) return 0;
+        
+        const lowerDuration = durationString.toLowerCase();
+        
+        if (lowerDuration.includes('year') || lowerDuration.includes('yr')) return num * 12;
+        if (lowerDuration.includes('month') || lowerDuration.includes('mo')) return num;
+        if (lowerDuration.includes('week') || lowerDuration.includes('wk')) return Math.ceil(num / 4);
+        if (lowerDuration.includes('semester')) return num * 6;
+        if (lowerDuration.includes('quarter')) return num * 3;
+        return num;
+    }
 
     static log(...args) {
         if (this.debug) {
@@ -1025,7 +1188,6 @@ static enrollStudent(program) {
     }
 }
 
-// Enhanced Storage helper class
 class GameStateStorage {
     static load(key) {
         try {
@@ -1042,7 +1204,7 @@ class GameStateStorage {
             if (!key || typeof key !== 'string') return false;
             
             const dataToSave = JSON.stringify(data);
-            if (dataToSave.length > 5000000) { // ~5MB limit
+            if (dataToSave.length > 5000000) {
                 console.warn('Data too large to save to localStorage');
                 return false;
             }
@@ -1056,12 +1218,20 @@ class GameStateStorage {
     }
 }
 
-// Safe initialization
 document.addEventListener('DOMContentLoaded', () => {
     try {
-        TimeManager.init();
+        // Ensure necessary managers are initialized before EducationManager, if they have dependencies
+        if (typeof TimeManager !== 'undefined') TimeManager.init();
+        if (typeof GameManager !== 'undefined') GameManager.init();
+        
         EducationManager.init();
     } catch (e) {
-        console.error('Initialization failed:', e);
+        console.error('Education system initialization failed on DOMContentLoaded:', e);
     }
+});
+
+document.addEventListener('mainManagerReady', () => {
+    // This event listener ensures EducationManager initializes after GameManager is fully ready,
+    // especially if EducationManager depends on GameState data populated by GameManager.
+    EducationManager.init();
 });

@@ -74,33 +74,21 @@ class TimeManager {
      * @returns {Promise<TimeState>} New time state
      * @throws {Error} If not initialized
      */
-static async advanceTime() {
-    if (!this.state.initialized) throw new Error('TimeManager not initialized');
-    
-    const oldState = { ...this.state.timeState };
-    const newState = this._calculateNewTimeState(oldState);
-    
-    // Validate exactly 3 months advancement
-    if (newState.totalMonths - oldState.totalMonths !== 3) {
-        newState.totalMonths = oldState.totalMonths + 3;
-        // Recalculate with fixed totalMonths
-        newState.month = (newState.totalMonths % 12) || 12;
-        newState.quarter = this._getQuarterForMonth(newState.month);
-        newState.year = 1 + Math.floor(newState.totalMonths / 12);
-        newState.age = 18 + Math.floor(newState.totalMonths / 12);
-        newState.isQuarterly = this.config.quarterStartMonths.includes(newState.month);
-    }
-    
-    this.state.timeState = newState;
-    await this._saveTimeState();
-    this.updateDisplays();
-    
-    // Dispatch only one event
-    document.dispatchEvent(new CustomEvent('timeAdvanced', {
-        detail: newState
-    }));
-    
-    return newState;
+   static async advanceTime() {
+  if (!this.state.initialized) throw new Error('TimeManager not initialized');
+  
+  const oldState = { ...this.state.timeState };
+  const newState = this._calculateNewTimeState(oldState);
+  
+  // Enforce 3-month advancement
+  if (newState.totalMonths - oldState.totalMonths !== 3) {
+    throw new Error('Time advancement must be exactly 3 months');
+  }
+
+  this.state.timeState = newState;
+  await this._saveTimeState();
+  this._notifyListeners(newState);
+  return newState;
 }
 
 
@@ -200,26 +188,21 @@ static async advanceTime() {
      * Load time state from storage or create default
      * @private
      */
-static async _loadTimeState(characterId) {
-    try {
-        const key = `${this.config.localStorageKey}_${characterId}`;
-        const savedState = localStorage.getItem(key);
-        
-        if (savedState) {
-            const parsed = JSON.parse(savedState);
-            // Ensure we have all required fields
-            return {
-                ...this._getDefaultTimeState(),
-                ...parsed
-            };
+    static async _loadTimeState(characterId) {
+        try {
+            const key = `${this.config.localStorageKey}_${characterId}`;
+            const savedState = localStorage.getItem(key);
+            
+            if (savedState) {
+                return JSON.parse(savedState);
+            }
+            return this._getDefaultTimeState();
+            
+        } catch (error) {
+            console.error('Error loading time state:', error);
+            return this._getDefaultTimeState();
         }
-        return this._getDefaultTimeState();
-        
-    } catch (error) {
-        console.error('Error loading time state:', error);
-        return this._getDefaultTimeState();
     }
-}
 
     /**
      * Save current time state to storage

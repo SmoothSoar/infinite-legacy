@@ -4,318 +4,259 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Life Simulator - Education Pathway</title>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/education.css">
-     <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/theme.css">
 </head>
 <body class="d-flex flex-column min-vh-100 theme-transition">
-       <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand d-flex align-items-center" href="#">
-            <i class="bi bi-controller me-2"></i>
-            Life Simulator
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="game.html">
-                        <i class="bi bi-house-door"></i> Home
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="finances.html">
-                        <i class="bi bi-cash-stack"></i> Finances
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="career.html">
-                        <i class="bi bi-briefcase"></i> Career
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="education.html">
-                        <i class="bi bi-book"></i> Education
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="relationships.html">
-                        <i class="bi bi-heart"></i> Relationships
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="assets.html">
-                        <i class="bi bi-house-gear"></i> Assets
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="real-estate.html">
-                        <i class="bi bi-buildings"></i> Real Estate
-                    </a>
-                </li>
-            </ul>
-            <div class="d-flex align-items-center">
-               <button id="advanceTimeButton" class="btn btn-primary me-2">
-    <i class="bi bi-skip-forward-fill"></i>
-    <span>Advance Time (3 Months)</span>
-</button>
-                <!-- Settings Dropdown -->
-                <div class="dropdown me-2">
-                    <button class="btn btn-outline-light dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-gear"></i>
-                        <span class="d-none d-sm-inline">Settings</span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settingsDropdown">
-                        <!-- Character Management -->
-                        <li><h6 class="dropdown-header">Character</h6></li>
-                        <li>
-                            <a class="dropdown-item" href="#" id="switchCharacterBtn">
-                                <i class="bi bi-person-lines-fill me-2"></i>Switch Character
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="create-character.html">
-                                <i class="bi bi-person-plus me-2"></i>New Character
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="#" id="deleteCharacterBtn">
-                                <i class="bi bi-person-x me-2"></i>Delete Character
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        
-                        <!-- Game Settings -->
-                        <li><h6 class="dropdown-header">Game Settings</h6></li>
-                        <li>
-                            <button class="dropdown-item" id="themeToggleDropdown">
-                                <i class="bi bi-palette me-2"></i>Toggle Theme
-                            </button>
-                        </li>
-                        <li>
-                            <button class="dropdown-item" id="toggleSoundBtn">
-                                <i class="bi bi-volume-up me-2"></i>Toggle Sound
-                            </button>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        
-                        <!-- Data Management -->
-                        <li><h6 class="dropdown-header">Data</h6></li>
-                        <li>
-                            <button class="dropdown-item" id="resetCharacterBtn">
-                                <i class="bi bi-arrow-counterclockwise me-2"></i>Reset Character
-                            </button>
-                        </li>
-                        <li>
-                            <button class="dropdown-item" id="exportSaveBtn">
-                                <i class="bi bi-download me-2"></i>Export Save
-                            </button>
-                        </li>
-                        <li>
-                            <button class="dropdown-item" id="importSaveBtn">
-                                <i class="bi bi-upload me-2"></i>Import Save
-                            </button>
-                        </li>
-                    </ul>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="bi bi-mortarboard me-2"></i>
+                Education Pathway
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="game.html"><i class="bi bi-house-door me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#"><i class="bi bi-book me-1"></i> Education</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="career.html"><i class="bi bi-briefcase me-1"></i> Career</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <div class="me-3 text-white">
+                        <i class="bi bi-cash-stack me-1"></i>
+                        <span id="navBalance">$10,000</span>
+                    </div>
+                    <div class="me-3 text-white">
+                        <i class="bi bi-calendar3 me-1"></i>
+                        <span id="navAge">Age 18</span>
+                    </div>
                 </div>
-                
-                <!-- Theme Toggle (now moved into dropdown) -->
-                <button id="themeToggle" class="btn btn-outline-light d-none">
-                    <span class="theme-icon bi bi-moon"></span>
-                    <span class="d-none d-sm-inline">Theme</span>
-                </button>
             </div>
         </div>
-    </div>
-</nav>
+    </nav>
+
+    <!-- Main Content -->
     <main class="container my-4 flex-grow-1">
-             <!-- Character Header -->
-     <div class="text-center mb-4">
-    <div class="welcome-header p-4 rounded">
-        <div class="d-flex flex-column align-items-center">
-            <h1 id="characterName" class="display-5 mb-2 fw-bold">Player</h1>
-            <div class="d-flex align-items-center justify-content-center gap-3 mb-2">
-                <span class="time-display badge bg-primary text-white px-3 py-2 rounded-pill" id="timeDisplay">
-                    <i class="bi bi-calendar3 me-1"></i> Year 1, Q1 (January)
-                </span>
-                <span class="age-display badge bg-secondary text-white px-3 py-2 rounded-pill" id="characterAge">
-                    <i class="bi bi-person me-1"></i> Age 18
-                </span>
-            </div>
-        </div>
-    </div>
-</div>
-
-        <div class="row g-4 mb-4">
-            <div class="col-md-6 col-lg-3">
-                <div class="character-stat-card">
-                    <i class="bi bi-mortarboard stat-icon"></i>
-                    <h3 class="stat-label">Education Level</h3>
-                    <p id="eduLevel" class="stat-value">High School</p>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="character-stat-card">
-                    <i class="bi bi-star stat-icon"></i>
-                    <h3 class="stat-label">GPA</h3>
-                    <p id="gpaDisplay" class="stat-value">3.2</p>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="character-stat-card">
-                    <i class="bi bi-calendar stat-icon"></i>
-                    <h3 class="stat-label">Year</h3>
-                    <p id="yearDisplay" class="stat-value">1</p>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="character-stat-card">
-                    <i class="bi bi-cash-stack stat-icon"></i>
-                    <h3 class="stat-label">Balance</h3>
-                    <div id="moneyDisplay" class="money-display">$0</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row g-4">
-            <div class="col-lg-8">
+        <!-- Education Summary -->
+        <div class="row mb-4">
+            <div class="col-md-4">
                 <div class="card h-100">
-                    <div class="card-header bg-primary text-white">
-                        <h2 class="h5 mb-0"><i class="bi bi-book me-2"></i>Education Programs</h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="filter-buttons d-flex flex-wrap gap-2 mb-3">
-    <button class="btn btn-sm btn-outline-primary filter-btn active" data-filter="all">All</button>
-    <button class="btn btn-sm btn-outline-primary filter-btn" data-filter="high-school">High School</button>
-    <button class="btn btn-sm btn-outline-primary filter-btn" data-filter="certificates">Certificates</button>
-    <button class="btn btn-sm btn-outline-primary filter-btn" data-filter="associate">Associate</button>
-    <button class="btn btn-sm btn-outline-primary filter-btn" data-filter="bachelor">Bachelor</button>
-    <button class="btn btn-sm btn-outline-primary filter-btn" data-filter="master">Master</button>
-</div>
-                        <div class="education-programs-container row g-3">
-                            </div>
+                    <div class="card-body text-center">
+                        <i class="bi bi-mortarboard fs-1 text-primary mb-2"></i>
+                        <h3 id="eduLevel" class="mb-0">High School</h3>
+                        <small class="text-muted">Education Level</small>
                     </div>
                 </div>
             </div>
-
-            <div class="col-lg-4">
-                <div class="card mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h2 class="h5 mb-0"><i class="bi bi-journal-check me-2"></i>Current Programs</h2>
-                    </div>
-                    <div class="card-body">
-                        <div id="currentProgress" class="current-programs">
-                            <div class="alert alert-info mb-0">
-                                You are not currently enrolled in any programs.
-                            </div>
-                        </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-star fs-1 text-warning mb-2"></i>
+                        <h3 id="gpaDisplay" class="mb-0">3.2</h3>
+                        <small class="text-muted">Current GPA</small>
                     </div>
                 </div>
-
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h2 class="h5 mb-0"><i class="bi bi-graph-up me-2"></i>Skills Progress</h2>
-                    </div>
-                    <div class="card-body">
-                        <div id="skillMeter" class="skills-progress">
-                            <div class="alert alert-info mb-0">
-                                Skills will appear as you complete programs.
-                            </div>
-                        </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-journal-check fs-1 text-success mb-2"></i>
+                        <h3 id="completedCount" class="mb-0">0</h3>
+                        <small class="text-muted">Programs Completed</small>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="card mt-4">
+        <!-- Program Catalog -->
+        <div class="card mb-4">
             <div class="card-header bg-primary text-white">
-                <h2 class="h5 mb-0"><i class="bi bi-clock-history me-2"></i>Event Log</h2>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0"><i class="bi bi-book me-2"></i>Program Catalog</h2>
+                    <div class="filter-buttons">
+                        <button class="btn btn-sm btn-outline-light filter-btn active" data-filter="all">All</button>
+                        <button class="btn btn-sm btn-outline-light filter-btn" data-filter="high-school">High School</button>
+                        <button class="btn btn-sm btn-outline-light filter-btn" data-filter="certificates">Certificates</button>
+                        <button class="btn btn-sm btn-outline-light filter-btn" data-filter="associate">Associate</button>
+                        <button class="btn btn-sm btn-outline-light filter-btn" data-filter="bachelor">Bachelor's</button>
+                        <button class="btn btn-sm btn-outline-light filter-btn" data-filter="master">Master's</button>
+                    </div>
+                </div>
             </div>
-            <div class="card-body p-0">
-                <div id="eventLog" class="list-group list-group-flush" style="max-height: 200px; overflow-y: auto;">
-                    <div class="list-group-item">Game started</div>
+            <div class="card-body">
+                <div class="row g-3" id="programsContainer">
+                    <!-- Programs will be loaded here -->
                 </div>
             </div>
         </div>
 
-        <div class="modal fade" id="programDetailsModal" tabindex="-1" aria-labelledby="programDetailsTitle" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="programDetailsTitle">Program Details</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="program-detail-item">
-                            <h6>Description</h6>
-                            <p id="programDetailsDescription">Loading program details...</p>
-                        </div>
-                        <div class="program-detail-item">
-                            <h6>Duration</h6>
-                            <p id="programDetailsDuration">--</p>
-                        </div>
-                        <div class="program-detail-item">
-                            <h6>Cost</h6>
-                            <p id="programDetailsCost">--</p>
-                        </div>
-                        <div class="program-detail-item">
-                            <h6>Skills Improved</h6>
-                            <ul class="skills-list" id="programDetailsSkills">
-                                <li>Loading...</li>
-                            </ul>
-                        </div>
-                        <div class="program-detail-item" id="careerRelevanceSection">
-                            <h6>Career Relevance</h6>
-                            <ul class="careers-list" id="programDetailsCareers">
-                                <li>No career paths found</li>
-                            </ul>
-                        </div>
-                        <div class="program-detail-item" id="prerequisitesSection">
-                            <h6>Prerequisites</h6>
-                            <ul class="prerequisites-list" id="programDetailsPrerequisites">
-                                <li>None</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" id="startProgramBtn">Begin Program</button>
+        <!-- Current Enrollment -->
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h5 mb-0"><i class="bi bi-journal-check me-2"></i>Current Enrollment</h2>
+            </div>
+            <div class="card-body">
+                <div id="currentProgress">
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle me-2"></i> Not currently enrolled in any programs
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
+    <!-- Program Details Modal -->
+    <div class="modal fade" id="programModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="programModalTitle">Program Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- Left Column -->
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h4 id="programName" class="mb-2">Program Name</h4>
+                                <span id="programType" class="badge bg-primary mb-3">Type</span>
+                                <p id="programDescription" class="text-muted">Program description will appear here.</p>
+                            </div>
+
+                            <div class="program-details-grid mb-4">
+                                <div class="detail-item">
+                                    <i class="bi bi-clock text-primary"></i>
+                                    <div>
+                                        <small class="text-muted">Duration</small>
+                                        <p id="programDuration" class="mb-0">--</p>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="bi bi-cash-coin text-primary"></i>
+                                    <div>
+                                        <small class="text-muted">Cost</small>
+                                        <p id="programCost" class="mb-0">--</p>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="bi bi-speedometer2 text-primary"></i>
+                                    <div>
+                                        <small class="text-muted">Difficulty</small>
+                                        <p id="programDifficulty" class="mb-0">--</p>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="bi bi-building text-primary"></i>
+                                    <div>
+                                        <small class="text-muted">Field</small>
+                                        <p id="programField" class="mb-0">--</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h5 class="d-flex align-items-center">
+                                    <i class="bi bi-lightbulb text-primary me-2"></i>
+                                    Skills Gained
+                                </h5>
+                                <div class="skills-container" id="programSkills">
+                                    <span class="badge bg-secondary mb-1">Loading skills...</span>
+                                </div>
+                            </div>
+
+                            <div class="mb-4" id="careerSection">
+                                <h5 class="d-flex align-items-center">
+                                    <i class="bi bi-briefcase text-primary me-2"></i>
+                                    Career Paths
+                                </h5>
+                                <div class="careers-container" id="careerPaths">
+                                    <span class="badge bg-info mb-1">No career paths found</span>
+                                </div>
+                            </div>
+
+                            <div id="prereqSection">
+                                <h5 class="d-flex align-items-center">
+                                    <i class="bi bi-list-check text-primary me-2"></i>
+                                    Prerequisites
+                                </h5>
+                                <div class="prereq-list" id="prerequisitesList">
+                                    <div class="prereq-item completed">
+                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                        <span>None required</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Enrollment Status -->
+                    <div class="enrollment-status mt-4 p-3 rounded">
+                        <h5 class="d-flex align-items-center mb-3">
+                            <i class="bi bi-info-circle text-primary me-2"></i>
+                            Enrollment Status
+                        </h5>
+                        <div class="d-flex align-items-center">
+                            <div id="enrollmentStatusIcon" class="me-3">
+                                <i class="bi bi-question-circle fs-4 text-secondary"></i>
+                            </div>
+                            <div>
+                                <p id="enrollmentStatusText" class="mb-0">Checking eligibility...</p>
+                                <small id="enrollmentStatusDetail" class="text-muted"></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Close
+                    </button>
+                    <button type="button" class="btn btn-primary" id="enrollButton">
+                        <i class="bi bi-pencil-square me-1"></i> Enroll Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
     <footer class="bg-dark text-white py-3 mt-auto">
         <div class="container text-center">
             <p class="mb-0">© <span id="currentYear">2023</span> Life Simulator - Education Pathway</p>
         </div>
     </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/time.js"></script>
     <script src="js/player.js"></script>
-       <script src="js/main.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/education.js"></script>
     <script src="js/eventManager.js"></script>
-    <script src="js/finances.js"></script>
-    <script src="js/careerManager.js"></script>
-    <script src="js/careers-data.js"></script>
-    <script src="js/settingsDropdown.js"></script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
-        
-        // Initialize GameManager first
-        GameManager.init();
-        
-        // Then initialize Career Manager
-        if (document.querySelector('.job-listings-container')) {
-            CareerManager.init();
-        }
-    });
-</script>
+    <script src="js/degrees.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+            
+            // Initialize managers
+            if (typeof GameManager !== 'undefined') GameManager.init();
+            if (typeof TimeManager !== 'undefined') TimeManager.init();
+            if (typeof EducationManager !== 'undefined') EducationManager.init();
+        });
+    </script>
 </body>
 </html>

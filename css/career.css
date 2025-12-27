@@ -1,374 +1,431 @@
-/* career.css - Compact Job Cards */
-:root {
-    --bs-primary: rgb(var(--color-primary));
-    --bs-secondary: rgb(var(--color-secondary));
-    --bs-accent: rgb(var(--color-accent));
-    --bs-success: rgb(var(--color-success));
-    --bs-warning: rgb(var(--color-warning));
-    --bs-danger: rgb(var(--color-danger));
-    --bs-info: rgb(var(--color-info));
-    --bs-light: rgb(var(--color-bg-secondary));
-    --bs-dark: rgb(var(--color-bg-tertiary));
-    --bs-gray-400: rgb(var(--color-text-muted));
-}
+/* education.css - Fully Theme-Compatible Styles */
+/* Uses variables from theme.css for consistent theming */
 
+/* Base Styles */
 body {
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     background-color: rgb(var(--color-bg));
     color: rgb(var(--color-text));
 }
 
-.theme-transition {
-    transition: background-color 0.3s ease, color 0.3s ease;
+/* Theme Transition */
+.theme-transition * {
+    transition: 
+        background-color 0.3s ease,
+        color 0.3s ease,
+        border-color 0.3s ease;
 }
 
-/* Header */
-.welcome-header {
-    padding: 0.75rem;
-    background-color: rgb(var(--color-card));
-    border: 1px solid rgb(var(--color-card-border));
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+/* Navigation Bar */
+.navbar {
+    background-color: rgb(var(--color-navbar)) !important;
+    border-bottom: 1px solid rgba(var(--color-border), 0.5);
+}
+
+.navbar-brand,
+.nav-link {
+    color: rgb(var(--color-navbar-text)) !important;
+}
+
+/* Character Header */
+.character-header {
+    background: linear-gradient(
+        135deg, 
+        rgba(var(--color-primary), 0.8), 
+        rgba(var(--color-secondary), 0.8)
+    );
+    color: rgb(var(--color-text-inverse));
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 10px rgba(var(--color-text), 0.1);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.character-header .display-5 {
+    color: rgb(var(--color-text-inverse));
+    text-shadow: 1px 1px 2px rgba(var(--color-text), 0.2);
+}
+
+.character-header .badge {
+    background-color: rgba(var(--color-bg), 0.7);
+    color: rgb(var(--color-text));
+    font-size: 0.9rem;
+    font-weight: 500;
 }
 
 /* Stats Cards */
 .character-stat-card {
     background-color: rgb(var(--color-card));
     border: 1px solid rgb(var(--color-card-border));
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
     text-align: center;
-    height: 100%;
-}
-
-.stat-icon {
-    color: var(--bs-primary);
-    margin-bottom: 0.25rem;
-}
-
-.stat-label {
-    color: rgb(var(--color-text-secondary));
-    margin-bottom: 0.25rem;
-    font-weight: 600;
-}
-
-.stat-value {
-    font-weight: 700;
-    color: rgb(var(--color-text));
-}
-
-/* Job Grid */
-.job-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 0.75rem;
-    margin-top: 0.5rem;
-}
-
-.job-card {
-    padding: 0.75rem;
-    border-radius: 0.5rem;
-    border-left: 3px solid var(--bs-primary);
-    background-color: rgb(var(--color-card));
-    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(var(--color-text), 0.05);
+    transition: transform 0.2s ease-in-out;
     height: 100%;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    justify-content: center;
+    align-items: center;
 }
 
-.job-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+.character-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(var(--color-text), 0.1);
 }
 
-.job-title {
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin: 0;
-    line-height: 1.3;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    
+.character-stat-card .stat-icon {
+    color: rgb(var(--color-primary));
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
 }
 
-.job-meta {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.8rem;
-    margin: 0.25rem 0 0.5rem;
-}
-
-.job-company {
+.character-stat-card .stat-label {
     color: rgb(var(--color-text-secondary));
-}
-
-.job-salary {
-    color: var(--bs-success);
+    margin-bottom: 0.25rem;
     font-weight: 600;
+    font-size: 0.95rem;
 }
 
-.job-level {
-    margin-top: auto;
-    font-size: 0.7rem;
-    padding: 0.2rem 0.6rem;
-    border-radius: 1rem;
-    width: fit-content;
+.character-stat-card .stat-value {
+    color: rgb(var(--color-text));
+    font-size: 1.4rem;
+    font-weight: 700;
 }
 
-.job-level.entry-level {
-    background-color: rgba(58, 134, 255, 0.15);
-    color: var(--bs-primary);
+.money-display {
+    color: rgb(var(--color-success));
+    font-weight: bold;
+    font-size: 1.4rem;
 }
 
-.job-level.professional {
-    background-color: rgba(56, 176, 0, 0.15);
-    color: var(--bs-success);
+/* Main Content Cards */
+.card {
+    border-radius: 0.75rem;
+    border: 1px solid rgb(var(--color-border));
+    box-shadow: 0 2px 8px rgba(var(--color-text), 0.08);
+    background-color: rgb(var(--color-card));
+    margin-bottom: 1.5rem;
 }
 
-.job-level.management {
-    background-color: rgba(255, 158, 0, 0.15);
-    color: var(--bs-warning);
+.card-header {
+    border-top-left-radius: 0.7rem !important;
+    border-top-right-radius: 0.7rem !important;
+    background-color: rgb(var(--color-primary));
+    color: rgb(var(--color-text-inverse));
+    font-weight: 600;
+    border-bottom: 1px solid rgba(var(--color-border), 0.5);
 }
 
-.job-level.executive {
-    background-color: rgba(217, 4, 41, 0.15);
-    color: var(--bs-danger);
+.card-header h2 {
+    font-size: 1.15rem;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+}
+
+.card-header i {
+    margin-right: 0.5rem;
 }
 
 /* Filter Buttons */
 .filter-buttons {
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
 }
 
-.filter-btn {
-    border-radius: 1rem;
-    padding: 0.25rem 0.5rem;
-    font-size: 0.8rem;
-    transition: all 0.2s ease;
+.filter-buttons .btn {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    padding: 0.4rem 1rem;
+    border: 1px solid rgb(var(--color-primary));
+    color: rgb(var(--color-primary));
+    background-color: transparent;
+}
+
+.filter-buttons .btn:hover {
+    background-color: rgba(var(--color-primary), 0.1);
+}
+
+.filter-buttons .btn.active {
+    background-color: rgb(var(--color-primary));
+    color: rgb(var(--color-text-inverse));
+    border-color: rgb(var(--color-primary));
+}
+
+/* Education Program Cards */
+.education-program-card {
+    background-color: rgb(var(--color-card));
     border: 1px solid rgb(var(--color-border));
+    border-radius: 0.75rem;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    margin-bottom: 1rem;
 }
 
-.filter-btn.active {
-    background-color: var(--bs-primary);
-    color: white;
-    border-color: var(--bs-primary);
+.education-program-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(var(--color-text), 0.15);
+    border-color: rgb(var(--color-primary));
 }
 
-/* Cards */
-.card {
-    border: 1px solid rgb(var(--color-card-border));
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    background-color: rgb(var(--color-card));
+.education-program-card .card-body {
+    padding: 1.25rem;
 }
 
-.card-header {
-    background-color: rgb(var(--color-card-header)) !important;
-    color: rgb(var(--color-text-inverse)) !important;
-    border-bottom: 1px solid rgb(var(--color-card-border)) !important;
-}
-
-/* Dark Mode */
-[data-theme="dark"] {
-    .job-card {
-        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-    }
-    
-    .job-card:hover {
-        box-shadow: 0 4px 6px rgba(0,0,0,0.4);
-    }
-    
-    .job-level.entry-level {
-        background-color: rgba(58, 134, 255, 0.25);
-    }
-    
-    .job-level.professional {
-        background-color: rgba(56, 176, 0, 0.25);
-    }
-    
-    .job-level.management {
-        background-color: rgba(255, 158, 0, 0.25);
-    }
-    
-    .job-level.executive {
-        background-color: rgba(217, 4, 41, 0.25);
-    }
-}
-
-/* Responsive */
-@media (max-width: 992px) {
-    .job-grid {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    }
-}
-
-@media (max-width: 768px) {
-    .job-grid {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 0.5rem;
-    }
-    
-    .job-card {
-        padding: 0.6rem;
-    }
-    
-    .job-title {
-        font-size: 0.85rem;
-        
-    }
-    
-    .job-meta {
-        font-size: 0.75rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .job-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .character-stat-card {
-        padding: 0.75rem;
-    }
-}
-
-/* Add these rules to career.css */
-
-.job-card {
-    color: rgb(var(--color-text)); /* Set base text color */
-}
-
-.job-title {
-    color: rgb(var(--color-text)); /* Ensure title is readable */
-}
-
-.job-company {
-    color: rgb(var(--color-text-secondary)); /* Muted but readable color */
-}
-
-.job-salary {
-    color: var(--bs-success); /* Keep success color for salary */
-}
-
-/* For dark mode specifically */
-[data-theme="dark"] .job-card {
-    color: rgb(var(--color-text));
-}
-
-[data-theme="dark"] .job-title {
-    color: rgb(var(--color-text));
-}
-
-[data-theme="dark"] .job-company {
-    color: rgb(var(--color-text-secondary));
-}
-
-/* Add these styles to career.css */
-
-/* Modal styling for both light and dark themes */
-.modal-content {
-    background-color: rgb(var(--color-card));
-    color: rgb(var(--color-text));
-    border: 1px solid rgb(var(--color-card-border));
-}
-
-.modal-header {
-    border-bottom: 1px solid rgb(var(--color-card-border)) !important;
-    background-color: rgb(var(--color-card-header)) !important;
-    color: rgb(var(--color-text-inverse)) !important;
-}
-
-.modal-footer {
-    border-top: 1px solid rgb(var(--color-card-border)) !important;
-}
-
-/* Specific dark theme adjustments */
-[data-theme="dark"] .modal-content {
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-[data-theme="dark"] .modal-header,
-[data-theme="dark"] .modal-footer {
-    background-color: rgb(var(--color-card-header)) !important;
-}
-
-/* Ensure form elements are visible */
-.modal-body .job-detail-item h6 {
-    color: rgb(var(--color-text));
-}
-
-.modal-body .requirements-list,
-.modal-body .skills-list {
-    color: rgb(var(--color-text-secondary));
-}
-
-/* Main layout and transitions */
-html, body {
-    background-color: rgb(var(--color-bg));
-    color: rgb(var(--color-text));
-}
-
-.theme-transition {
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Navigation - Using theme colors */
-.navbar {
-    background-color: rgb(var(--color-navbar)) !important;
-}
-
-.navbar-brand, .nav-link {
-    color: rgb(var(--color-navbar-text)) !important;
-}
-
-.nav-link:hover {
-    color: rgba(var(--color-navbar-text), 0.8) !important;
-}
-
-
-/* Current Job Section Styling */
-.current-job-details {
-    color: rgb(var(--color-text)); /* Ensures text uses the correct theme color */
-}
-
-.current-job-details .alert {
-    background-color: rgb(var(--color-card));
-    border: 1px solid rgb(var(--color-card-border));
-    color: rgb(var(--color-text));
-}
-
-.current-job-item h3 {
+.education-program-card .card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
     color: rgb(var(--color-text));
     margin-bottom: 0.75rem;
 }
 
-.current-job-item p {
-    color: rgb(var(--color-text-secondary));
+.education-program-card .badge {
+    font-size: 0.75rem;
+    padding: 0.3em 0.6em;
+    border-radius: 0.35rem;
+    font-weight: 600;
     margin-bottom: 0.5rem;
 }
 
-.current-job-item .progress {
-    margin: 0.75rem 0;
-    background-color: rgb(var(--color-card-border));
+/* Custom badge colors */
+.badge.bg-purple {
+    background-color: var(--education-purple-bg, #6f42c1) !important;
+    color: var(--education-purple-text, #fff) !important;
 }
 
-.current-job-item .progress-bar {
-    background-color: var(--bs-primary);
+/* Grid for compact details */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: rgb(var(--color-text-secondary));
+    margin-bottom: 1rem;
 }
 
-/* Dark mode specific adjustments */
-[data-theme="dark"] .current-job-details .alert {
-    background-color: rgb(var(--color-card));
-    border-color: rgb(var(--color-card-border-dark));
+.grid-cell {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
-[data-theme="dark"] .current-job-item h3 {
+.grid-cell i {
+    color: rgb(var(--color-primary));
+    margin-right: 0.3rem;
+    font-size: 0.9rem;
+}
+
+.skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 1rem;
+}
+
+.skills-list .badge {
+    font-size: 0.7rem;
+    padding: 0.25em 0.5em;
+    background-color: rgba(var(--color-primary), 0.1);
+    color: rgb(var(--color-primary));
+}
+
+.program-action-btn {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    width: 100%;
+}
+
+.welcome-header {
+    padding: 1.5rem;
+    background-color: rgb(var(--color-card));  /* Uses theme.css variable */
+    border: 1px solid rgb(var(--color-card-border));
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     color: rgb(var(--color-text));
 }
 
-[data-theme="dark"] .current-job-item p {
-    color: rgb(var(--color-text-secondary));
+/* Current Enrollment & Skill Development */
+.current-program-item, .skill-item {
+    background-color: rgb(var(--color-card));
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid rgb(var(--color-border));
 }
 
+.current-program-item h6 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: rgb(var(--color-text));
+    margin-bottom: 0.5rem;
+}
+
+.current-program-item .progress, .skill-item .progress {
+    height: 8px;
+    background-color: rgba(var(--color-border), 0.5);
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+.current-program-item .progress-bar {
+    background-color: rgb(var(--color-primary));
+    border-radius: 4px;
+}
+
+.skill-item strong {
+    font-size: 0.95rem;
+    color: rgb(var(--color-text));
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.skill-item .progress-bar {
+    background-color: rgb(var(--color-success));
+    border-radius: 4px;
+}
+
+.current-program-item small, .skill-item small {
+    font-size: 0.75rem;
+    color: rgb(var(--color-text-secondary));
+    display: block;
+}
+
+/* Education Log */
+#eventLog {
+    background-color: rgb(var(--color-card));
+    border-bottom-left-radius: 0.75rem;
+    border-bottom-right-radius: 0.75rem;
+}
+
+#eventLog .list-group-item {
+    padding: 0.75rem 1rem;
+    border-color: rgb(var(--color-border));
+    font-size: 0.9rem;
+    color: rgb(var(--color-text));
+    background-color: rgb(var(--color-card));
+}
+
+#eventLog .list-group-item:last-child {
+    border-bottom-left-radius: 0.75rem;
+    border-bottom-right-radius: 0.75rem;
+}
+
+/* Program Details Modal */
+.modal-content {
+    border-radius: 1rem;
+    overflow: hidden;
+    background-color: rgb(var(--color-card));
+    border: 1px solid rgb(var(--color-border));
+    box-shadow: 0 0 20px rgba(var(--color-text), 0.2);
+}
+
+.modal-header {
+    background-color: rgb(var(--color-primary));
+    color: rgb(var(--color-text-inverse));
+    border-bottom: none;
+    padding: 1.25rem 1.5rem;
+}
+
+.modal-header .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+.modal-body {
+    padding: 1.5rem;
+    color: rgb(var(--color-text));
+}
+
+.program-detail-item {
+    margin-bottom: 1.25rem;
+}
+
+.program-detail-item h6 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgb(var(--color-primary));
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.program-detail-item h6 i {
+    font-size: 1.1rem;
+    margin-right: 0.5rem;
+}
+
+.program-detail-item p,
+.program-detail-item ul li {
+    font-size: 0.95rem;
+    color: rgb(var(--color-text-secondary));
+    margin-bottom: 0.25rem;
+}
+
+.program-detail-item ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.program-detail-item ul li {
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+}
+
+.program-detail-item ul li i {
+    margin-right: 0.5rem;
+    color: rgb(var(--color-primary));
+    font-size: 0.9rem;
+}
+
+.modal-footer {
+    border-top: 1px solid rgb(var(--color-border));
+    padding: 1rem 1.5rem;
+    background-color: rgb(var(--color-bg-secondary));
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .character-header {
+        padding: 1rem;
+    }
+    
+    .filter-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .filter-buttons .btn {
+        margin-right: 0.25rem;
+        margin-bottom: 0.25rem;
+        padding: 0.3rem 0.75rem;
+        font-size: 0.8rem;
+    }
+    
+    .grid-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-body .row > [class*="col-"] {
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .character-stat-card {
+        padding: 1rem;
+    }
+    
+    .character-stat-card .stat-icon {
+        font-size: 1.5rem;
+    }
+    
+    .character-stat-card .stat-value {
+        font-size: 1.2rem;
+    }
+}

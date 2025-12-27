@@ -7,6 +7,7 @@ A simple text-based life simulator built using HTML, CSS, and JavaScript.
 - Branching life choices
 - Simple UI
 - Expandable story engine
+- Do anything you want.
 
 ## Getting Started
 

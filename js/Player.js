@@ -16,35 +16,45 @@ class Player {
      * Creates a new Player instance
      * @param {string} [characterId='default'] - Unique identifier for the character
      */
-    constructor(characterId = 'default') {
-        this.id = characterId;
-        this._name = 'Player';
-        this._age = 18;
-        this._gender = 'Unknown';
-        this._country = { name: 'Unknown', code: 'UNK' };
-        this._culture = { name: 'Unknown', code: 'UNK' };
-        this._stats = this._getDefaultStats();
-        this._skills = this._getDefaultSkills();
-        this._finances = this._getDefaultFinances();
-        this._education = [];
-        this._jobs = [];
-        this._relationships = [];
-        this._inventory = [];
-        this._properties = [];
-        
-        // Load existing data if available
-        this._loadCharacterData();
-        
-        // Ensure we have valid data for all fields
-        this._validateData();
-        
-        // Dispatch initial update after loading data
-        this._dispatchCharacterUpdate();
-    }
-
+   constructor(characterId = 'default') {
+    this.id = characterId;
+    this._name = 'Player';
+    this._age = 18; // This is just the default, will be overwritten by _loadCharacterData
+    this._gender = 'Unknown';
+    this._country = { name: 'Unknown', code: 'UNK' };
+    this._culture = { name: 'Unknown', code: 'UNK' };
+    this._stats = this._getDefaultStats();
+    this._skills = this._getDefaultSkills();
+    this._finances = this._getDefaultFinances();
+    this._education = [];
+    this._jobs = [];
+    this._relationships = [];
+    this._inventory = [];
+    this._properties = [];
+    
+    // Debug before loading
+    console.log('Player constructor called with ID:', characterId);
+    
+    // Load existing data if available
+    this._loadCharacterData();
+    
+    // Debug after loading
+    console.log('Player data after loading:', {
+        name: this._name,
+        age: this._age,
+        country: this._country,
+        culture: this._culture
+    });
+    
+    // Ensure we have valid data for all fields
+    this._validateData();
+    
+    // Dispatch initial update after loading data
+    this._dispatchCharacterUpdate();
+}
 _validateData() {
     this._name = this._name || 'Player';
-    this._age = this._age || 18;
+    this._age = typeof this._age === 'number' ? this._age : parseInt(this._age) || 18;
     this._gender = this._gender || 'Unknown';
     this._country = this._country || { name: 'Unknown', code: 'UNK' };
     this._culture = this._culture || { name: 'Unknown', code: 'UNK' };
@@ -81,10 +91,11 @@ _validateData() {
      * Sets the player's age
      * @param {number} value - New age
      */
-    set age(value) {
-        this._age = Math.max(0, parseInt(value) || 18);
-        this._save();
-    }
+  set age(value) {
+    this._age = Math.max(0, parseInt(value) || 18);
+    this._save();
+    this._dispatchCharacterUpdate(); // Add this to ensure UI updates
+}
     
     /**
      * Gets the player's gender
@@ -225,25 +236,25 @@ getCharacterSnapshot() {
      * @param {Object} timeState - Time state from TimeManager
      * @async
      */
-    async onTimeAdvanced(timeState) {
-        if (!timeState) return;
-        
-        // Update age if needed
-        if (timeState.age !== this._age) {
-            this._age = timeState.age;
-            this._save();
+  async onTimeAdvanced(timeState) {
+    if (!timeState) return;
+    
+    // Calculate the correct age based on time advancement
+    const yearsPassed = timeState.yearsPassed || 0;
+    this._age = Math.max(0, (this._age || 18) + yearsPassed);
+    
+    this._save();
+    
+    // Dispatch character state change event
+    document.dispatchEvent(new CustomEvent('characterStateChanged', {
+        detail: {
+            name: this._name,
+            age: this._age,
+            health: this._stats.health,
+            stats: this._stats
         }
-        
-        // Dispatch character state change event
-        document.dispatchEvent(new CustomEvent('characterStateChanged', {
-            detail: {
-                name: this._name,
-                age: this._age,
-                health: this._stats.health,
-                stats: this._stats
-            }
-        }));
-    }
+    }));
+}
 
     // --------------------------
     // Private Methods
@@ -262,9 +273,10 @@ _loadCharacterData() {
             console.log(`Loading character data for ${this.id}:`, data);
         }
         
-        // Assign loaded data to properties
+        // Assign loaded data to properties with proper type conversion
         this._name = data.name || this._name;
-        this._age = data.age || this._age;
+        this._age = (data.age !== undefined && data.age !== null) ? 
+                   parseInt(data.age) : this._age; // More strict age handling
         this._gender = data.gender || this._gender;
         this._country = data.country || this._country;
         this._culture = data.culture || this._culture;
@@ -276,6 +288,13 @@ _loadCharacterData() {
         this._relationships = data.relationships || [];
         this._inventory = data.inventory || [];
         this._properties = data.properties || [];
+        
+        // Debug the loaded age specifically
+        console.log('Loaded age from storage:', {
+            storageAge: data.age,
+            parsedAge: this._age,
+            storageKey: storageKey
+        });
         
     } catch (e) {
         console.error("Error loading character data:", e);
