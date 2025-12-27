@@ -239,9 +239,15 @@ getCharacterSnapshot() {
   async onTimeAdvanced(timeState) {
     if (!timeState) return;
     
-    // Calculate the correct age based on time advancement
-    const yearsPassed = timeState.yearsPassed || 0;
-    this._age = Math.max(0, (this._age || 18) + yearsPassed);
+    // Prefer the authoritative age from TimeManager, otherwise fall back to years passed
+    if (typeof timeState.age === 'number') {
+        this._age = Math.max(0, Math.floor(timeState.age));
+    } else {
+        const yearsPassed = typeof timeState.yearsPassed === 'number' 
+            ? timeState.yearsPassed 
+            : (typeof timeState.monthsAdvanced === 'number' ? timeState.monthsAdvanced / 12 : 0);
+        this._age = Math.max(0, Math.round((this._age || 18) + yearsPassed));
+    }
     
     this._save();
     

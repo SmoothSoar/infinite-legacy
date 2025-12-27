@@ -23,7 +23,11 @@ class TimeManager {
         },
         listeners: [],
         eventListeners: [],
-        currentCharacterId: null
+        currentCharacterId: null,
+        startYear: 1,
+        startQuarter: 1,
+        startAge: 18,
+        storageKey: null
     };
 
     /**
@@ -31,13 +35,20 @@ class TimeManager {
      * @param {string} characterId - Character ID for state isolation
      * @returns {Promise<boolean>} True if initialization succeeded
      */
-    static async init(characterId = 'default') {
+    static async init(options = 'default') {
         if (this.state.initialized) {
             this.log('Already initialized');
             return true;
         }
 
-        this.state.currentCharacterId = characterId;
+        // Normalize options so callers can pass a string ID or an options object
+        const initOptions = this._normalizeInitOptions(options);
+        this.state.currentCharacterId = initOptions.characterId;
+        this.state.startYear = initOptions.startYear;
+        this.state.startQuarter = initOptions.startQuarter;
+        this.state.startAge = initOptions.startAge;
+        this.state.storageKey = this._getStorageKey(initOptions.characterId);
+
         let attempts = 0;
 
         while (attempts < this.config.maxRetryAttempts) {
@@ -45,7 +56,7 @@ class TimeManager {
                 attempts++;
                 this.log(`Initialization attempt ${attempts}`);
 
-                this.state.timeState = await this._loadTimeState(characterId);
+                this.state.timeState = await this._loadTimeState(initOptions);
                 this._cacheElements();
                 this._setupEventListeners();
                 this.updateDisplays();
@@ -74,22 +85,22 @@ class TimeManager {
      * @returns {Promise<TimeState>} New time state
      * @throws {Error} If not initialized
      */
-   static async advanceTime() {
-  if (!this.state.initialized) throw new Error('TimeManager not initialized');
-  
-  const oldState = { ...this.state.timeState };
-  const newState = this._calculateNewTimeState(oldState);
-  
-  // Enforce 3-month advancement
-  if (newState.totalMonths - oldState.totalMonths !== 3) {
-    throw new Error('Time advancement must be exactly 3 months');
-  }
+    static async advanceTime() {
+        if (!this.state.initialized) throw new Error('TimeManager not initialized');
+        
+        const oldState = { ...this.state.timeState };
+        const newState = this._calculateNewTimeState(oldState);
+        
+        // Enforce configured advancement
+        if (newState.totalMonths - oldState.totalMonths !== this.config.monthsPerAdvance) {
+            throw new Error(`Time advancement must be exactly ${this.config.monthsPerAdvance} months`);
+        }
 
-  this.state.timeState = newState;
-  await this._saveTimeState();
-  this._notifyListeners(newState);
-  return newState;
-}
+        this.state.timeState = newState;
+        await this._saveTimeState();
+        this._notifyListeners(newState);
+        return newState;
+    }
 
 
 
@@ -148,7 +159,11 @@ class TimeManager {
             },
             listeners: [],
             eventListeners: [],
-            currentCharacterId: null
+            currentCharacterId: null,
+            startYear: 1,
+            startQuarter: 1,
+            startAge: 18,
+            storageKey: null
         };
         this.log('Cleanup complete');
     }
@@ -162,16 +177,33 @@ class TimeManager {
      * @private
      */
     static _calculateNewTimeState(oldState) {
-        const months = this.config.monthsPerAdvance;
-        const totalMonths = oldState.totalMonths + months;
-        const month = (totalMonths % 12) || 12;
+        const monthsAdvanced = this.config.monthsPerAdvance;
+        const previousTotalMonths = oldState?.totalMonths ?? 0;
+        const totalMonths = previousTotalMonths + monthsAdvanced;
+        const startMonth = oldState?.startMonth ?? Math.min(12, Math.max(1, ((this.state.startQuarter ?? 1) - 1) * 3 + 1));
+        const monthIndex = (startMonth - 1) + totalMonths;
+        const prevMonthIndex = (startMonth - 1) + previousTotalMonths;
+        const month = (monthIndex % 12) + 1;
+        const quarter = this._getQuarterForMonth(month);
+        const prevYearCount = Math.floor(prevMonthIndex / 12);
+        const newYearCount = Math.floor(monthIndex / 12);
+        const yearsPassed = newYearCount - prevYearCount;
+        const startYear = oldState?.startYear ?? this.state.startYear ?? 1;
+        const startAge = oldState?.startAge ?? this.state.startAge ?? 18;
         
         return {
+            ...oldState,
+            startYear,
+            startAge,
+            startMonth,
+            monthsAdvanced,
+            yearsPassed,
             totalMonths,
             month,
-            quarter: this._getQuarterForMonth(month),
-            year: 1 + Math.floor(totalMonths / 12),
-            age: 18 + Math.floor(totalMonths / 12),
+            quarter,
+            quarterChanged: quarter !== (oldState?.quarter ?? this._getQuarterForMonth(oldState?.month ?? startMonth)),
+            year: startYear + newYearCount,
+            age: startAge + newYearCount,
             isQuarterly: this.config.quarterStartMonths.includes(month)
         };
     }
@@ -188,19 +220,32 @@ class TimeManager {
      * Load time state from storage or create default
      * @private
      */
-    static async _loadTimeState(characterId) {
+    static async _loadTimeState(options = {}) {
+        const { characterId, startYear, startQuarter, startAge } = this._normalizeInitOptions(options);
+        const storageKey = this._getStorageKey(characterId);
+        const legacyKey = this._getStorageKey('[object Object]'); // Legacy bug key for migration
+        const defaults = this._getDefaultTimeState({ startYear, startQuarter, startAge });
+
         try {
-            const key = `${this.config.localStorageKey}_${characterId}`;
-            const savedState = localStorage.getItem(key);
-            
+            // Try the correct key first
+            const savedState = localStorage.getItem(storageKey);
             if (savedState) {
-                return JSON.parse(savedState);
+                return { ...defaults, ...JSON.parse(savedState) };
             }
-            return this._getDefaultTimeState();
+
+            // Fallback: migrate data saved under the legacy key
+            const legacyState = localStorage.getItem(legacyKey);
+            if (legacyState) {
+                const parsedLegacy = { ...defaults, ...JSON.parse(legacyState) };
+                localStorage.setItem(storageKey, JSON.stringify(parsedLegacy));
+                return parsedLegacy;
+            }
+
+            return defaults;
             
         } catch (error) {
             console.error('Error loading time state:', error);
-            return this._getDefaultTimeState();
+            return defaults;
         }
     }
 
@@ -210,7 +255,7 @@ class TimeManager {
      */
     static async _saveTimeState() {
         try {
-            const key = `${this.config.localStorageKey}_${this.state.currentCharacterId || 'default'}`;
+            const key = this.state.storageKey || this._getStorageKey(this.state.currentCharacterId || 'default');
             localStorage.setItem(key, JSON.stringify(this.state.timeState));
         } catch (error) {
             console.error('Error saving time state:', error);
@@ -221,13 +266,24 @@ class TimeManager {
      * Get default time state
      * @private
      */
-    static _getDefaultTimeState() {
+    static _getDefaultTimeState(options = {}) {
+        const startYear = options.startYear ?? 1;
+        const startQuarter = options.startQuarter ?? 1;
+        const startAge = options.startAge ?? 18;
+        const startMonth = Math.min(12, Math.max(1, ((startQuarter - 1) * 3) + 1));
+
         return {
             totalMonths: 0,
-            month: 1,
-            quarter: 1,
-            year: 1,
-            age: 18,
+            month: startMonth,
+            quarter: this._getQuarterForMonth(startMonth),
+            year: startYear,
+            age: startAge,
+            startYear,
+            startAge,
+            startMonth,
+            monthsAdvanced: 0,
+            yearsPassed: 0,
+            quarterChanged: false,
             isQuarterly: false
         };
     }
@@ -252,18 +308,28 @@ class TimeManager {
         this._removeEventListeners();
         
         // Storage events for cross-tab sync
-         const storageHandler = (e) => {
-        if (e.key === `${this.config.localStorageKey}_${this.state.currentCharacterId}`) {
-            this._loadTimeState(this.state.currentCharacterId).then(newState => {
-                this.state.timeState = newState;
-                this.updateDisplays();
-                // Notify other systems in THIS tab
-                document.dispatchEvent(new CustomEvent('timeAdvanced', { detail: newState }));
-            });
-        }
-    };
-    window.addEventListener('storage', storageHandler);
-}
+        const storageHandler = (e) => {
+            if (e.key === this.state.storageKey) {
+                this._loadTimeState({
+                    characterId: this.state.currentCharacterId,
+                    startYear: this.state.startYear,
+                    startQuarter: this.state.startQuarter,
+                    startAge: this.state.startAge
+                }).then(newState => {
+                    this.state.timeState = newState;
+                    this.updateDisplays();
+                    // Notify other systems in THIS tab
+                    document.dispatchEvent(new CustomEvent('timeAdvanced', { detail: newState }));
+                });
+            }
+        };
+        window.addEventListener('storage', storageHandler);
+        this.state.eventListeners.push({
+            element: window,
+            type: 'storage',
+            handler: storageHandler
+        });
+    }
 
     /**
      * Remove all event listeners
@@ -282,10 +348,14 @@ class TimeManager {
      */
     static _handleStorageEvent(e) {
         try {
-            const characterId = e.key.split('_').pop();
-            if (characterId === (this.state.currentCharacterId || 'default')) {
+            if (e.key === this.state.storageKey) {
                 this.log('Detected time state change from another tab');
-                this._loadTimeState(characterId).then(state => {
+                this._loadTimeState({
+                    characterId: this.state.currentCharacterId,
+                    startYear: this.state.startYear,
+                    startQuarter: this.state.startQuarter,
+                    startAge: this.state.startAge
+                }).then(state => {
                     this.state.timeState = state;
                     this.updateDisplays();
                 });
@@ -293,6 +363,36 @@ class TimeManager {
         } catch (error) {
             console.error('Error handling storage event:', error);
         }
+    }
+
+    /**
+     * Normalize initialization options regardless of the input shape
+     * @private
+     */
+    static _normalizeInitOptions(options) {
+        if (typeof options === 'string') {
+            return {
+                characterId: options || 'default',
+                startYear: 1,
+                startQuarter: 1,
+                startAge: 18
+            };
+        }
+
+        return {
+            characterId: options?.characterId || 'default',
+            startYear: options?.startYear ?? 1,
+            startQuarter: options?.startQuarter ?? 1,
+            startAge: options?.age ?? options?.startAge ?? 18
+        };
+    }
+
+    /**
+     * Build the storage key for a given character
+     * @private
+     */
+    static _getStorageKey(characterId) {
+        return `${this.config.localStorageKey}_${characterId || 'default'}`;
     }
 
     /**
@@ -321,7 +421,11 @@ class TimeManager {
      */
     static _handleInitError(error) {
         console.error('TimeManager initialization failed:', error);
-        this.state.timeState = this._getDefaultTimeState();
+        this.state.timeState = this._getDefaultTimeState({
+            startYear: this.state.startYear,
+            startQuarter: this.state.startQuarter,
+            startAge: this.state.startAge
+        });
     }
 
     /**

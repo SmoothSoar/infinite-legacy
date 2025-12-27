@@ -171,6 +171,12 @@ class MainManager {
      */
 static async _setupCore() {
     const characterId = this._getCharacterId();
+    const timeInitOptions = {
+        characterId: characterId,
+        startYear: new Date().getFullYear(),
+        startQuarter: 1,
+        startAge: null
+    };
     
     // Initialize Player - this will load from localStorage or create new
     this.state.player = new Player(characterId);
@@ -191,7 +197,15 @@ static async _setupCore() {
     }
     
     // Load the saved time state to get the actual age
-    const savedTimeState = await TimeManager._loadTimeState(characterId);
+    const savedTimeState = await TimeManager._loadTimeState({
+        characterId,
+        startYear: timeInitOptions.startYear,
+        startQuarter: timeInitOptions.startQuarter,
+        startAge: this.state.player.age
+    });
+    if (savedTimeState) {
+        timeInitOptions.startYear = savedTimeState.startYear ?? savedTimeState.year ?? timeInitOptions.startYear;
+    }
     
     // Update player's age to match the saved time state
     if (savedTimeState && savedTimeState.age) {
@@ -202,12 +216,14 @@ static async _setupCore() {
     }
     
     // Initialize TimeManager with the correct age
-    await TimeManager.init({
-        characterId: characterId,
-        startYear: new Date().getFullYear(),
-        startQuarter: 1,
-        age: this.state.player.age // Use the potentially updated age
-    });
+    timeInitOptions.startAge = this.state.player.age;
+    await TimeManager.init(timeInitOptions);
+
+    // Ensure the player age stays in sync with the active time state
+    const activeTimeState = TimeManager.getTimeState?.();
+    if (activeTimeState?.age) {
+        this.state.player.age = activeTimeState.age;
+    }
     
     // Initialize EventManager if available
     if (window.EventManager) {
@@ -403,11 +419,14 @@ static _forceInitialUIUpdate() {
      * @param {Object} timeState - Current time data
      */
 static async _updateAllSystems(timeState) {
+    if (!timeState) return;
+
     // Create a standardized timeState object
     const standardizedTimeState = {
-        monthsAdvanced: 3, // Fixed at 3 months
-        isQuarterly: timeState.quarterChanged,
-        ...timeState
+        ...timeState,
+        monthsAdvanced: timeState?.monthsAdvanced ?? (TimeManager?.config?.monthsPerAdvance ?? 3),
+        yearsPassed: timeState?.yearsPassed ?? 0,
+        isQuarterly: timeState?.isQuarterly ?? (timeState?.quarterChanged ?? false)
     };
     
     // Only dispatch one consolidated event
