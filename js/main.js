@@ -201,13 +201,8 @@ static async _setupCore() {
         }
     }
     
-    // Initialize TimeManager with the correct age
-    await TimeManager.init({
-        characterId: characterId,
-        startYear: new Date().getFullYear(),
-        startQuarter: 1,
-        age: this.state.player.age // Use the potentially updated age
-    });
+    // Initialize TimeManager with the correct character scope
+    await TimeManager.init(characterId);
     
     // Initialize EventManager if available
     if (window.EventManager) {
