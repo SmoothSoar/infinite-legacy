@@ -94,8 +94,11 @@ static processSalary(monthsAdvanced) {
     // Occasional unexpected costs (0-8%)
     const unexpectedRate = Math.random() * 0.08;
     const unexpectedCosts = salaryPayment * unexpectedRate;
-    
-    const netSalary = salaryPayment - taxAmount - livingExpenses - benefits - unexpectedCosts;
+
+    // Keep deductions from exceeding a reasonable portion of salary
+    const totalDeductions = taxAmount + livingExpenses + benefits + unexpectedCosts;
+    const cappedDeductions = Math.min(totalDeductions, salaryPayment * 0.85);
+    const netSalary = Math.max(salaryPayment - cappedDeductions, salaryPayment * 0.1);
 
     // Rest of the method remains the same...
     const checkingAccounts = this.gameState.accounts.filter(acc => acc.type === 'checking');
@@ -159,6 +162,7 @@ static processSalary(monthsAdvanced) {
 
     this.saveGameState();
     this.renderAll();
+    this.emitFinancialUpdate();
 }
     
     static cleanup() {
@@ -478,6 +482,7 @@ static updateDisplay() {
         this.saveGameState();
         this.renderTransactions();
         this.updateFinancialStats();
+        this.emitFinancialUpdate();
     }
     
     static calculateTotalBalance() {
@@ -957,6 +962,7 @@ static setupEventListeners() {
     EventManager.addToEventLog(`Withdrew $${amount.toLocaleString()} from ${account.name}`, 'success');
     this.saveGameState();
     this.renderAll();
+    this.emitFinancialUpdate();
     return true;
 }
     
@@ -1311,7 +1317,7 @@ static processMonthlyEvents() {
             `).join('');
     }
     
-  static updateFinancialStats() {
+    static updateFinancialStats() {
     const totalBalance = this.calculateTotalBalance();
     const monthlyIncome = this.calculateMonthlyIncome();
     const monthlyExpenses = this.calculateMonthlyExpenses();
@@ -1345,6 +1351,12 @@ static processMonthlyEvents() {
     
     static updateChart() {
         // Chart implementation would go here
+    }
+
+    static emitFinancialUpdate() {
+        if (typeof document !== 'undefined') {
+            document.dispatchEvent(new CustomEvent('financialDataUpdated'));
+        }
     }
     
     // ===================================================================
@@ -1470,6 +1482,7 @@ static processMonthlyEvents() {
         
         EventManager.addToEventLog(`Purchased ${name} for $${purchasePrice.toLocaleString()}`, 'success');
         this.renderAll();
+        this.emitFinancialUpdate();
         
         return true;
     }
