@@ -9,60 +9,79 @@
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/creation.css">
 </head>
-<body class="d-flex flex-column min-vh-100">
-    <main class="container my-4 flex-grow-1">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card shadow">
-                    <div class="card-header bg-primary text-white">
-                        <h2 class="h4 mb-0">Create Your Character</h2>
-                    </div>
+<body class="d-flex flex-column min-vh-100 creation-body">
+    <main class="container py-5 flex-grow-1">
+        <div class="row align-items-stretch g-4">
+            <div class="col-lg-5">
+                <div class="card glass h-100">
                     <div class="card-body">
+                        <div class="badge rounded-pill text-bg-primary mb-3 px-3 py-2">
+                            <i class="bi bi-stars me-2"></i>New Journey
+                        </div>
+                        <h1 class="h3 fw-bold mb-3">Create your life blueprint</h1>
+                        <p class="text-muted mb-4">Set your name, age, and origin. You can refine career, education, and finances once you load into the game.</p>
+                        <ul class="list-unstyled d-flex flex-column gap-2 text-muted">
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Dark & light theme ready</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Instant save & continue</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Start fresh per character</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div class="card glass h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <p class="text-muted mb-1 small">Step 1 of 1</p>
+                                <h2 class="h4 fw-bold mb-0">Character Details</h2>
+                            </div>
+                            <span class="pill text-muted"><i class="bi bi-shield-check me-2"></i>Secure local save</span>
+                        </div>
                         <form id="characterForm" class="needs-validation" novalidate>
-                            <div class="mb-3">
-                                <label for="name" class="form-label">Character Name</label>
-                                <input type="text" class="form-control" id="name" required 
-                                       placeholder="Enter your character's name" minlength="2" maxlength="30">
-                                <div class="invalid-feedback">Please enter a valid name (2-30 characters)</div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="name" class="form-label">Character Name</label>
+                                    <input type="text" class="form-control" id="name" required 
+                                           placeholder="Enter your character's name" minlength="2" maxlength="30">
+                                    <div class="form-text text-muted">2-30 characters.</div>
+                                    <div class="invalid-feedback">Please enter a valid name (2-30 characters)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="age" class="form-label">Age</label>
+                                    <input type="number" class="form-control" id="age" min="1" max="100" value="18" required>
+                                    <div class="form-text text-muted">(1-100 years)</div>
+                                    <div class="invalid-feedback">Please enter a valid age between 1 and 100</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="gender" class="form-label">Gender</label>
+                                    <select class="form-select" id="gender" required>
+                                        <option value="" disabled selected>Select gender</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="non-binary">Non-binary</option>
+                                        <option value="other">Other</option>
+                                        <option value="prefer-not-to-say">Prefer not to say</option>
+                                    </select>
+                                    <div class="invalid-feedback">Please select a gender</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="country" class="form-label">Country of Origin</label>
+                                    <select class="form-select" id="country" required>
+                                        <option value="" disabled selected>Loading countries...</option>
+                                    </select>
+                                    <div class="invalid-feedback">Please select a country</div>
+                                </div>
+                                <div class="col-12">
+                                    <label for="culture" class="form-label">Cultural Background</label>
+                                    <select class="form-select" id="culture" required disabled>
+                                        <option value="" disabled selected>First select a country</option>
+                                    </select>
+                                    <div class="invalid-feedback">Please select a cultural background</div>
+                                </div>
                             </div>
                             
-                            <div class="mb-3">
-                                <label for="age" class="form-label">Age</label>
-                                <input type="number" class="form-control" id="age" min="1" max="100" value="18" required>
-                                <div class="form-text">(1-100 years)</div>
-                                <div class="invalid-feedback">Please enter a valid age between 1 and 100</div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="gender" class="form-label">Gender</label>
-                                <select class="form-select" id="gender" required>
-                                    <option value="" disabled selected>Select gender</option>
-                                    <option value="male">Male</option>
-                                    <option value="female">Female</option>
-                                    <option value="non-binary">Non-binary</option>
-                                    <option value="other">Other</option>
-                                    <option value="prefer-not-to-say">Prefer not to say</option>
-                                </select>
-                                <div class="invalid-feedback">Please select a gender</div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="country" class="form-label">Country of Origin</label>
-                                <select class="form-select" id="country" required>
-                                    <option value="" disabled selected>Loading countries...</option>
-                                </select>
-                                <div class="invalid-feedback">Please select a country</div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="culture" class="form-label">Cultural Background</label>
-                                <select class="form-select" id="culture" required disabled>
-                                    <option value="" disabled selected>First select a country</option>
-                                </select>
-                                <div class="invalid-feedback">Please select a cultural background</div>
-                            </div>
-                            
-                            <div class="d-grid">
+                            <div class="d-grid mt-4">
                                 <button type="submit" class="btn btn-primary btn-lg">
                                     <i class="bi bi-person-check"></i> Begin Your Life Journey
                                 </button>

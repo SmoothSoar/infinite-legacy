@@ -177,11 +177,91 @@ document.addEventListener('DOMContentLoaded', function() {
             // Set as current character
             localStorage.setItem('currentCharacterId', characterId);
             
+            // Ensure all per-character game states start fresh
+            resetCharacterState(characterId, character.age);
+            
             console.debug('Character saved successfully:', saveData);
             return characterId;
         } catch (error) {
             console.error('Failed to save character:', error);
             throw new Error('Failed to save character data');
+        }
+    }
+
+    /**
+     * Clears/migrates per-character state so new characters start fresh
+     * @function resetCharacterState
+     * @param {string} characterId
+     * @param {number} startAge
+     */
+    function resetCharacterState(characterId, startAge = 18) {
+        try {
+            // Clear legacy shared keys
+            localStorage.removeItem('careerGameState');
+            localStorage.removeItem('financesGameState');
+            localStorage.removeItem('educationGameState');
+            localStorage.removeItem('timeState');
+            localStorage.removeItem('lifeSimTimeState_default');
+
+            // Per-character keys
+            const keys = {
+                career: `careerGameState_${characterId}`,
+                finances: `financesGameState_${characterId}`,
+                education: `educationGameState_${characterId}`,
+                time: `lifeSimTimeState_${characterId}`
+            };
+
+            // Fresh defaults
+            const defaults = {
+                career: {
+                    currentJob: null,
+                    jobHistory: [],
+                    experience: {},
+                    skills: {},
+                    lastUpdated: new Date().toISOString()
+                },
+                finances: {
+                    accounts: [],
+                    assets: [],
+                    transactions: [],
+                    financialEvents: [],
+                    accountWithdrawals: {},
+                    lastUpdated: new Date().toISOString()
+                },
+                education: {
+                    balance: 10000,
+                    currentYear: 1,
+                    totalMonths: 0,
+                    education: {
+                        level: 'High School',
+                        gpa: 3.2,
+                        enrolledPrograms: [],
+                        completedPrograms: [],
+                        skills: {}
+                    }
+                },
+                time: {
+                    totalMonths: 0,
+                    month: 1,
+                    quarter: 1,
+                    year: 1,
+                    age: startAge,
+                    startYear: 1,
+                    startAge: startAge,
+                    startMonth: 1,
+                    monthsAdvanced: 0,
+                    yearsPassed: 0,
+                    quarterChanged: false,
+                    isQuarterly: false
+                }
+            };
+
+            localStorage.setItem(keys.career, JSON.stringify(defaults.career));
+            localStorage.setItem(keys.finances, JSON.stringify(defaults.finances));
+            localStorage.setItem(keys.education, JSON.stringify(defaults.education));
+            localStorage.setItem(keys.time, JSON.stringify(defaults.time));
+        } catch (error) {
+            console.error('Error resetting character state:', error);
         }
     }
 
