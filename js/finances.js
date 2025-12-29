@@ -6,6 +6,8 @@ class FinancesManager {
     static chart = null;
     static eventListeners = [];
     static debug = true;
+    static currentCharacterId = null;
+    static storageKey = null;
     
     // Realistic account types with lower interest rates
     static accountTypes = {
@@ -47,6 +49,9 @@ class FinancesManager {
             if (this.initialized) return;
             
             this.log('Initializing FinancesManager...');
+
+            this.currentCharacterId = this.getCharacterId();
+            this.storageKey = this.getStorageKey();
             
             this.loadGameState();
             this.cacheElements();
@@ -183,13 +188,21 @@ static getCurrentDateString() {
     
     static loadGameState() {
         try {
-            const savedState = localStorage.getItem('financesGameState');
+            const key = this.getStorageKey();
+            const legacyKey = 'financesGameState';
+            const savedState = localStorage.getItem(key) || localStorage.getItem(legacyKey);
+            
             if (!savedState) {
                 this.gameState = this.getDefaultGameState();
             } else {
                 const parsedState = JSON.parse(savedState);
                 this.gameState = parsedState;
                 this.validateGameState();
+                
+                // Migrate legacy save to character-scoped key
+                if (!localStorage.getItem(key)) {
+                    localStorage.setItem(key, savedState);
+                }
             }
             
             this.syncWithCareer();
@@ -223,7 +236,7 @@ static getCurrentDateString() {
     static saveGameState() {
         try {
             this.gameState.lastUpdated = new Date().toISOString();
-            localStorage.setItem('financesGameState', JSON.stringify(this.gameState));
+            localStorage.setItem(this.getStorageKey(), JSON.stringify(this.gameState));
             this.log('Game state saved');
             window.dispatchEvent(new Event('storage'));
             return true;
@@ -1342,6 +1355,15 @@ static processMonthlyEvents() {
         if (this.elements.accountModal) {
             this.elements.accountModal.show();
         }
+    }
+
+    static getCharacterId() {
+        return localStorage.getItem('currentCharacterId') || localStorage.getItem('lastCharacterId') || 'default';
+    }
+
+    static getStorageKey() {
+        const charId = this.currentCharacterId || this.getCharacterId();
+        return `financesGameState_${charId}`;
     }
     
     static getCurrentDateString() {

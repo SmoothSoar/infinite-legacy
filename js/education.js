@@ -107,8 +107,15 @@ class EducationManager {
 
     static loadGameState() {
         try {
-            const savedState = GameStateStorage.load('educationGameState');
+            const key = this.getStorageKey();
+            const legacyKey = 'educationGameState';
+            const savedState = GameStateStorage.load(key) || GameStateStorage.load(legacyKey);
             this.gameState = savedState ? this.validateGameState(savedState) : this.getDefaultGameState();
+
+            // Migrate legacy data into character-scoped key
+            if (savedState && !GameStateStorage.load(key)) {
+                GameStateStorage.save(key, savedState);
+            }
             this.log("Game state loaded");
         } catch (e) {
             console.error(this.ERROR_MESSAGES.STATE_LOAD_FAILED, e);
@@ -1131,11 +1138,19 @@ static handleEnroll(programId) {
 
     static debouncedRender = this.debounce(() => this.renderAll(), 300);
 
+    static getCharacterId() {
+        return localStorage.getItem('currentCharacterId') || localStorage.getItem('lastCharacterId') || 'default';
+    }
+
+    static getStorageKey() {
+        return `educationGameState_${this.getCharacterId()}`;
+    }
+
     static saveGameState() {
         try {
             if (!this.gameState) return false;
             
-            const success = GameStateStorage.save('educationGameState', this.gameState);
+            const success = GameStateStorage.save(this.getStorageKey(), this.gameState);
             if (success) {
                 localStorage.setItem('educationUpdateTrigger', Date.now().toString());
                 this.log('Game state saved and sync triggered');

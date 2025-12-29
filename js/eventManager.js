@@ -385,16 +385,16 @@ static _setupEventListeners() {
     static _updateFinancialDisplays() {
         if (!this.state.elements.moneyDisplay) return;
         
-        // Prefer player's money if available
-        if (MainManager.state.player) {
-            const money = MainManager.state.player.totalMoney || 0;
-            this.state.elements.moneyDisplay.textContent = `$${money.toLocaleString()}`;
-        } 
-        // Fallback to FinancesManager
-        else if (typeof FinancesManager !== 'undefined') {
-            const financialState = FinancesManager.getFinancialState?.() || {};
+        // Prefer FinancesManager for authoritative balance
+        if (typeof FinancesManager !== 'undefined' && FinancesManager.getFinancialState) {
+            const financialState = FinancesManager.getFinancialState() || {};
             this.state.elements.moneyDisplay.textContent = 
                 `$${(financialState.totalBalance || 0).toLocaleString()}`;
+        }
+        // Fallback to player totalMoney if finances not available
+        else if (MainManager.state.player) {
+            const money = MainManager.state.player.totalMoney || 0;
+            this.state.elements.moneyDisplay.textContent = `$${money.toLocaleString()}`;
         }
     }
 

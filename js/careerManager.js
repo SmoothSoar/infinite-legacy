@@ -8,6 +8,8 @@ class CareerManager {
     static gameState = null;
     static careersData = [];
     static selectedJob = null;
+    static currentCharacterId = null;
+    static storageKey = null;
     
     // UI elements cache (only used on career page)
     static elements = {};
@@ -35,6 +37,9 @@ class CareerManager {
             }
             
             this.log('Initializing CareerManager...');
+
+            this.currentCharacterId = this.getCharacterId();
+            this.storageKey = this.getStorageKey();
             
             // Wait for required dependencies
             await this.waitForDependencies();
@@ -101,7 +106,7 @@ class CareerManager {
         
         // Storage listener for cross-tab sync
         const storageListener = (e) => {
-            if (e.key === 'careerGameState') {
+            if (e.key === this.getStorageKey()) {
                 try {
                     const newState = JSON.parse(e.newValue);
                     if (newState && newState.lastUpdated !== this.gameState.lastUpdated) {
@@ -200,8 +205,15 @@ class CareerManager {
      */
     static loadGameState() {
         try {
-            const savedState = localStorage.getItem('careerGameState');
+            const key = this.getStorageKey();
+            const legacyKey = 'careerGameState';
+            const savedState = localStorage.getItem(key) || localStorage.getItem(legacyKey);
             this.gameState = savedState ? JSON.parse(savedState) : this.getDefaultGameState();
+
+            // migrate legacy data into character-scoped key
+            if (savedState && !localStorage.getItem(key)) {
+                localStorage.setItem(key, savedState);
+            }
             this.log("Game state loaded");
         } catch (e) {
             console.error('Error loading game state:', e);
@@ -255,7 +267,7 @@ class CareerManager {
     static saveGameState() {
         try {
             this.gameState.lastUpdated = Date.now();
-            localStorage.setItem('careerGameState', JSON.stringify(this.gameState));
+            localStorage.setItem(this.getStorageKey(), JSON.stringify(this.gameState));
             localStorage.setItem('careerUpdateTrigger', Date.now().toString());
             this.log('Game state saved');
             return true;
@@ -950,11 +962,11 @@ class CareerManager {
     /**
      * Shows job details in modal
      */
- static showJobDetails(jobId) {
-    const job = this.careersData.find(j => j.id === jobId);
-    if (!job) {
-        this.log(`Job details not found for ID: ${jobId}`);
-        return;
+    static showJobDetails(jobId) {
+        const job = this.careersData.find(j => j.id === jobId);
+        if (!job) {
+            this.log(`Job details not found for ID: ${jobId}`);
+            return;
     }
 
     this.selectedJob = job; // Set the selected job for apply button
@@ -1056,6 +1068,15 @@ class CareerManager {
         if (this.debug) {
             console.log('[CareerManager]', ...args);
         }
+    }
+
+    static getCharacterId() {
+        return localStorage.getItem('currentCharacterId') || localStorage.getItem('lastCharacterId') || 'default';
+    }
+
+    static getStorageKey() {
+        const charId = this.currentCharacterId || this.getCharacterId();
+        return `careerGameState_${charId}`;
     }
 }
 
