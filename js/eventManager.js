@@ -364,9 +364,17 @@ static _setupEventListeners() {
      */
     static _updateAgeDisplay(age) {
         if (!this.state.elements.ageDisplay) return;
-        
-        const currentAge = age ?? TimeManager?.state?.timeState?.age ?? 18;
-        this.state.elements.ageDisplay.textContent = `Age ${currentAge}`;
+
+        // Only update when we have a reliable age; otherwise keep the current display to avoid flicker
+        const resolvedAge = (typeof age === 'number')
+            ? age
+            : (typeof TimeManager?.state?.timeState?.age === 'number'
+                ? TimeManager.state.timeState.age
+                : null);
+
+        if (resolvedAge !== null) {
+            this.state.elements.ageDisplay.textContent = `Age ${resolvedAge}`;
+        }
     }
 
     /**

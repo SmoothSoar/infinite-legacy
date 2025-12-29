@@ -92,9 +92,6 @@ class CareerManager {
             }
         };
         
-        // Remove any existing listener first
-        this.removeEventListeners();
-        
         document.addEventListener('timeAdvancedConsolidated', timeAdvancedListener);
         this.eventListeners.push({
             element: document,
@@ -703,17 +700,17 @@ class CareerManager {
             currentJobDetails: getElement('currentJobDetails'),
             jobHistory: getElement('jobHistory'),
             applyJobBtn: getElement('applyJobBtn'),
-            modalTitle: getElement('jobDetailsTitle'),
-            modalDescription: getElement('jobDetailsDescription'),
-            modalSalary: getElement('jobDetailsSalary'),
-            modalRequirements: getElement('jobDetailsRequirements'),
-            modalSkills: getElement('jobDetailsSkills')
+            jobDetailsModal: getElement('jobDetailsModal'),
+            jobDetailsTitle: getElement('jobDetailsTitle'),
+            jobDetailsDescription: getElement('jobDetailsDescription'),
+            jobDetailsSalary: getElement('jobDetailsSalary'),
+            jobDetailsRequirements: getElement('jobDetailsRequirements'),
+            jobDetailsSkills: getElement('jobDetailsSkills')
         };
         
         // Initialize modal if exists
-        const modalElement = getElement('jobDetailsModal');
-        if (modalElement) {
-            this.elements.modal = new bootstrap.Modal(modalElement);
+        if (this.elements.jobDetailsModal) {
+            this.elements.modal = new bootstrap.Modal(this.elements.jobDetailsModal);
         } else {
             console.error('Modal element not found');
         }
@@ -1019,8 +1016,13 @@ class CareerManager {
     this.elements.applyJobBtn.disabled = !canApply;
     
     // Instantiate and show the Bootstrap modal
-    const jobDetailsModalInstance = new bootstrap.Modal(this.elements.jobDetailsModal);
-    jobDetailsModalInstance.show();
+    // Show modal using cached instance when available
+    if (this.elements.modal) {
+        this.elements.modal.show();
+    } else if (this.elements.jobDetailsModal) {
+        const jobDetailsModalInstance = new bootstrap.Modal(this.elements.jobDetailsModal);
+        jobDetailsModalInstance.show();
+    }
 
     this.log(`Showing details for job: ${job.title}`);
 }

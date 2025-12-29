@@ -429,9 +429,14 @@ static _forceInitialUIUpdate() {
 static async _updateAllSystems(timeState) {
     if (!timeState) return;
 
-    // Create a standardized timeState object
+    // Create a standardized timeState object (ensure age is always present to avoid UI flicker)
+    const resolvedAge = typeof timeState?.age === 'number'
+        ? timeState.age
+        : (typeof TimeManager?.state?.timeState?.age === 'number' ? TimeManager.state.timeState.age : null);
+
     const standardizedTimeState = {
         ...timeState,
+        age: resolvedAge,
         monthsAdvanced: timeState?.monthsAdvanced ?? (TimeManager?.config?.monthsPerAdvance ?? 3),
         yearsPassed: timeState?.yearsPassed ?? 0,
         isQuarterly: timeState?.isQuarterly ?? (timeState?.quarterChanged ?? false)
