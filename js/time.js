@@ -225,6 +225,7 @@ class TimeManager {
         const storageKey = this._getStorageKey(characterId);
         const legacyKey = this._getStorageKey('[object Object]'); // Legacy bug key for migration
         const defaults = this._getDefaultTimeState({ startYear, startQuarter, startAge });
+        const shouldTryLegacyMigration = characterId === 'default';
 
         try {
             // Try the correct key first
@@ -234,11 +235,13 @@ class TimeManager {
             }
 
             // Fallback: migrate data saved under the legacy key
-            const legacyState = localStorage.getItem(legacyKey);
-            if (legacyState) {
-                const parsedLegacy = { ...defaults, ...JSON.parse(legacyState) };
-                localStorage.setItem(storageKey, JSON.stringify(parsedLegacy));
-                return parsedLegacy;
+            if (shouldTryLegacyMigration) {
+                const legacyState = localStorage.getItem(legacyKey);
+                if (legacyState) {
+                    const parsedLegacy = { ...defaults, ...JSON.parse(legacyState) };
+                    localStorage.setItem(storageKey, JSON.stringify(parsedLegacy));
+                    return parsedLegacy;
+                }
             }
 
             return defaults;

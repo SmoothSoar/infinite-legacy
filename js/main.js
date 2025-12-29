@@ -173,9 +173,9 @@ static async _setupCore() {
     const characterId = this._getCharacterId();
     const timeInitOptions = {
         characterId: characterId,
-        startYear: new Date().getFullYear(),
+        startYear: 1,
         startQuarter: 1,
-        startAge: null
+        startAge: this.state?.player?.age ?? null
     };
     
     // Initialize Player - this will load from localStorage or create new
