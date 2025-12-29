@@ -799,12 +799,10 @@ class CareerManager {
             const isCurrentJob = this.gameState.currentJob?.id === job.id;
             
             let buttonText = 'View Details';
-            let buttonDisabled = false;
             let statusBadge = '';
             
             if (isCurrentJob) {
                 statusBadge = '<span class="badge bg-primary">Current Job</span>';
-                buttonDisabled = true;
             } else if (!canApply) {
                 statusBadge = '<span class="badge bg-secondary">Requirements Not Met</span>';
             }
@@ -824,7 +822,7 @@ class CareerManager {
                             ).join('')}
                         </div>
                         <button class="btn btn-primary job-action-btn w-100" 
-                                data-job-id="${job.id}" ${buttonDisabled ? 'disabled' : ''}>
+                                data-job-id="${job.id}">
                             ${buttonText}
                         </button>
                     </div>
