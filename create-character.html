@@ -10,21 +10,43 @@
     <link rel="stylesheet" href="css/creation.css">
 </head>
 <body class="d-flex flex-column min-vh-100 creation-body">
-    <main class="container py-5 flex-grow-1">
-        <div class="row align-items-stretch g-4">
+    <header class="container py-3 d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2">
+            <span class="brand-dot"></span>
+            <div>
+                <div class="fw-bold">Smooth Soar</div>
+                <small class="text-muted">Character Creator</small>
+            </div>
+        </div>
+        <a href="index.html" class="text-decoration-none text-muted small d-flex align-items-center gap-2">
+            <i class="bi bi-arrow-left"></i> Back to Landing
+        </a>
+    </header>
+
+    <main class="container pb-5 flex-grow-1">
+        <div class="row g-4 align-items-stretch">
             <div class="col-lg-5">
-                <div class="card glass h-100">
+                <div class="card glass hero-card h-100">
                     <div class="card-body">
                         <div class="badge rounded-pill text-bg-primary mb-3 px-3 py-2">
-                            <i class="bi bi-stars me-2"></i>New Journey
+                            <i class="bi bi-stars me-2"></i>Start fresh
                         </div>
-                        <h1 class="h3 fw-bold mb-3">Create your life blueprint</h1>
-                        <p class="text-muted mb-4">Set your name, age, and origin. You can refine career, education, and finances once you load into the game.</p>
-                        <ul class="list-unstyled d-flex flex-column gap-2 text-muted">
-                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Dark & light theme ready</li>
-                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Instant save & continue</li>
-                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Start fresh per character</li>
-                        </ul>
+                        <h1 class="display-6 fw-bold mb-3">Shape your next life arc</h1>
+                        <p class="text-muted mb-4">Pick your identity, age, and background. We’ll sync time, finances, career, and education to this character only.</p>
+                        <div class="d-flex flex-column gap-3">
+                            <div class="info-pill">
+                                <i class="bi bi-shield-check me-2 text-success"></i>
+                                Separate saves per character—no carryover.
+                            </div>
+                            <div class="info-pill">
+                                <i class="bi bi-moon-stars me-2 text-info"></i>
+                                Light/dark friendly; respects your theme.
+                            </div>
+                            <div class="info-pill">
+                                <i class="bi bi-rocket-takeoff me-2 text-warning"></i>
+                                Jump straight into the game after saving.
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -33,10 +55,10 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div>
-                                <p class="text-muted mb-1 small">Step 1 of 1</p>
+                                <p class="text-muted mb-1 small">Create · 1/1</p>
                                 <h2 class="h4 fw-bold mb-0">Character Details</h2>
                             </div>
-                            <span class="pill text-muted"><i class="bi bi-shield-check me-2"></i>Secure local save</span>
+                            <span class="pill text-muted"><i class="bi bi-lock-fill me-2"></i>Local & private</span>
                         </div>
                         <form id="characterForm" class="needs-validation" novalidate>
                             <div class="row g-3">
@@ -44,13 +66,13 @@
                                     <label for="name" class="form-label">Character Name</label>
                                     <input type="text" class="form-control" id="name" required 
                                            placeholder="Enter your character's name" minlength="2" maxlength="30">
-                                    <div class="form-text text-muted">2-30 characters.</div>
+                                    <div class="form-text text-muted">2-30 characters</div>
                                     <div class="invalid-feedback">Please enter a valid name (2-30 characters)</div>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="age" class="form-label">Age</label>
                                     <input type="number" class="form-control" id="age" min="1" max="100" value="18" required>
-                                    <div class="form-text text-muted">(1-100 years)</div>
+                                    <div class="form-text text-muted">1-100 years</div>
                                     <div class="invalid-feedback">Please enter a valid age between 1 and 100</div>
                                 </div>
                                 <div class="col-md-6">

@@ -1,14 +1,16 @@
 :root {
-    --cc-bg: #0b0f1a;
+    --cc-bg: #060912;
     --cc-card: rgba(255,255,255,0.06);
     --cc-border: rgba(255,255,255,0.12);
     --cc-text: #f8fafc;
     --cc-muted: #cbd5e1;
+    --cc-accent: linear-gradient(120deg, #ffb347, #ff6b6b);
+    --cc-accent-2: linear-gradient(120deg, #4c8df5, #7dd3fc);
 }
 
-[data-theme="light"] :root,
-:root[data-theme="light"] {
-    --cc-bg: #f5f7fb;
+:root[data-theme="light"],
+[data-theme="light"] :root {
+    --cc-bg: #f3f6fb;
     --cc-card: #ffffff;
     --cc-border: #e6e8ef;
     --cc-text: #0f172a;
@@ -19,6 +21,7 @@
     background: radial-gradient(circle at 20% 20%, rgba(124,154,255,0.25), transparent 35%),
                 radial-gradient(circle at 80% 0%, rgba(255,171,64,0.22), transparent 30%),
                 var(--cc-bg);
+    color: var(--cc-text);
 }
 
 .glass {
@@ -26,6 +29,24 @@
     border: 1px solid var(--cc-border);
     border-radius: 18px;
     box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+    backdrop-filter: blur(10px);
+}
+
+.hero-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-card::after {
+    content: '';
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    background: var(--cc-accent);
+    opacity: 0.18;
+    filter: blur(60px);
+    bottom: -40px;
+    right: -20px;
 }
 
 body, .card, .form-control, .form-select, .btn {
@@ -49,23 +70,23 @@ body, .card, .form-control, .form-select, .btn {
     color: var(--cc-text);
 }
 
-.pill {
+.pill, .info-pill {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 12px;
+    padding: 10px 12px;
     border-radius: 12px;
     background: rgba(255,255,255,0.06);
     border: 1px solid var(--cc-border);
 }
 
 .badge.text-bg-primary {
-    background: linear-gradient(120deg, #ffb347, #ff6b6b) !important;
+    background: var(--cc-accent) !important;
     color: #0b0f1a !important;
 }
 
 .btn-primary {
-    background: linear-gradient(120deg, #4c8df5, #7dd3fc);
+    background: var(--cc-accent-2);
     border: none;
 }
 
@@ -76,4 +97,17 @@ body, .card, .form-control, .form-select, .btn {
 .card {
     border: none;
     background: transparent;
+}
+
+.brand-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--cc-accent);
+    display: inline-block;
+    box-shadow: 0 0 10px rgba(255, 179, 71, 0.8);
+}
+
+.info-pill i {
+    font-size: 1rem;
 }
