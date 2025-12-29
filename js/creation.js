@@ -221,6 +221,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const character = createCharacterObject(formData);
             const characterId = saveCharacter(character);
             
+            // Remember this character as the current/last played
+            localStorage.setItem('lastCharacterId', characterId);
+            localStorage.setItem('currentCharacterId', characterId);
+            
             // Debug verification before redirect
             console.debug('Redirecting to game with character:', {
                 id: characterId,

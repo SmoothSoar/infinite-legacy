@@ -284,8 +284,16 @@ static _forceInitialUIUpdate() {
      */
    static _getCharacterId() {
     const params = new URLSearchParams(window.location.search);
-    const characterId = params.get('characterId') || localStorage.getItem('lastCharacterId') || 'default';
-    localStorage.setItem('lastCharacterId', characterId); // Remember this character
+    const paramId = params.get('characterId');
+    const currentId = localStorage.getItem('currentCharacterId');
+    const lastId = localStorage.getItem('lastCharacterId');
+    
+    // Prefer explicit URL parameter, then the actively selected character, then last played
+    const characterId = paramId || currentId || lastId || 'default';
+    
+    // Remember the most recent character for nav links without params
+    localStorage.setItem('lastCharacterId', characterId);
+    localStorage.setItem('currentCharacterId', characterId);
     return characterId;
 }
 
