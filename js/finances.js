@@ -69,7 +69,7 @@ static processSalary(monthsAdvanced) {
         return;
     }
 
-    // Base salary with random fluctuations (-5% to +5%)
+    // Base salary with small fluctuations (-5% to +5%)
     const baseSalary = CareerManager.gameState.currentJob.salary;
     const fluctuation = (Math.random() * 0.1) - 0.05; // -5% to +5%
     const salaryPayment = baseSalary * (1 + fluctuation) * monthsAdvanced;
@@ -78,11 +78,19 @@ static processSalary(monthsAdvanced) {
     const taxRate = this.calculateTaxRate(baseSalary);
     const taxAmount = salaryPayment * taxRate;
     
-    // Living expenses (30-50% of salary)
-    const livingExpenseRate = 0.3 + (Math.random() * 0.2);
+    // Living expenses (40-60% of salary) to keep budgets tight
+    const livingExpenseRate = 0.4 + (Math.random() * 0.2);
     const livingExpenses = salaryPayment * livingExpenseRate;
+
+    // Mandatory savings/benefits (5-10%) to simulate deductions that don't hit checking
+    const benefitRate = 0.05 + (Math.random() * 0.05);
+    const benefits = salaryPayment * benefitRate;
     
-    const netSalary = salaryPayment - taxAmount - livingExpenses;
+    // Occasional unexpected costs (0-8%)
+    const unexpectedRate = Math.random() * 0.08;
+    const unexpectedCosts = salaryPayment * unexpectedRate;
+    
+    const netSalary = salaryPayment - taxAmount - livingExpenses - benefits - unexpectedCosts;
 
     // Rest of the method remains the same...
     const checkingAccounts = this.gameState.accounts.filter(acc => acc.type === 'checking');
@@ -120,6 +128,24 @@ static processSalary(monthsAdvanced) {
         'living_costs',
         accountId
     );
+
+    this.addTransaction(
+        'expense',
+        `Benefits & retirement contributions`,
+        benefits,
+        'benefits',
+        accountId
+    );
+
+    if (unexpectedCosts > 0) {
+        this.addTransaction(
+            'expense',
+            `Unexpected costs`,
+            unexpectedCosts,
+            'unexpected',
+            accountId
+        );
+    }
 
     // Notify player
     if (typeof EventManager !== 'undefined') {
@@ -210,18 +236,7 @@ static getCurrentDateString() {
   static syncWithCareer() {
     this.log('Syncing with career data...');
     
-    // If we have a current job but no salary transaction, add one
-    if (typeof CareerManager !== 'undefined' && CareerManager.gameState?.currentJob) {
-        const hasSalaryTx = this.gameState.transactions.some(
-            tx => tx.category === 'salary' && 
-            tx.description.includes(CareerManager.gameState.currentJob.title)
-        );
-        
-        if (!hasSalaryTx) {
-            this.processSalary(1); // Process one month's salary
-        }
-    }
-    
+    // No automatic salary injection here; salaries are processed only on time advancement
     this.renderAll();
 }
     
@@ -937,26 +952,12 @@ static setupEventListeners() {
     // ===================================================================
     
 static handleTimeAdvanced(timeState) {
-    if (!this.gameState.currentJob) return; // No job = no salary
-
-    // Update job duration
-    this.gameState.currentJob.monthsWorked += timeState.monthsAdvanced;
-
-    // Process salary via FinancesManager (if available)
-    if (typeof FinancesManager !== 'undefined') {
-        FinancesManager.processSalary(timeState.monthsAdvanced);
-    } else {
-        console.warn("FinancesManager not found - salary not processed");
+    const monthsAdvanced = timeState?.monthsAdvanced || 3;
+    
+    // Only process salary if the player has a job in CareerManager
+    if (typeof CareerManager !== 'undefined' && CareerManager.gameState?.currentJob) {
+        this.processSalary(monthsAdvanced);
     }
-
-    // Update performance, experience, etc.
-    this.updatePerformance(timeState.monthsAdvanced);
-    this.gainExperience(timeState.monthsAdvanced);
-    this.gainSkills(timeState.monthsAdvanced);
-    this.checkForPromotion();
-
-    // Save changes
-    this.saveGameState();
 }
     
 static processMonthlyEvents() {
@@ -1076,11 +1077,11 @@ static processMonthlyEvents() {
     }
     
    static calculateTaxRate(income) {
-    // Progressive tax system
-    if (income <= 1000) return 0.10;  // 10% for lower incomes
-    if (income <= 2000) return 0.20;  // 20% for middle incomes
-    if (income <= 3000) return 0.30;  // 30% for higher middle incomes
-    return 0.40;                      // 40% for highest incomes
+    // Slightly steeper progressive tax to slow down rapid cash growth
+    if (income <= 1000) return 0.15;
+    if (income <= 2000) return 0.25;
+    if (income <= 3000) return 0.35;
+    return 0.45;
 }
     
     static createDefaultCheckingAccount() {

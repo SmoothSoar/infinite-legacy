@@ -488,9 +488,13 @@ class CareerManager {
         // Update job duration
         this.gameState.currentJob.monthsWorked += monthsAdvanced;
         
-        // Process salary payment
-        const salaryPayment = this.gameState.currentJob.salary * monthsAdvanced;
-        this.processSalaryPayment(salaryPayment);
+        // Process salary once through FinancesManager if available; otherwise fall back
+        if (typeof FinancesManager !== 'undefined' && typeof FinancesManager.processSalary === 'function') {
+            FinancesManager.processSalary(monthsAdvanced);
+        } else {
+            const salaryPayment = this.gameState.currentJob.salary * monthsAdvanced;
+            this.processSalaryPayment(salaryPayment);
+        }
         
         // Update performance and skills
         this.updatePerformance(monthsAdvanced);
