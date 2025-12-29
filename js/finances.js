@@ -98,6 +98,14 @@ static processSalary(monthsAdvanced) {
     // Keep deductions from exceeding a reasonable portion of salary
     const totalDeductions = taxAmount + livingExpenses + benefits + unexpectedCosts;
     const cappedDeductions = Math.min(totalDeductions, salaryPayment * 0.85);
+    
+    // If we had to cap deductions, scale each deduction proportionally
+    const deductionScale = totalDeductions > 0 ? (cappedDeductions / totalDeductions) : 1;
+    const scaledTax = taxAmount * deductionScale;
+    const scaledLiving = livingExpenses * deductionScale;
+    const scaledBenefits = benefits * deductionScale;
+    const scaledUnexpected = unexpectedCosts * deductionScale;
+    
     const netSalary = Math.max(salaryPayment - cappedDeductions, salaryPayment * 0.1);
 
     // Rest of the method remains the same...
@@ -106,25 +114,19 @@ static processSalary(monthsAdvanced) {
         ? checkingAccounts[0].id 
         : this.createDefaultCheckingAccount();
 
-    // Update account balance
-    const account = this.gameState.accounts.find(acc => acc.id === accountId);
-    if (account) {
-        account.balance += netSalary;
-    }
-
-    // Record transactions
+    // Record transactions - add gross pay, then individual deductions
     this.addTransaction(
         'income', 
         `Salary from ${CareerManager.gameState.currentJob.title}`, 
-        netSalary, 
-        'salary',
+        salaryPayment, 
+        'salary', 
         accountId
     );
 
     this.addTransaction(
         'expense',
         `Income tax withholding`,
-        taxAmount,
+        scaledTax,
         'taxes',
         accountId
     );
@@ -132,7 +134,7 @@ static processSalary(monthsAdvanced) {
     this.addTransaction(
         'expense',
         `Living expenses`,
-        livingExpenses,
+        scaledLiving,
         'living_costs',
         accountId
     );
@@ -140,16 +142,16 @@ static processSalary(monthsAdvanced) {
     this.addTransaction(
         'expense',
         `Benefits & retirement contributions`,
-        benefits,
+        scaledBenefits,
         'benefits',
         accountId
     );
 
-    if (unexpectedCosts > 0) {
+    if (scaledUnexpected > 0) {
         this.addTransaction(
             'expense',
             `Unexpected costs`,
-            unexpectedCosts,
+            scaledUnexpected,
             'unexpected',
             accountId
         );
@@ -402,10 +404,9 @@ static updateDisplay() {
         const checkingAccounts = this.gameState.accounts.filter(acc => acc.type === 'checking');
         for (const account of checkingAccounts) {
             if (account.balance >= initialDeposit) {
-                account.balance -= initialDeposit;
                 hasFunds = true;
                 this.addTransaction(
-                    'expense',
+                    'withdrawal',
                     `Initial deposit for new ${this.accountTypes[accountType].name}`,
                     initialDeposit,
                     'account_opening',
@@ -987,22 +988,25 @@ static processMonthlyEvents() {
         const taxAmount = monthlySalary * taxRate;
         const netSalary = monthlySalary - taxAmount;
         
-        // Deposit to checking account
+        // Deposit gross pay to checking account and record deductions separately
         const checkingAccounts = this.gameState.accounts.filter(acc => acc.type === 'checking');
         const accountId = checkingAccounts.length > 0 
             ? checkingAccounts[0].id 
             : this.createDefaultCheckingAccount();
         
-        const account = this.gameState.accounts.find(acc => acc.id === accountId);
-        if (account) {
-            account.balance += netSalary;
-        }
-        
         this.addTransaction(
             'income', 
             `Salary from ${CareerManager.gameState.currentJob.title}`, 
-            netSalary, 
+            monthlySalary, 
             'salary',
+            accountId
+        );
+        
+        this.addTransaction(
+            'expense',
+            'Income tax withholding',
+            taxAmount,
+            'taxes',
             accountId
         );
     }
@@ -1012,7 +1016,6 @@ static processMonthlyEvents() {
     if (monthlyExpenses > 0) {
         const checkingAccounts = this.gameState.accounts.filter(acc => acc.type === 'checking');
         if (checkingAccounts.length > 0) {
-            checkingAccounts[0].balance -= monthlyExpenses;
             this.addTransaction(
                 'expense',
                 'Monthly living expenses',
@@ -1438,27 +1441,20 @@ static processMonthlyEvents() {
         const checkingAccounts = this.gameState.accounts.filter(acc => acc.type === 'checking');
         
         if (checkingAccounts.length > 0) {
-            checkingAccounts[0].balance += amount;
+            this.addTransaction('income', description, amount, category, checkingAccounts[0].id);
         } else if (this.gameState.accounts.length > 0) {
-            this.gameState.accounts[0].balance += amount;
+            this.addTransaction('income', description, amount, category, this.gameState.accounts[0].id);
         } else {
             const newAccount = {
                 id: 'acc-' + Date.now(),
                 type: 'checking',
                 name: 'Default Checking Account',
-                balance: amount,
+                balance: 0,
                 openedDate: this.getCurrentDateString(),
                 transactions: []
             };
             this.gameState.accounts.push(newAccount);
-        }
-        
-        this.addTransaction('income', description, amount, category);
-        this.saveGameState();
-        this.renderAll();
-        
-        if (typeof MainManager !== 'undefined' && MainManager.updateMoneyDisplay) {
-            MainManager.updateMoneyDisplay();
+            this.addTransaction('income', description, amount, category, newAccount.id);
         }
     }
     

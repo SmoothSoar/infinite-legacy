@@ -417,6 +417,10 @@ static _updateCharacterDisplays() {
     try {
         // Try to get player from MainManager first
         const player = MainManager.state?.player;
+        const financialState = (typeof FinancesManager !== 'undefined' && FinancesManager.getFinancialState)
+            ? FinancesManager.getFinancialState()
+            : null;
+        const totalBalance = financialState?.totalBalance;
         
         if (player) {
             console.log('Updating character displays with player data:', {
@@ -431,7 +435,7 @@ static _updateCharacterDisplays() {
                 'characterCountry': player.country?.name || 'Unknown',
                 'characterCulture': player.culture?.name || 'Unknown',
                 'healthDisplay': `${player.getStat?.('health') || 100}%`,
-                'moneyDisplay': `$${(player.totalMoney || 0).toLocaleString()}`
+                'moneyDisplay': `$${((typeof totalBalance === 'number' ? totalBalance : player.totalMoney || 0)).toLocaleString()}`
             };
 
             Object.entries(fields).forEach(([id, value]) => {
@@ -451,13 +455,16 @@ static _updateCharacterDisplays() {
         // Fallback to last character state if available
         if (this.state.lastCharacterState) {
             console.log('Updating character displays with last state:', this.state.lastCharacterState);
+            const lastBalance = typeof totalBalance === 'number'
+                ? totalBalance
+                : (this.state.lastCharacterState.finances?.cash + this.state.lastCharacterState.finances?.bank || 0);
             const fields = {
                 'characterName': this.state.lastCharacterState.name,
                 'characterAge': `Age ${this.state.lastCharacterState.age || 18}`,
                 'characterCountry': this.state.lastCharacterState.country?.name || 'Unknown',
                 'characterCulture': this.state.lastCharacterState.culture?.name || 'Unknown',
                 'healthDisplay': `${this.state.lastCharacterState.health || 100}%`,
-                'moneyDisplay': `$${(this.state.lastCharacterState.finances?.cash + this.state.lastCharacterState.finances?.bank || 0).toLocaleString()}`
+                'moneyDisplay': `$${(lastBalance).toLocaleString()}`
             };
 
             Object.entries(fields).forEach(([id, value]) => {
