@@ -57,7 +57,8 @@ class EducationManager {
         this.log('Initializing EducationManager...');
         
         // Wait for TimeManager to be ready
-        if (!TimeManager?.timeState) {
+        // Wait for TimeManager to populate its state before initializing
+        if (!TimeManager?.state?.timeState) {
             setTimeout(() => this.init(), 100);
             return;
         }
