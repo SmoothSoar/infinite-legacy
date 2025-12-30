@@ -40,6 +40,13 @@ class FinancesManager {
         }
     };
 
+    static investmentProfiles = {
+        index: { label: 'Index fund', baseReturn: 0.055, volatility: 0.02, shockChance: 0.05, shockLoss: [0.02, 0.05] },
+        balanced: { label: 'Balanced ETF', baseReturn: 0.06, volatility: 0.035, shockChance: 0.08, shockLoss: [0.03, 0.07] },
+        growth: { label: 'Growth stocks', baseReturn: 0.08, volatility: 0.06, shockChance: 0.12, shockLoss: [0.05, 0.12] },
+        speculative: { label: 'Speculative', baseReturn: 0.12, volatility: 0.1, shockChance: 0.2, shockLoss: [0.1, 0.25] }
+    };
+
     
 
     /**
@@ -92,13 +99,9 @@ class FinancesManager {
     // Mandatory savings/benefits (5-10%) to simulate deductions that don't hit checking
     const benefitRate = 0.05 + (Math.random() * 0.05);
     const benefits = salaryPayment * benefitRate;
-    
-    // Occasional unexpected costs (0-8%)
-    const unexpectedRate = Math.random() * 0.08;
-    const unexpectedCosts = salaryPayment * unexpectedRate;
 
     // Keep deductions from exceeding a reasonable portion of salary
-    const totalDeductions = taxAmount + livingExpenses + benefits + unexpectedCosts;
+    const totalDeductions = taxAmount + livingExpenses + benefits;
     const cappedDeductions = Math.min(totalDeductions, salaryPayment * 0.85);
     
     // If we had to cap deductions, scale each deduction proportionally
@@ -106,7 +109,6 @@ class FinancesManager {
     const scaledTax = taxAmount * deductionScale;
     const scaledLiving = livingExpenses * deductionScale;
     const scaledBenefits = benefits * deductionScale;
-    const scaledUnexpected = unexpectedCosts * deductionScale;
     
     const netSalary = Math.max(salaryPayment - cappedDeductions, salaryPayment * 0.1);
 
@@ -152,17 +154,6 @@ class FinancesManager {
         accountId,
         { periodMonths }
     );
-
-    if (scaledUnexpected > 0) {
-        this.addTransaction(
-            'expense',
-            `Unexpected costs`,
-            scaledUnexpected,
-            'unexpected',
-            accountId,
-            { periodMonths }
-        );
-    }
 
     // Notify player
     if (typeof EventManager !== 'undefined') {
@@ -238,7 +229,10 @@ static getCurrentDateString() {
         this.gameState.accounts = this.gameState.accounts.map(acc => ({
             ...acc,
             balanceEligibleForGrowth: acc.balanceEligibleForGrowth ?? acc.balance,
-            lastProcessedQuarter: acc.lastProcessedQuarter || null
+            lastProcessedQuarter: acc.lastProcessedQuarter || null,
+            investmentProfile: acc.type === 'investment'
+                ? (acc.investmentProfile || 'balanced')
+                : null
         }));
     }
     
@@ -298,6 +292,8 @@ static getCurrentDateString() {
             initialDeposit: getElement('initialDeposit'),
             accountName: getElement('accountName'),
             confirmAccountBtn: getElement('confirmAccountBtn'),
+            investmentType: getElement('investmentType'),
+            investmentTypeGroup: getElement('investmentTypeGroup'),
             cashFlowDisplay: getElement('cashFlowDisplay'),
             savingsRateDisplay: getElement('savingsRateDisplay'),
             debtRatioDisplay: getElement('debtRatioDisplay'),
@@ -397,6 +393,10 @@ static updateDisplay() {
         return;
     }
     
+    const investmentProfile = accountType === 'investment'
+        ? (this.elements.investmentType?.value || 'balanced')
+        : null;
+
     const newAccount = {
         id: 'acc-' + Date.now(),
         type: accountType,
@@ -404,6 +404,7 @@ static updateDisplay() {
         balance: initialDeposit,
         balanceEligibleForGrowth: initialDeposit,
         lastProcessedQuarter: null,
+        investmentProfile,
         openedDate: this.getCurrentDateString(),
         transactions: []
     };
@@ -412,10 +413,12 @@ static updateDisplay() {
     this.saveGameState();
     
     this.addTransaction('account', 'Deposit to new account', initialDeposit, 'initial_deposit', newAccount.id);
-    EventManager.addToEventLog(`Opened new ${this.accountTypes[accountType].name}: ${accountName}`, 'success');
+    const profileNote = investmentProfile ? ` (${this.investmentProfiles[investmentProfile]?.label || 'Balanced'})` : '';
+    EventManager.addToEventLog(`Opened new ${this.accountTypes[accountType].name}: ${accountName}${profileNote}`, 'success');
     
     this.elements.accountModal.hide();
     this.elements.accountForm.reset();
+    this.toggleInvestmentFields();
     this.renderAll();
 }
     
@@ -455,6 +458,10 @@ static updateDisplay() {
                     }
                 }
                 account.transactions.push(transaction.id);
+
+                if (account.type === 'investment') {
+                    account.balanceEligibleForGrowth = account.balance;
+                }
             }
         }
         
@@ -701,12 +708,27 @@ static setupEventListeners() {
         });
     }
 
+    // Account type change listener (show/hide investment options)
+    if (this.elements.accountType) {
+        const accountTypeListener = () => this.toggleInvestmentFields();
+        this.elements.accountType.addEventListener('change', accountTypeListener);
+        this.eventListeners.push({
+            element: this.elements.accountType,
+            type: 'change',
+            listener: accountTypeListener
+        });
+    }
+
     // Quick investment account opener
     if (this.elements.newInvestmentBtn) {
         const newInvestmentListener = () => {
             if (this.elements.accountType) {
                 this.elements.accountType.value = 'investment';
             }
+            if (this.elements.investmentType) {
+                this.elements.investmentType.value = 'balanced';
+            }
+            this.toggleInvestmentFields();
             this.showAccountModal();
         };
 
@@ -725,15 +747,6 @@ static setupEventListeners() {
         element: document,
         type: 'timeAdvanced',
         listener: timeAdvancedListener
-    });
-
-    // Quarterly portfolio updates
-    const quarterlyUpdateListener = (e) => this.processQuarterlyEvents(e.detail);
-    document.addEventListener('quarterlyUpdate', quarterlyUpdateListener);
-    this.eventListeners.push({
-        element: document,
-        type: 'quarterlyUpdate',
-        listener: quarterlyUpdateListener
     });
 
     // Career update listener
@@ -1080,16 +1093,16 @@ static handleTimeAdvanced(timeState) {
                     return;
                 }
 
-                const baseAnnualReturn = 0.05; // 5% average annual return
-                const volatility = 0.04;       // +/-4% annual swing
-                const shockChance = 0.12;      // 12% chance of a down quarter
-
-                const quarterlyRate = (baseAnnualReturn + (Math.random() * (volatility * 2) - volatility)) / 4;
+                const profile = this.investmentProfiles[account.investmentProfile] || this.investmentProfiles.balanced;
+                const quarterlyNoise = (Math.random() * (profile.volatility * 2) - profile.volatility) / 4;
+                const quarterlyRate = (profile.baseReturn / 4) + quarterlyNoise;
                 let performance = snapshot * quarterlyRate;
                 let performanceCategory = 'investment_return';
 
-                if (Math.random() < shockChance) {
-                    performance = -snapshot * (0.03 + Math.random() * 0.05); // 3-8% drawdown
+                if (Math.random() < profile.shockChance) {
+                    const [minLoss, maxLoss] = profile.shockLoss;
+                    const lossRate = minLoss + Math.random() * (maxLoss - minLoss);
+                    performance = -snapshot * lossRate;
                     performanceCategory = 'investment_loss';
                 }
 
@@ -1267,14 +1280,19 @@ static handleTimeAdvanced(timeState) {
     static renderAccountCard(account) {
         const accountType = this.accountTypes[account.type];
         const withdrawalInfo = account.type === 'savings' 
-            ? `<small class="text-muted d-block">Withdrawals this month: ${this.gameState.accountWithdrawals[account.id]?.[new Date().toISOString().slice(0, 7)] || 0}/${accountType.withdrawalLimit ?? '—'}</small>`
+            ? `<small class="text-muted d-block">Withdrawals this month: ${this.gameState.accountWithdrawals[account.id]?.[new Date().toISOString().slice(0, 7)] || 0}/${accountType.withdrawalLimit ?? '-'}</small>`
+            : '';
+        const investmentInfo = account.type === 'investment'
+            ? `<span class="badge bg-info text-dark ms-2">${this.investmentProfiles[account.investmentProfile]?.label || 'Balanced'}</span>`
             : '';
         
+        const nameLine = investmentInfo ? `${account.name} ${investmentInfo}` : account.name;
+
         return `
             <div class="account-card" data-account-id="${account.id}">
                 <div class="account-header">
                     <div>
-                        <div class="account-name">${account.name}</div>
+                        <div class="account-name">${nameLine}</div>
                         <div class="account-type">${accountType.name}</div>
                     </div>
                     <span class="badge bg-${account.type === 'checking' ? 'primary' : account.type === 'savings' ? 'success' : 'info'}">${account.type}</span>
@@ -1402,8 +1420,15 @@ static handleTimeAdvanced(timeState) {
     
     static showAccountModal() {
         if (this.elements.accountModal) {
+            this.toggleInvestmentFields();
             this.elements.accountModal.show();
         }
+    }
+
+    static toggleInvestmentFields() {
+        if (!this.elements.accountType || !this.elements.investmentTypeGroup) return;
+        const isInvestment = this.elements.accountType.value === 'investment';
+        this.elements.investmentTypeGroup.classList.toggle('d-none', !isInvestment);
     }
 
     static getCharacterId() {
