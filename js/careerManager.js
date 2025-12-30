@@ -25,6 +25,14 @@ class CareerManager {
     static PROMOTION_THRESHOLD = 80;
     static BASE_PERFORMANCE_INCREASE = 1;
     static MAX_PERFORMANCE_INCREASE = 5;
+    static SALARY_MULTIPLIER_FALLBACK = 0.4;
+
+    static getAdjustedSalary(amount) {
+        if (typeof FinancesManager !== 'undefined' && typeof FinancesManager.getEffectiveSalary === 'function') {
+            return FinancesManager.getEffectiveSalary(amount || 0);
+        }
+        return (amount || 0) * this.SALARY_MULTIPLIER_FALLBACK;
+    }
 
     /**
      * Initializes the CareerManager system
@@ -567,11 +575,12 @@ class CareerManager {
      */
     static processSalaryPayment(amount) {
         if (typeof amount !== 'number' || amount <= 0) return;
+        const adjustedAmount = this.getAdjustedSalary(amount);
         
         try {
             // Try FinancesManager first
             if (typeof FinancesManager !== 'undefined' && FinancesManager.addMoney) {
-                FinancesManager.addMoney(amount, 'Salary payment', 'salary');
+                FinancesManager.addMoney(adjustedAmount, 'Salary payment', 'salary');
                 this.log('Processed salary via FinancesManager');
                 return;
             }
@@ -591,7 +600,7 @@ class CareerManager {
                     };
                 }
                 
-                character._finances.cash = (character._finances.cash || 0) + amount;
+                character._finances.cash = (character._finances.cash || 0) + adjustedAmount;
                 localStorage.setItem(characterKey, JSON.stringify(character));
                 this.log('Processed salary via direct storage');
                 return;
@@ -599,12 +608,12 @@ class CareerManager {
             
             // Ultimate fallback to simple storage
             const finances = JSON.parse(localStorage.getItem('characterFinances')) || { cash: 0, bank: 0 };
-            finances.cash += amount;
+            finances.cash += adjustedAmount;
             localStorage.setItem('characterFinances', JSON.stringify(finances));
             this.log('Processed salary via fallback storage');
             
             if (typeof EventManager !== 'undefined') {
-                EventManager.addToEventLog(`Received salary: $${amount.toLocaleString()}`, 'success');
+                EventManager.addToEventLog(`Received salary: $${adjustedAmount.toLocaleString()}`, 'success');
             }
         } catch (error) {
             console.error('Salary payment processing failed:', error);
@@ -829,7 +838,7 @@ class CareerManager {
                         ${statusBadge}
                         <div class="job-card-header">
                             <h3>${job.title}</h3>
-                            <span class="badge bg-success">$${job.salary.toLocaleString()}/month</span>
+                            <span class="badge bg-success">$${this.getAdjustedSalary(job.salary).toLocaleString()}/month</span>
                         </div>
                         <p>${job.description}</p>
                         <div class="d-flex flex-wrap gap-1 mb-2">
@@ -870,7 +879,7 @@ class CareerManager {
                 <h3>${job.title}</h3>
                 <p>${job.description}</p>
                 <div class="d-flex justify-content-between mb-2">
-                    <span><strong>Salary:</strong> $${job.salary.toLocaleString()}/month</span>
+                    <span><strong>Salary:</strong> $${this.getAdjustedSalary(job.salary).toLocaleString()}/month</span>
                     <span><strong>Performance:</strong> ${job.performance}%</span>
                 </div>
                 <div class="progress mb-2" style="height: 10px;">
@@ -922,7 +931,7 @@ class CareerManager {
             <div class="job-history-item">
                 <div class="d-flex justify-content-between">
                     <strong>${job.title}</strong>
-                    <span>$${job.salary.toLocaleString()}/month</span>
+                    <span>$${this.getAdjustedSalary(job.salary).toLocaleString()}/month</span>
                 </div>
                 <div class="d-flex justify-content-between text-muted small">
                     <span>${job.startDate} - ${job.endDate}</span>
@@ -944,7 +953,7 @@ class CareerManager {
         
         if (this.elements.salaryDisplay) {
             this.elements.salaryDisplay.textContent = this.gameState.currentJob ? 
-                `$${this.gameState.currentJob.salary.toLocaleString()}/month` : '$0/month';
+                `$${this.getAdjustedSalary(this.gameState.currentJob.salary).toLocaleString()}/month` : '$0/month';
         }
         
         if (this.elements.performanceDisplay) {
@@ -974,7 +983,7 @@ class CareerManager {
     // Update modal content
     this.elements.jobDetailsTitle.textContent = job.title;
     this.elements.jobDetailsDescription.textContent = job.description;
-    this.elements.jobDetailsSalary.textContent = `$${job.salary.toLocaleString()}/month`;
+    this.elements.jobDetailsSalary.textContent = `$${this.getAdjustedSalary(job.salary).toLocaleString()}/month`;
 
     // Update requirements
     this.elements.jobDetailsRequirements.innerHTML = '';

@@ -8,6 +8,7 @@ class FinancesManager {
     static debug = true;
     static currentCharacterId = null;
     static storageKey = null;
+    static SALARY_MULTIPLIER = 0.4; // Dampens income to slow game pace
     
     // Realistic account types with lower interest rates
     static accountTypes = {
@@ -74,8 +75,8 @@ static processSalary(monthsAdvanced) {
         return;
     }
 
-    // Base salary with small fluctuations (-5% to +5%)
-    const baseSalary = CareerManager.gameState.currentJob.salary;
+    // Base salary with small fluctuations (-5% to +5%), scaled globally
+    const baseSalary = this.getEffectiveSalary(CareerManager.gameState.currentJob.salary);
     const fluctuation = (Math.random() * 0.1) - 0.05; // -5% to +5%
     const salaryPayment = baseSalary * (1 + fluctuation) * monthsAdvanced;
     
@@ -503,7 +504,8 @@ static updateDisplay() {
         } else if (typeof CareerManager !== 'undefined' && CareerManager.getCurrentJob) {
             const currentJob = CareerManager.getCurrentJob();
             if (currentJob) {
-                income += (currentJob.salary || 0) * 0.7; // 30% tax
+                const effectiveSalary = this.getEffectiveSalary(currentJob.salary || 0);
+                income += effectiveSalary * 0.7; // 30% tax
                 
                 const checkingAccounts = this.gameState.accounts.filter(acc => acc.type === 'checking');
                 const accountId = checkingAccounts.length > 0 ? checkingAccounts[0].id : null;
@@ -511,7 +513,7 @@ static updateDisplay() {
                 this.addTransaction(
                     'income', 
                     `Salary from ${currentJob.title}`, 
-                    currentJob.salary * 0.7, 
+                    effectiveSalary * 0.7, 
                     'salary',
                     accountId
                 );
@@ -980,13 +982,13 @@ static handleTimeAdvanced(timeState) {
     }
 }
     
-static processMonthlyEvents() {
-    // Only process salary if employed
-    if (typeof CareerManager !== 'undefined' && CareerManager.gameState?.currentJob) {
-        const monthlySalary = CareerManager.gameState.currentJob.salary;
-        const taxRate = this.calculateTaxRate(monthlySalary);
-        const taxAmount = monthlySalary * taxRate;
-        const netSalary = monthlySalary - taxAmount;
+    static processMonthlyEvents() {
+        // Only process salary if employed
+        if (typeof CareerManager !== 'undefined' && CareerManager.gameState?.currentJob) {
+            const monthlySalary = this.getEffectiveSalary(CareerManager.gameState.currentJob.salary);
+            const taxRate = this.calculateTaxRate(monthlySalary);
+            const taxAmount = monthlySalary * taxRate;
+            const netSalary = monthlySalary - taxAmount;
         
         // Deposit gross pay to checking account and record deductions separately
         const checkingAccounts = this.gameState.accounts.filter(acc => acc.type === 'checking');
@@ -1383,6 +1385,10 @@ static processMonthlyEvents() {
     
     static getCurrentDateString() {
         return new Date().toLocaleDateString();
+    }
+    
+    static getEffectiveSalary(baseSalary) {
+        return (baseSalary || 0) * (this.SALARY_MULTIPLIER ?? 1);
     }
     
     static log(message) {
