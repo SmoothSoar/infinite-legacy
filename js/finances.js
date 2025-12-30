@@ -68,17 +68,18 @@ class FinancesManager {
         }
     }
 
-static processSalary(monthsAdvanced) {
+    static processSalary(monthsAdvanced) {
     // Check if CareerManager exists and player has a job
     if (typeof CareerManager === 'undefined' || !CareerManager.gameState?.currentJob?.salary) {
         console.warn("No job or CareerManager not found - no salary processed");
         return;
     }
+    const periodMonths = Math.max(1, monthsAdvanced || 1);
 
     // Base salary with small fluctuations (-5% to +5%), scaled globally
     const baseSalary = this.getEffectiveSalary(CareerManager.gameState.currentJob.salary);
     const fluctuation = (Math.random() * 0.1) - 0.05; // -5% to +5%
-    const salaryPayment = baseSalary * (1 + fluctuation) * monthsAdvanced;
+    const salaryPayment = baseSalary * (1 + fluctuation) * periodMonths;
     
     // Progressive tax system (higher tax for higher incomes)
     const taxRate = this.calculateTaxRate(baseSalary);
@@ -121,7 +122,8 @@ static processSalary(monthsAdvanced) {
         `Salary from ${CareerManager.gameState.currentJob.title}`, 
         salaryPayment, 
         'salary', 
-        accountId
+        accountId,
+        { periodMonths }
     );
 
     this.addTransaction(
@@ -129,7 +131,8 @@ static processSalary(monthsAdvanced) {
         `Income tax withholding`,
         scaledTax,
         'taxes',
-        accountId
+        accountId,
+        { periodMonths }
     );
 
     this.addTransaction(
@@ -137,7 +140,8 @@ static processSalary(monthsAdvanced) {
         `Living expenses`,
         scaledLiving,
         'living_costs',
-        accountId
+        accountId,
+        { periodMonths }
     );
 
     this.addTransaction(
@@ -145,7 +149,8 @@ static processSalary(monthsAdvanced) {
         `Benefits & retirement contributions`,
         scaledBenefits,
         'benefits',
-        accountId
+        accountId,
+        { periodMonths }
     );
 
     if (scaledUnexpected > 0) {
@@ -154,7 +159,8 @@ static processSalary(monthsAdvanced) {
             `Unexpected costs`,
             scaledUnexpected,
             'unexpected',
-            accountId
+            accountId,
+            { periodMonths }
         );
     }
 
@@ -227,6 +233,13 @@ static getCurrentDateString() {
         if (!this.gameState.transactions) this.gameState.transactions = [];
         if (!this.gameState.financialEvents) this.gameState.financialEvents = [];
         if (!this.gameState.accountWithdrawals) this.gameState.accountWithdrawals = {};
+
+        // Ensure investment tracking fields exist
+        this.gameState.accounts = this.gameState.accounts.map(acc => ({
+            ...acc,
+            balanceEligibleForGrowth: acc.balanceEligibleForGrowth ?? acc.balance,
+            lastProcessedQuarter: acc.lastProcessedQuarter || null
+        }));
     }
     
     static getDefaultGameState() {
@@ -321,45 +334,6 @@ static updateDisplay() {
     this.renderAll(); // Since renderAll already updates all displays
 }
     
-    static setupEventListeners() {
-        const openAccountListener = () => this.showAccountModal();
-        const confirmAccountListener = () => this.createAccount();
-        const timeAdvancedListener = (e) => this.handleTimeAdvanced(e.detail);
-        const careerUpdateListener = () => this.handleCareerUpdate();
-        
-        if (this.elements.openAccountBtn) {
-            this.elements.openAccountBtn.addEventListener('click', openAccountListener);
-            this.eventListeners.push({
-                element: this.elements.openAccountBtn,
-                type: 'click',
-                listener: openAccountListener
-            });
-        }
-        
-        if (this.elements.confirmAccountBtn) {
-            this.elements.confirmAccountBtn.addEventListener('click', confirmAccountListener);
-            this.eventListeners.push({
-                element: this.elements.confirmAccountBtn,
-                type: 'click',
-                listener: confirmAccountListener
-            });
-        }
-        
-        document.addEventListener('timeAdvanced', timeAdvancedListener);
-        this.eventListeners.push({
-            element: document,
-            type: 'timeAdvanced',
-            listener: timeAdvancedListener
-        });
-        
-        document.addEventListener('careerUpdated', careerUpdateListener);
-        this.eventListeners.push({
-            element: document,
-            type: 'careerUpdated',
-            listener: careerUpdateListener
-        });
-    }
-    
     static removeEventListeners() {
         this.eventListeners.forEach(({ element, type, listener }) => {
             element.removeEventListener(type, listener);
@@ -428,6 +402,8 @@ static updateDisplay() {
         type: accountType,
         name: accountName,
         balance: initialDeposit,
+        balanceEligibleForGrowth: initialDeposit,
+        lastProcessedQuarter: null,
         openedDate: this.getCurrentDateString(),
         transactions: []
     };
@@ -447,7 +423,7 @@ static updateDisplay() {
     // TRANSACTION MANAGEMENT
     // ===================================================================
     
-    static addTransaction(type, description, amount, category, accountId = null) {
+    static addTransaction(type, description, amount, category, accountId = null, metadata = {}) {
         const transaction = {
             id: 'txn-' + Date.now(),
             type,
@@ -456,7 +432,8 @@ static updateDisplay() {
             category,
             date: this.getCurrentDateString(),
             timestamp: Date.now(),
-            accountId
+            accountId,
+            ...metadata
         };
         
         this.gameState.transactions.unshift(transaction);
@@ -493,70 +470,66 @@ static updateDisplay() {
     
     static calculateMonthlyIncome() {
         let income = 0;
-        
-        // Salary income (with taxes already deducted)
-        const salaryTransactions = this.gameState.transactions.filter(
-            tx => tx.category === 'salary'
-        );
-        
+
+        // Use recent salary transactions to estimate monthly take-home pay
+        const salaryTransactions = this.gameState.transactions
+            .filter(tx => tx.category === 'salary')
+            .slice(0, 4);
+
         if (salaryTransactions.length > 0) {
-            income += salaryTransactions[0].amount;
+            const monthlyAverages = salaryTransactions.map(tx => 
+                tx.amount / Math.max(1, tx.periodMonths || 3)
+            );
+            income += monthlyAverages.reduce((sum, value) => sum + value, 0) / monthlyAverages.length;
         } else if (typeof CareerManager !== 'undefined' && CareerManager.getCurrentJob) {
             const currentJob = CareerManager.getCurrentJob();
             if (currentJob) {
                 const effectiveSalary = this.getEffectiveSalary(currentJob.salary || 0);
-                income += effectiveSalary * 0.7; // 30% tax
-                
-                const checkingAccounts = this.gameState.accounts.filter(acc => acc.type === 'checking');
-                const accountId = checkingAccounts.length > 0 ? checkingAccounts[0].id : null;
-                
-                this.addTransaction(
-                    'income', 
-                    `Salary from ${currentJob.title}`, 
-                    effectiveSalary * 0.7, 
-                    'salary',
-                    accountId
-                );
+                const estimatedTax = effectiveSalary * this.calculateTaxRate(effectiveSalary);
+                income += Math.max(effectiveSalary - estimatedTax, effectiveSalary * 0.5);
             }
         }
-        
-        // Investment income (calculated separately in time advancement)
+
+        // Average recent investment returns
+        const investmentReturns = this.gameState.transactions
+            .filter(tx => tx.category === 'investment_return')
+            .slice(0, 3)
+            .map(tx => tx.amount / Math.max(1, tx.periodMonths || 3));
+
+        if (investmentReturns.length > 0) {
+            income += investmentReturns.reduce((sum, value) => sum + value, 0) / investmentReturns.length;
+        }
+
         return income;
     }
     
     static calculateMonthlyExpenses() {
-        // Base living costs (scales with income)
+        // Prefer recent expense history for stability
+        const recentExpenses = this.gameState.transactions
+            .filter(tx => tx.type === 'expense')
+            .slice(0, 10);
+
+        if (recentExpenses.length > 0) {
+            const monthlyAverages = recentExpenses.map(tx => 
+                tx.amount / Math.max(1, tx.periodMonths || (tx.category?.includes('investment') ? 3 : 1))
+            );
+            return monthlyAverages.reduce((sum, value) => sum + value, 0) / monthlyAverages.length;
+        }
+
+        // Fallback: estimate based on current income, upkeep, and fees
         const currentIncome = this.calculateMonthlyIncome();
-        let expenses = 0;
-        
-        // Housing costs only if player has moved out
-        const hasHousing = this.gameState.assets.some(asset => 
-            asset.category === 'house' || asset.category === 'apartment'
-        );
-        
-        if (hasHousing) {
-            // Housing costs (30-50% of income)
-            expenses += currentIncome * (0.3 + (Math.random() * 0.2));
-            
-            // Utility costs (5-10% of income)
-            expenses += currentIncome * (0.05 + (Math.random() * 0.05));
-        }
-        
-        // Asset maintenance costs (1-3% of asset value)
+        let expenses = currentIncome > 0 ? currentIncome * 0.55 : 500;
+
         expenses += this.gameState.assets.reduce((sum, asset) => {
-            return sum + (asset.maintenanceCost || (asset.currentValue * (0.01 + (Math.random() * 0.02))));
+            const baseValue = asset.currentValue || asset.purchasePrice || 0;
+            const upkeep = asset.maintenanceCost ?? (baseValue * 0.005);
+            return sum + upkeep;
         }, 0);
-        
-        // Account fees
+
         expenses += this.gameState.accounts.reduce((sum, account) => {
-            return sum + (this.accountTypes[account.type].monthlyFee || 0);
+            return sum + (this.accountTypes[account.type]?.monthlyFee || 0);
         }, 0);
-        
-        // Minimum expenses if player has moved out
-        if (hasHousing) {
-            expenses = Math.max(expenses, 800); // $800 minimum monthly expenses
-        }
-        
+
         return expenses;
     }
     
@@ -728,6 +701,23 @@ static setupEventListeners() {
         });
     }
 
+    // Quick investment account opener
+    if (this.elements.newInvestmentBtn) {
+        const newInvestmentListener = () => {
+            if (this.elements.accountType) {
+                this.elements.accountType.value = 'investment';
+            }
+            this.showAccountModal();
+        };
+
+        this.elements.newInvestmentBtn.addEventListener('click', newInvestmentListener);
+        this.eventListeners.push({
+            element: this.elements.newInvestmentBtn,
+            type: 'click',
+            listener: newInvestmentListener
+        });
+    }
+
     // Time advancement listener
     const timeAdvancedListener = (e) => this.handleTimeAdvanced(e.detail);
     document.addEventListener('timeAdvanced', timeAdvancedListener);
@@ -735,6 +725,15 @@ static setupEventListeners() {
         element: document,
         type: 'timeAdvanced',
         listener: timeAdvancedListener
+    });
+
+    // Quarterly portfolio updates
+    const quarterlyUpdateListener = (e) => this.processQuarterlyEvents(e.detail);
+    document.addEventListener('quarterlyUpdate', quarterlyUpdateListener);
+    this.eventListeners.push({
+        element: document,
+        type: 'quarterlyUpdate',
+        listener: quarterlyUpdateListener
     });
 
     // Career update listener
@@ -829,8 +828,7 @@ static setupEventListeners() {
             
             if (typeof MainManager !== 'undefined' && MainManager.addMoney) {
                 MainManager.addMoney(-amount);
-                targetAccount.balance += amount;
-                this.addTransaction('deposit', description, amount, 'deposit', accountId);
+                this.addTransaction('deposit', description, amount, 'deposit', accountId, { periodMonths: 1 });
                 EventManager.addToEventLog(`Deposited $${amount.toLocaleString()} to ${targetAccount.name}`, 'success');
                 this.saveGameState();
                 this.renderAll();
@@ -861,6 +859,7 @@ static setupEventListeners() {
                 return false;
             }
             
+            // Respect savings withdrawal limits before recording the transfer
             if (sourceAccount.type === 'savings') {
                 const month = new Date().toISOString().slice(0, 7);
                 const withdrawalsThisMonth = this.gameState.accountWithdrawals[sourceAccount.id]?.[month] || 0;
@@ -870,27 +869,24 @@ static setupEventListeners() {
                     alert(`You've reached your monthly withdrawal limit (${withdrawalLimit}) for this savings account.`);
                     return false;
                 }
-                
-                this.gameState.accountWithdrawals[sourceAccount.id] = this.gameState.accountWithdrawals[sourceAccount.id] || {};
-                this.gameState.accountWithdrawals[sourceAccount.id][month] = (this.gameState.accountWithdrawals[sourceAccount.id][month] || 0) + 1;
             }
             
-            sourceAccount.balance -= amount;
-            targetAccount.balance += amount;
-            
+            // Record both sides of the transfer
             this.addTransaction(
-                'transfer', 
+                'withdrawal', 
                 `Transfer to ${targetAccount.name}`, 
                 amount, 
                 'account_transfer', 
-                sourceAccount.id
+                sourceAccount.id,
+                { periodMonths: 1 }
             );
             this.addTransaction(
                 'deposit', 
                 description, 
                 amount, 
                 'deposit', 
-                targetAccount.id
+                targetAccount.id,
+                { periodMonths: 1 }
             );
             
             EventManager.addToEventLog(
@@ -953,14 +949,11 @@ static setupEventListeners() {
         this.gameState.accountWithdrawals[account.id][month] = (this.gameState.accountWithdrawals[account.id][month] || 0) + 1;
     }
     
-    // Perform the withdrawal
-    account.balance -= amount;
+    this.addTransaction('withdrawal', description, amount, 'withdrawal', accountId, { periodMonths: 1 });
     
     if (typeof MainManager !== 'undefined' && MainManager.addMoney) {
         MainManager.addMoney(amount);
     }
-    
-    this.addTransaction('withdrawal', description, amount, 'withdrawal', accountId);
     
     EventManager.addToEventLog(`Withdrew $${amount.toLocaleString()} from ${account.name}`, 'success');
     this.saveGameState();
@@ -968,6 +961,35 @@ static setupEventListeners() {
     this.emitFinancialUpdate();
     return true;
 }
+
+    static processAccountUpkeep(monthsAdvanced = 1) {
+        const checkingAccountId = this.createDefaultCheckingAccount();
+        const monthsToProcess = Math.max(1, monthsAdvanced);
+
+        for (let i = 0; i < monthsToProcess; i++) {
+            const accountFees = this.gameState.accounts.reduce((sum, account) => {
+                return sum + (this.accountTypes[account.type]?.monthlyFee || 0);
+            }, 0);
+
+            const maintenanceCosts = this.gameState.assets.reduce((sum, asset) => {
+                const baseValue = asset.currentValue || asset.purchasePrice || 0;
+                const upkeep = asset.maintenanceCost ?? (baseValue * 0.005);
+                return sum + upkeep;
+            }, 0);
+
+            const totalUpkeep = accountFees + maintenanceCosts;
+            if (totalUpkeep > 0) {
+                this.addTransaction(
+                    'expense',
+                    'Monthly upkeep and fees',
+                    totalUpkeep,
+                    'recurring_expense',
+                    checkingAccountId,
+                    { periodMonths: 1 }
+                );
+            }
+        }
+    }
     
     // ===================================================================
     // TIME ADVANCEMENT
@@ -980,6 +1002,16 @@ static handleTimeAdvanced(timeState) {
     if (typeof CareerManager !== 'undefined' && CareerManager.gameState?.currentJob) {
         this.processSalary(monthsAdvanced);
     }
+
+    this.processAccountUpkeep(monthsAdvanced);
+
+    if (timeState?.isQuarterly) {
+        this.processQuarterlyEvents(timeState);
+    }
+
+    this.saveGameState();
+    this.renderAll();
+    this.emitFinancialUpdate();
 }
     
     static processMonthlyEvents() {
@@ -1029,71 +1061,69 @@ static handleTimeAdvanced(timeState) {
     }
 }
     
-    static processQuarterlyEvents() {
+    static processQuarterlyEvents(timeState) {
         try {
             this.log('Processing quarterly financial events');
-            
-            // 1. Process investment returns with higher volatility
+            const now = new Date();
+            const quarterKey = timeState?.year
+                ? `${timeState.year}-Q${timeState.quarter}`
+                : `${now.getFullYear()}-Q${Math.ceil((now.getMonth() + 1) / 3)}`;
+
             const investmentAccounts = this.gameState.accounts.filter(acc => acc.type === 'investment');
             investmentAccounts.forEach(account => {
-                if (account.balance > 0) {
-                    // 20% chance of quarterly loss
-                    if (Math.random() < this.accountTypes.investment.riskFactor) {
-                        const loss = account.balance * (0.05 + (Math.random() * 0.05)); // 5-10% loss
-                        account.balance -= loss;
-                        this.addTransaction('expense', `Investment loss - ${account.name}`, loss, 'investment_loss', account.id);
-                    } else {
-                        const baseReturn = this.accountTypes.investment.interestRate;
-                        const quarterlyReturn = account.balance * ((baseReturn / 4) + (Math.random() * 0.1 - 0.05));
-                        account.balance += quarterlyReturn;
-                        
-                        if (quarterlyReturn > 0) {
-                            this.addTransaction('income', `Investment return - ${account.name}`, quarterlyReturn, 'investment_return', account.id);
-                        }
-                    }
-                    
-                    // Apply management fee (1% quarterly)
-                    const fee = account.balance * 0.01;
-                    account.balance -= fee;
-                    this.addTransaction('expense', `Investment management fee - ${account.name}`, fee, 'investment_fee', account.id);
+                if (account.lastProcessedQuarter === quarterKey) return;
+
+                const snapshot = account.balanceEligibleForGrowth ?? account.balance;
+                if (snapshot <= 0) {
+                    account.balanceEligibleForGrowth = account.balance;
+                    account.lastProcessedQuarter = quarterKey;
+                    return;
                 }
+
+                const baseAnnualReturn = 0.05; // 5% average annual return
+                const volatility = 0.04;       // +/-4% annual swing
+                const shockChance = 0.12;      // 12% chance of a down quarter
+
+                const quarterlyRate = (baseAnnualReturn + (Math.random() * (volatility * 2) - volatility)) / 4;
+                let performance = snapshot * quarterlyRate;
+                let performanceCategory = 'investment_return';
+
+                if (Math.random() < shockChance) {
+                    performance = -snapshot * (0.03 + Math.random() * 0.05); // 3-8% drawdown
+                    performanceCategory = 'investment_loss';
+                }
+
+                const managementFee = Math.max(snapshot * 0.0025, 5); // 0.25% quarterly with a small floor
+
+                this.addTransaction(
+                    performance > 0 ? 'income' : 'expense',
+                    `${performance > 0 ? 'Investment return' : 'Investment loss'} - ${account.name}`,
+                    Math.abs(performance),
+                    performanceCategory,
+                    account.id,
+                    { periodMonths: 3 }
+                );
+
+                this.addTransaction(
+                    'expense',
+                    `Investment management fee - ${account.name}`,
+                    managementFee,
+                    'investment_fee',
+                    account.id,
+                    { periodMonths: 3 }
+                );
+
+                account.balanceEligibleForGrowth = account.balance;
+                account.lastProcessedQuarter = quarterKey;
             });
-            
-            // 2. Process quarterly bonus (5-10% chance, 5-10% of quarterly salary)
-            if (typeof CareerManager !== 'undefined' && CareerManager.gameState?.currentJob) {
-                if (Math.random() < 0.08) { // 8% chance of bonus
-                    const quarterlySalary = CareerManager.gameState.currentJob.salary * 3;
-                    const bonusAmount = quarterlySalary * (0.05 + (Math.random() * 0.05)); // 5-10% of quarterly salary
-                    
-                    const checkingAccounts = this.gameState.accounts.filter(acc => acc.type === 'checking');
-                    const accountId = checkingAccounts.length > 0 ? checkingAccounts[0].id : null;
-                    
-                    this.addTransaction('income', 'Quarterly performance bonus', bonusAmount, 'bonus', accountId);
-                    EventManager.addToEventLog(`Received $${bonusAmount.toLocaleString()} quarterly bonus!`, 'success');
-                }
-            }
-            
-            // 3. Process asset depreciation (5-10% quarterly)
-            this.gameState.assets.forEach(asset => {
-                if (asset.currentValue > asset.purchasePrice * 0.1) {
-                    const depreciation = asset.currentValue * (0.05 + (Math.random() * 0.05)); // 5-10% depreciation
-                    asset.currentValue -= depreciation;
-                    asset.currentValue = Math.max(asset.currentValue, asset.purchasePrice * 0.1);
-                    
-                    this.addTransaction('expense', `Depreciation - ${asset.name}`, depreciation, 'asset_depreciation');
-                }
-            });
-            
-            // 4. Process inflation (1% price increase)
-            this.gameState.transactions
-                .filter(tx => ['living_expenses', 'recurring_expense'].includes(tx.category))
-                .forEach(tx => {
-                    tx.amount *= 1.01;
-                });
-            
-            EventManager.addToEventLog("Prices increased due to inflation (1%)", 'warning');
+
             this.saveGameState();
-            
+            this.renderAll();
+            this.emitFinancialUpdate();
+
+            if (investmentAccounts.length > 0) {
+                EventManager.addToEventLog(`Quarterly portfolio adjustment applied (${investmentAccounts.length} account${investmentAccounts.length > 1 ? 's' : ''})`, 'info');
+            }
         } catch (error) {
             this.log('Error processing quarterly events:', error);
             EventManager.addToEventLog('Error processing quarterly financial events', 'danger');
@@ -1117,6 +1147,8 @@ static handleTimeAdvanced(timeState) {
             type: 'checking',
             name: 'Primary Checking',
             balance: 0,
+            balanceEligibleForGrowth: 0,
+            lastProcessedQuarter: null,
             openedDate: this.getCurrentDateString(),
             transactions: []
         };
@@ -1235,7 +1267,7 @@ static handleTimeAdvanced(timeState) {
     static renderAccountCard(account) {
         const accountType = this.accountTypes[account.type];
         const withdrawalInfo = account.type === 'savings' 
-            ? `<small class="text-muted d-block">Withdrawals this month: ${this.gameState.accountWithdrawals[account.id]?.[new Date().toISOString().slice(0, 7)] || 0}/${accountType.withdrawalLimit || '∞'}</small>`
+            ? `<small class="text-muted d-block">Withdrawals this month: ${this.gameState.accountWithdrawals[account.id]?.[new Date().toISOString().slice(0, 7)] || 0}/${accountType.withdrawalLimit ?? '—'}</small>`
             : '';
         
         return `
@@ -1245,7 +1277,7 @@ static handleTimeAdvanced(timeState) {
                         <div class="account-name">${account.name}</div>
                         <div class="account-type">${accountType.name}</div>
                     </div>
-                    <span class="badge bg-${account.type === 'checking' ? 'primary' : account.type === 'savings' ? 'success' : 'purple'}">${account.type}</span>
+                    <span class="badge bg-${account.type === 'checking' ? 'primary' : account.type === 'savings' ? 'success' : 'info'}">${account.type}</span>
                 </div>
                 <div class="account-balance">$${account.balance.toLocaleString()}</div>
                 ${withdrawalInfo}
@@ -1383,10 +1415,6 @@ static handleTimeAdvanced(timeState) {
         return `financesGameState_${charId}`;
     }
     
-    static getCurrentDateString() {
-        return new Date().toLocaleDateString();
-    }
-    
     static getEffectiveSalary(baseSalary) {
         return (baseSalary || 0) * (this.SALARY_MULTIPLIER ?? 1);
     }
@@ -1456,6 +1484,8 @@ static handleTimeAdvanced(timeState) {
                 type: 'checking',
                 name: 'Default Checking Account',
                 balance: 0,
+                balanceEligibleForGrowth: 0,
+                lastProcessedQuarter: null,
                 openedDate: this.getCurrentDateString(),
                 transactions: []
             };

@@ -10,6 +10,52 @@ body {
     color: rgb(var(--color-text));
 }
 
+.finance-hero {
+    background: radial-gradient(circle at 10% 20%, rgba(var(--color-primary), 0.15), rgba(var(--color-primary), 0)) , 
+                linear-gradient(135deg, rgba(var(--color-card), 0.9), rgba(var(--color-bg), 0.95));
+    border: 1px solid rgba(var(--color-border), 0.6);
+    box-shadow: 0 18px 40px rgba(var(--color-text), 0.1);
+}
+
+.hero-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+}
+
+.hero-metric {
+    background-color: rgba(var(--color-card), 0.9);
+    border: 1px solid rgba(var(--color-border), 0.7);
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+}
+
+.hero-metric .metric-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: rgb(var(--color-text));
+}
+
+.quick-metrics .metric-tile {
+    background-color: rgb(var(--color-card));
+    border: 1px solid rgba(var(--color-border), 0.8);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    height: 100%;
+    box-shadow: 0 8px 20px rgba(var(--color-text), 0.05);
+}
+
+.metric-tile .stat-label {
+    font-weight: 600;
+    color: rgb(var(--color-text-secondary));
+}
+
+.metric-tile .stat-value {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: rgb(var(--color-text));
+}
+
 .theme-transition * {
     transition: 
         background-color 0.3s ease,
@@ -196,6 +242,31 @@ body {
     box-shadow: 0 5px 10px rgba(var(--color-text), 0.1);
 }
 
+.section-label {
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    color: rgb(var(--color-text-secondary));
+}
+
+.mini-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.mini-stat .mini-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: rgb(var(--color-text));
+}
+
+.chart-shell {
+    background-color: rgba(var(--color-bg), 0.7);
+    border: 1px dashed rgba(var(--color-border), 0.6);
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+}
+
 .account-name {
     color: rgb(var(--color-text));
     font-weight: 600;
@@ -229,6 +300,13 @@ body {
     color: rgb(var(--color-text));
     border-color: rgb(var(--color-border));
     padding: 0.75rem 1.25rem;
+}
+
+.activity-list {
+    max-height: 320px;
+    overflow-y: auto;
+    border: 1px solid rgba(var(--color-border), 0.6);
+    border-radius: 0.65rem;
 }
 
 .transaction-item {
@@ -328,6 +406,18 @@ footer {
 @media (max-width: 768px) {
     .character-stat-card {
         padding: 1rem;
+    }
+    
+    .hero-metric-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .quick-metrics .metric-tile {
+        padding: 0.85rem;
+    }
+
+    .activity-list {
+        max-height: 240px;
     }
     
     .nav-tabs .nav-link {
