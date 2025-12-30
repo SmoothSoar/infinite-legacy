@@ -208,7 +208,7 @@ class EducationManager {
 
     static cacheElements() {
         const elements = {
-            programsContainer: document.querySelector('.education-programs-container'),
+            programsContainer: document.querySelector('.education-programs-container') || this.getElementById('programsContainer'),
             currentProgress: this.getElementById('currentProgress'),
             skillMeter: this.getElementById('skillMeter'),
             eduLevel: this.getElementById('eduLevel'),
