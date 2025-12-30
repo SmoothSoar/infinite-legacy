@@ -36,21 +36,26 @@ a, a:hover, a:focus {
 /* Cards and surfaces */
 .card {
   background-color: rgb(var(--color-card));
-  border: 1px solid rgb(var(--color-card-border));
+  border: 1px solid rgba(var(--color-border), 0.45);
   color: rgb(var(--color-text));
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="dark"] .card {
+  border-color: rgba(var(--color-border), 0.3);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
 }
 
 .card-header {
   background-color: rgb(var(--color-card-header)) !important;
   color: rgb(var(--color-text));
-  border-bottom: 1px solid rgba(var(--color-border), 0.6);
+  border-bottom: 1px solid rgba(var(--color-border), 0.4);
 }
 
 .list-group-item {
   background-color: rgb(var(--color-card));
   color: rgb(var(--color-text));
-  border-color: rgba(var(--color-border), 0.6);
+  border-color: rgba(var(--color-border), 0.35);
 }
 
 /* Buttons */

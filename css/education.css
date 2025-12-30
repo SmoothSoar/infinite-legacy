@@ -389,23 +389,18 @@ body {
 }
 
 #programDetailsModal {
-  display: none;
+  background-color: rgba(0, 0, 0, 0.65);
 }
 
-#programDetailsModal.show {
-  display: block;
-  opacity: 1;
+#programDetailsModal .modal-dialog {
+  transition: transform .25s ease-out, opacity .25s ease-out;
 }
 
-.modal.fade .modal-dialog {
-  transition: transform .3s ease-out, opacity .3s ease-out;
-  transform: translate(0, -10px);
-  opacity: 0;
-}
-
-.modal.fade.show .modal-dialog {
-  transform: translate(0, 0);
-  opacity: 1;
+#programDetailsModal .modal-content {
+  background-color: rgb(var(--color-card));
+  border: 1px solid rgba(var(--color-border), 0.6);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  color: rgb(var(--color-text));
 }
 
 /* Footer */
