@@ -10,11 +10,11 @@
 <link rel="stylesheet" href="css/common.css">
 <link rel="stylesheet" href="css/game.css">
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100 theme-transition">
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="#">
+            <a class="navbar-brand d-flex align-items-center" href="game.html">
                 <i class="bi bi-controller me-2"></i>
                 Life Simulator
             </a>
@@ -125,120 +125,131 @@
 
     <!-- Main Content -->
     <main class="container my-4 flex-grow-1">
-        <!-- Character Header -->
-     <div class="text-center mb-4">
-    <div class="welcome-header p-4 rounded">
-        <div class="d-flex flex-column align-items-center">
-            <h1 id="characterName" class="display-5 mb-2 fw-bold">Player</h1>
-            <div class="d-flex align-items-center justify-content-center gap-3 mb-2">
-                <span class="time-display badge bg-primary text-white px-3 py-2 rounded-pill" id="timeDisplay">
-                    <i class="bi bi-calendar3 me-1"></i> Year 1, Q1 (January)
-                </span>
-                <span class="age-display badge bg-secondary text-white px-3 py-2 rounded-pill" id="characterAge">
-                    <i class="bi bi-person me-1"></i> Age 18
-                </span>
+        <!-- Hero -->
+        <section class="education-hero card mb-4">
+            <div class="card-body d-flex flex-column flex-lg-row justify-content-between align-items-start gap-4">
+                <div class="flex-grow-1">
+                    <p class="eyebrow text-uppercase fw-bold mb-1">Your Life Dashboard</p>
+                    <h1 class="hero-title mb-2" id="characterName">Player</h1>
+                    <div class="d-flex flex-wrap gap-2 mb-2">
+                        <span class="pill-badge">
+                            <i class="bi bi-calendar3 me-1"></i><span id="timeDisplay">Year 1, Q1</span>
+                        </span>
+                        <span class="pill-badge neutral">
+                            <i class="bi bi-person me-1"></i><span id="characterAge">Age 18</span>
+                        </span>
+                        <span class="pill-badge success">
+                            <i class="bi bi-heart-pulse me-1"></i><span id="healthDisplay">100%</span>
+                        </span>
+                    </div>
+                    <p class="text-muted mb-0">Advance time to progress education, career, finances, and relationships. Everything updates here.</p>
+                </div>
+                <div class="hero-side card shadow-sm">
+                    <div class="card-body">
+                        <small class="text-uppercase text-muted fw-semibold">Quick Action</small>
+                        <button id="advanceTimeButton" class="btn btn-primary w-100 mt-2">
+                            <i class="bi bi-skip-forward-fill me-1"></i> Advance Time (3 Months)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Snapshot Stats -->
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="character-stat-card">
+                    <div class="stat-icon"><i class="bi bi-cash-coin"></i></div>
+                    <div class="stat-label">Balance</div>
+                    <div class="stat-value" id="moneyDisplay">$0</div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="character-stat-card">
+                    <div class="stat-icon"><i class="bi bi-globe"></i></div>
+                    <div class="stat-label">Country</div>
+                    <div class="stat-value" id="characterCountry">Unknown</div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="character-stat-card">
+                    <div class="stat-icon"><i class="bi bi-people"></i></div>
+                    <div class="stat-label">Culture</div>
+                    <div class="stat-value" id="characterCulture">Unknown</div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="character-stat-card">
+                    <div class="stat-icon"><i class="bi bi-clipboard-check"></i></div>
+                    <div class="stat-label">Year</div>
+                    <div class="stat-value" id="currentYear">Year 1</div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
-        <!-- Stats Overview -->
-        <div class="row g-4 mb-4">
-            <div class="col-md-6 col-lg-3">
-                <div class="character-stat-card p-3 text-center rounded">
-                    <i class="bi bi-heart-pulse stat-icon"></i>
-                    <h3 class="stat-label">Health</h3>
-                    <p id="healthDisplay" class="stat-value">100%</p>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="character-stat-card p-3 text-center rounded">
-                    <i class="bi bi-cash-coin stat-icon"></i>
-                    <h3 class="stat-label">Balance</h3>
-                    <p id="moneyDisplay" class="stat-value">$0</p>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="character-stat-card p-3 text-center rounded">
-                    <i class="bi bi-globe stat-icon"></i>
-                    <h3 class="stat-label">Country</h3>
-                    <p id="characterCountry" class="stat-value">Unknown</p>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="character-stat-card p-3 text-center rounded">
-                    <i class="bi bi-people stat-icon"></i>
-                    <h3 class="stat-label">Culture</h3>
-                    <p id="characterCulture" class="stat-value">Unknown</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Dashboard -->
-        <div class="row g-4">
-            <!-- Financial Summary -->
+        <!-- Dashboards -->
+        <div class="row g-3 mb-3">
             <div class="col-lg-8">
                 <div class="card h-100">
-                    <div class="card-header bg-primary text-white">
-                        <h2 class="h5 mb-0"><i class="bi bi-graph-up me-2"></i>Financial Summary</h2>
+                    <div class="card-header d-flex align-items-center gap-2">
+                        <i class="bi bi-graph-up"></i>
+                        <h2 class="h6 mb-0">Financial Summary</h2>
                     </div>
                     <div class="card-body" id="financialSummary">
-                        <p>Loading financial data...</p>
+                        <div class="alert alert-info mb-0">Loading financial data...</div>
                     </div>
                 </div>
             </div>
-
-            <!-- Current Education -->
             <div class="col-lg-4">
                 <div class="card h-100">
-                    <div class="card-header bg-primary text-white">
-                        <h2 class="h5 mb-0"><i class="bi bi-book me-2"></i>Education</h2>
+                    <div class="card-header d-flex align-items-center gap-2">
+                        <i class="bi bi-book"></i>
+                        <h2 class="h6 mb-0">Education</h2>
                     </div>
                     <div class="card-body" id="currentEducation">
-                        <p>No current education</p>
+                        <div class="alert alert-info mb-0">No current education</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Secondary Dashboard -->
-        <div class="row g-4 mt-4">
-            <!-- Current Career -->
+        <div class="row g-3">
             <div class="col-md-6">
                 <div class="card h-100">
-                    <div class="card-header bg-primary text-white">
-                        <h2 class="h5 mb-0"><i class="bi bi-briefcase me-2"></i>Career</h2>
+                    <div class="card-header d-flex align-items-center gap-2">
+                        <i class="bi bi-briefcase"></i>
+                        <h2 class="h6 mb-0">Career</h2>
                     </div>
                     <div class="card-body" id="currentCareer">
-                        <p>Not currently employed</p>
+                        <div class="alert alert-info mb-0">Not currently employed</div>
                     </div>
                 </div>
             </div>
-
-            <!-- Current Residence -->
             <div class="col-md-6">
                 <div class="card h-100">
-                    <div class="card-header bg-primary text-white">
-                        <h2 class="h5 mb-0"><i class="bi bi-house me-2"></i>Residence</h2>
+                    <div class="card-header d-flex align-items-center gap-2">
+                        <i class="bi bi-house"></i>
+                        <h2 class="h6 mb-0">Residence</h2>
                     </div>
                     <div class="card-body" id="currentResidence">
-                        <p>No residence information</p>
+                        <div class="alert alert-info mb-0">No residence information</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Event Log -->
-        <div class="card mt-4">
-            <div class="card-header bg-primary text-white">
-                <h2 class="h5 mb-0"><i class="bi bi-clock-history me-2"></i>Event Log</h2>
+        <section class="card mt-4">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-clock-history"></i>
+                <h2 class="h6 mb-0">Event Log</h2>
             </div>
             <div class="card-body p-0">
-                <div id="eventLog" class="list-group list-group-flush" style="max-height: 200px; overflow-y: auto;">
+                <div id="eventLog" class="list-group list-group-flush" style="max-height: 220px; overflow-y: auto;">
                     <div class="list-group-item">Game started</div>
                 </div>
             </div>
-        </div>
+        </section>
     </main>
 
     <!-- Footer -->
@@ -257,5 +268,17 @@
 <script src="js/main.js"></script>  <!-- This should be loaded last -->
 <script src="js/settingsDropdown.js"></script>
 <script src="js/careerManager.js"></script>
-
+<script src="js/education.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const yearEl = document.getElementById('currentYear');
+        if (yearEl) yearEl.textContent = `Year ${new Date().getFullYear()}`;
+        if (typeof Player !== 'undefined' && Player.init) Player.init();
+        if (typeof TimeManager !== 'undefined' && TimeManager.init) TimeManager.init();
+        if (typeof FinancesManager !== 'undefined' && FinancesManager.init) FinancesManager.init();
+        if (typeof CareerManager !== 'undefined' && CareerManager.init) CareerManager.init();
+        if (typeof EducationManager !== 'undefined' && EducationManager.init) EducationManager.init();
+        if (typeof SettingsDropdown !== 'undefined' && SettingsDropdown.init) SettingsDropdown.init();
+    });
+</script>
 </html>
