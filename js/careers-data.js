@@ -197,6 +197,76 @@ window.CAREERS = [
         },
         skillsGained: ['agile_methodologies'],
         stress: 60
+    },
+
+    // ================ NEW ROLES TIED TO NEW DEGREES ================
+    {
+        id: 'data_analyst',
+        title: 'Data Analyst',
+        sector: 'technology',
+        employmentType: 'full-time',
+        experienceLevel: 'professional',
+        description: 'Clean, model, and present data to guide business decisions.',
+        salary: 3200,
+        requirements: {
+            age: 21,
+            education: ['bs-data-analytics'],
+            skills: ['data_analysis', 'statistics']
+        },
+        skillsGained: ['data_analysis'],
+        stress: 50,
+        nextPositions: ['senior_data_analyst']
+    },
+    {
+        id: 'ux_designer',
+        title: 'UX Designer',
+        sector: 'design',
+        employmentType: 'full-time',
+        experienceLevel: 'professional',
+        description: 'Research users, prototype interfaces, and ship polished experiences.',
+        salary: 2800,
+        requirements: {
+            age: 20,
+            education: ['ux-design-cert'],
+            skills: ['graphic_design', 'user_research']
+        },
+        skillsGained: ['ui_prototyping'],
+        stress: 45,
+        nextPositions: ['senior_ux_designer']
+    },
+    {
+        id: 'electrical_technician',
+        title: 'Electrical Technician',
+        sector: 'trades',
+        employmentType: 'full-time',
+        experienceLevel: 'skilled',
+        description: 'Install and maintain electrical systems for residential and light commercial projects.',
+        salary: 2600,
+        requirements: {
+            age: 19,
+            education: ['electrical-tech-associate'],
+            skills: ['electrical_work', 'electrical_code']
+        },
+        skillsGained: ['electrical_work'],
+        stress: 50,
+        nextPositions: ['master_electrician']
+    },
+    {
+        id: 'paramedic',
+        title: 'Paramedic',
+        sector: 'healthcare',
+        employmentType: 'full-time',
+        experienceLevel: 'professional',
+        description: 'Respond to emergencies, stabilize patients, and transport safely.',
+        salary: 3000,
+        requirements: {
+            age: 21,
+            education: ['as-paramedic'],
+            skills: ['emergency_response', 'first_aid']
+        },
+        skillsGained: ['emergency_response'],
+        stress: 70,
+        nextPositions: ['ems_supervisor']
     }
 ];
 
@@ -209,7 +279,8 @@ window.JOB_FILTERS = {
         'trades', 
         'technology', 
         'healthcare', 
-        'finance'
+        'finance',
+        'design'
     ],
     employmentType: ['part-time', 'full-time'],
     experienceLevel: [

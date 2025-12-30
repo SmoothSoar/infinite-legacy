@@ -61,6 +61,17 @@ window.EDUCATION_PROGRAMS = [
         minAge: 16,  // Minimum age for vocational programs
         skillsGained: ['graphic_design', 'creativity']
     },
+    {
+        id: 'ux-design-cert',
+        name: 'UX Design Certificate',
+        type: 'certification',
+        field: 'Design',
+        duration: '9 months',
+        cost: 6000,
+        difficulty: 3,
+        minAge: 18,
+        skillsGained: ['graphic_design', 'user_research', 'ui_prototyping']
+    },
 
     // ========== ASSOCIATE DEGREES ==========
     {
@@ -85,6 +96,28 @@ window.EDUCATION_PROGRAMS = [
         minAge: 18,  // College-level minimum age
         skillsGained: ['first_aid', 'empathy']
     },
+    {
+        id: 'electrical-tech-associate',
+        name: 'AS Electrical Technology',
+        type: 'associate',
+        field: 'Electrical',
+        duration: '2 years',
+        cost: 15000,
+        difficulty: 4,
+        minAge: 18,
+        skillsGained: ['electrical_work', 'electrical_code']
+    },
+    {
+        id: 'as-paramedic',
+        name: 'AS Paramedic Science',
+        type: 'associate',
+        field: 'Emergency Services',
+        duration: '2 years',
+        cost: 18000,
+        difficulty: 4,
+        minAge: 18,
+        skillsGained: ['emergency_response', 'first_aid', 'critical_thinking']
+    },
 
     // ========== BACHELOR DEGREES ==========
     {
@@ -108,6 +141,17 @@ window.EDUCATION_PROGRAMS = [
         difficulty: 5,
         minAge: 18,  // College-level minimum age
         skillsGained: ['programming', 'critical_thinking', 'system_design']
+    },
+    {
+        id: 'bs-data-analytics',
+        name: 'BS Data Analytics',
+        type: 'bachelor',
+        field: 'Data Science',
+        duration: '4 years',
+        cost: 48000,
+        difficulty: 5,
+        minAge: 18,
+        skillsGained: ['data_analysis', 'programming', 'statistics']
     },
 
     // ========== MASTER DEGREES ==========
@@ -148,15 +192,19 @@ window.PREREQUISITES = {
     'pmp-cert': ['aa-business'],
     'cpa-cert': ['ba-business'],
     'ccna-cert': ['as-computer-science'],
-    'aws-cert': ['bs-computer-science']
+    'aws-cert': ['bs-computer-science'],
+    'bs-data-analytics': ['as-computer-science']
 };
 
 // Field skills mapping (updated to match your skills.js)
 window.FIELD_SKILLS = {
     'Business': ['negotiation', 'financial_literacy', 'leadership'],
     'Technology': ['programming', 'critical_thinking', 'system_design'],
+    'Data Science': ['data_analysis', 'programming', 'statistics'],
     'Healthcare': ['first_aid', 'empathy', 'patient_care'],
-    'Design': ['graphic_design', 'creativity', 'public_speaking'],
+    'Design': ['graphic_design', 'creativity', 'public_speaking', 'user_research', 'ui_prototyping'],
+    'Electrical': ['electrical_work', 'electrical_code', 'critical_thinking'],
+    'Emergency Services': ['emergency_response', 'first_aid', 'critical_thinking'],
     'Culinary': ['cooking_nutrition', 'time_management'],
     'Automotive': ['automotive_repair', 'critical_thinking', 'strength_fitness'],
     'General Education': ['critical_thinking', 'time_management']

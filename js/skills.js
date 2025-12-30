@@ -15,6 +15,11 @@ window.SKILLS = {
         description: "Basic medical emergency response.",
         category: "physical"
     },
+    emergency_response: {
+        name: "Emergency Response",
+        description: "Rapid assessment and action in urgent scenarios.",
+        category: "physical"
+    },
     yoga_meditation: {
         name: "Yoga & Meditation",
         description: "Practices for physical flexibility and mental relaxation.",
@@ -91,6 +96,11 @@ window.SKILLS = {
         description: "Interpreting data with tools like Excel or SQL.",
         category: "technical"
     },
+    statistics: {
+        name: "Statistics",
+        description: "Applying statistical methods to interpret data.",
+        category: "technical"
+    },
     cybersecurity: {
         name: "Cybersecurity",
         description: "Protecting systems and data from digital threats.",
@@ -111,6 +121,16 @@ window.SKILLS = {
     graphic_design: {
         name: "Graphic Design",
         description: "Creating visual content.",
+        category: "creative"
+    },
+    ui_prototyping: {
+        name: "UI Prototyping",
+        description: "Rapidly mocking up interactive user interfaces.",
+        category: "creative"
+    },
+    user_research: {
+        name: "User Research",
+        description: "Studying user needs through interviews and testing.",
         category: "creative"
     },
     writing: {
@@ -153,6 +173,11 @@ window.SKILLS = {
     electrical_work: {
         name: "Electrical Work",
         description: "Handling wiring and electrical systems.",
+        category: "trade"
+    },
+    electrical_code: {
+        name: "Electrical Code Compliance",
+        description: "Applying safety and building codes to electrical installations.",
         category: "trade"
     },
     gardening: {
