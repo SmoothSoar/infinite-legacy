@@ -1,0 +1,161 @@
+/* common.css - shared styling and contrast fixes across all pages */
+
+/* Base layout */
+body {
+  background-color: rgb(var(--color-bg));
+  color: rgb(var(--color-text));
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+a, a:hover, a:focus {
+  color: rgb(var(--color-primary));
+  text-decoration: none;
+}
+
+.text-muted {
+  color: rgb(var(--color-text-muted)) !important;
+}
+
+/* Navigation */
+.navbar {
+  background-color: rgb(var(--color-navbar)) !important;
+  color: rgb(var(--color-navbar-text)) !important;
+  border-bottom: 1px solid rgba(var(--color-border), 0.5);
+}
+
+.navbar .nav-link,
+.navbar-brand {
+  color: rgb(var(--color-navbar-text)) !important;
+}
+
+.navbar .nav-link.active,
+.navbar .nav-link:hover {
+  color: rgb(var(--color-secondary)) !important;
+}
+
+/* Cards and surfaces */
+.card {
+  background-color: rgb(var(--color-card));
+  border: 1px solid rgb(var(--color-card-border));
+  color: rgb(var(--color-text));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+  background-color: rgb(var(--color-card-header)) !important;
+  color: rgb(var(--color-text));
+  border-bottom: 1px solid rgba(var(--color-border), 0.6);
+}
+
+.list-group-item {
+  background-color: rgb(var(--color-card));
+  color: rgb(var(--color-text));
+  border-color: rgba(var(--color-border), 0.6);
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: rgb(var(--color-primary)) !important;
+  border-color: rgb(var(--color-primary)) !important;
+  color: rgb(var(--color-text-inverse)) !important;
+}
+
+.btn-secondary,
+.btn-outline-light {
+  background-color: transparent;
+  border-color: rgba(var(--color-border), 0.7) !important;
+  color: rgb(var(--color-text)) !important;
+}
+
+.btn-outline-light:hover {
+  background-color: rgba(var(--color-primary), 0.12) !important;
+}
+
+/* Forms */
+.form-control,
+.form-select {
+  background-color: rgb(var(--color-input));
+  color: rgb(var(--color-input-text));
+  border-color: rgb(var(--color-input-border));
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: rgb(var(--color-primary));
+  box-shadow: 0 0 0 0.2rem rgba(var(--color-primary), 0.25);
+}
+
+label {
+  color: rgb(var(--color-text));
+}
+
+/* Tables */
+.table {
+  color: rgb(var(--color-text));
+  border-color: rgb(var(--color-border));
+}
+
+.table thead th {
+  background-color: rgb(var(--color-card-header));
+  color: rgb(var(--color-text));
+}
+
+.table tbody tr:nth-child(odd) {
+  background-color: rgba(var(--color-card), 0.5);
+}
+
+.table tbody tr:nth-child(even) {
+  background-color: rgba(var(--color-card), 0.35);
+}
+
+.table tbody tr:hover {
+  background-color: rgba(var(--color-primary), 0.08);
+}
+
+/* Badges & alerts */
+.badge {
+  color: rgb(var(--color-text)) !important;
+}
+
+.badge.bg-secondary {
+  background-color: rgba(var(--color-border), 0.6) !important;
+}
+
+.alert {
+  color: rgb(var(--color-text));
+  border-color: rgba(var(--color-border), 0.7);
+}
+
+.alert-info {
+  background-color: rgba(var(--color-info), 0.1) !important;
+}
+
+/* Modal */
+.modal-content {
+  background-color: rgb(var(--color-card));
+  color: rgb(var(--color-text));
+  border: 1px solid rgba(var(--color-border), 0.7);
+}
+
+.modal-header {
+  background-color: rgb(var(--color-card-header));
+  color: rgb(var(--color-text));
+}
+
+.modal-footer {
+  border-top: 1px solid rgba(var(--color-border), 0.7);
+}
+
+/* Utilities */
+.surface {
+  background: rgb(var(--color-card));
+  border: 1px solid rgb(var(--color-card-border));
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.section-muted {
+  background: rgba(var(--color-border), 0.15);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+}
