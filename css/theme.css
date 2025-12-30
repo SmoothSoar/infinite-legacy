@@ -1,54 +1,33 @@
-/* theme.css - True Dark Grey Mode */
-/* Uses neutral dark greys with proper contrast ratios */
+/* theme.css - Dual-tone deep blue theme (charcoal for dark, crisp blue for light) */
 
 :root {
-  /* ==================== */
-  /* DARK GREY COLOR PALETTE (DEFAULT) */
-  /* ==================== */
-  
-  /* Base Greys */
-  --color-bg: 16 18 22;           /* Deep charcoal */
-  --color-bg-secondary: 22 25 30; /* Slightly lighter charcoal */
-  --color-bg-tertiary: 32 36 44;  /* Panel background */
-  
-  /* Text Colors */
-  --color-text: 234 238 244;      /* Soft off-white */
-  --color-text-secondary: 192 200 210;
-  --color-text-muted: 150 160 175;
-  --color-text-inverse: 12 14 18;
-  
-  /* Accent Colors */
-  --color-primary: 32 108 227;    /* Deep blue accent */
-  --color-secondary: 82 146 255;  /* Lighter blue */
-  --color-accent: 0 186 255;      /* Cyan accent */
-  
-  /* Status Colors */
-  --color-success: 22 180 110;    /* Vibrant green */
-  --color-warning: 240 170 40;    /* Amber */
-  --color-danger: 230 70 70;      /* Soft red */
-  --color-info: 0 174 255;        /* Bright cyan */
-  
-  /* Borders & Dividers */
-  --color-border: 54 60 72;       /* Subtle borders */
-  --color-border-secondary: 70 78 92;
-  
-  /* Components */
-  --color-card: 26 29 36;         /* Cards match panel bg */
-  --color-card-border: 54 60 72;
-  --color-card-header: 32 36 44;
-  
-  /* Navbar */
-  --color-navbar: 22 25 30;       /* Slightly lighter than bg */
-  --color-navbar-text: 234 238 244;
-  
-  /* Inputs */
-  --color-input: 28 31 38;
-  --color-input-border: 54 60 72;
-  --color-input-text: 234 238 244;
+  /* ===== Dark mode (default) ===== */
+  --color-bg: 12 14 18;            /* Deep charcoal */
+  --color-bg-secondary: 18 21 26;  /* Panels */
+  --color-bg-tertiary: 26 30 36;   /* Inputs/alt */
+  --color-text: 234 239 247;       /* High-contrast off-white */
+  --color-text-secondary: 200 208 220;
+  --color-text-muted: 165 175 190;
+  --color-text-inverse: 14 16 20;
+  --color-primary: 46 119 232;     /* Deep blue */
+  --color-secondary: 92 158 255;   /* Lighter blue */
+  --color-accent: 0 190 255;       /* Cyan accent */
+  --color-success: 34 186 130;
+  --color-warning: 248 180 60;
+  --color-danger: 234 84 84;
+  --color-info: 46 165 255;
+  --color-border: 58 66 80;
+  --color-border-secondary: 78 88 104;
+  --color-card: 20 24 30;
+  --color-card-border: 58 66 80;
+  --color-card-header: 28 32 40;
+  --color-navbar: 18 21 26;
+  --color-navbar-text: 234 239 247;
+  --color-input: 24 28 34;
+  --color-input-border: 58 66 80;
+  --color-input-text: 234 239 247;
 
-  /* ==================== */
-  /* BOOTSTRAP MAPPING */
-  /* ==================== */
+  /* Bootstrap mapping */
   --bs-primary: rgb(var(--color-primary));
   --bs-secondary: rgb(var(--color-secondary));
   --bs-success: rgb(var(--color-success));
@@ -72,44 +51,44 @@
 /* ==================== */
 [data-theme="light"] {
   /* Background Colors */
-  --color-bg: 250 250 250;
+  --color-bg: 245 248 252;
   --color-bg-secondary: 255 255 255;
-  --color-bg-tertiary: 245 245 245;
+  --color-bg-tertiary: 238 243 250;
   
   /* Text Colors */
-  --color-text: 30 30 30;
-  --color-text-secondary: 70 70 70;
-  --color-text-muted: 120 120 120;
-  --color-text-inverse: 250 250 250;
+  --color-text: 24 32 44;
+  --color-text-secondary: 70 82 96;
+  --color-text-muted: 110 125 145;
+  --color-text-inverse: 245 248 252;
   
   /* Primary Colors */
-  --color-primary: 32 108 227;
-  --color-secondary: 82 146 255;
-  --color-accent: 0 186 255;
+  --color-primary: 46 119 232;
+  --color-secondary: 92 158 255;
+  --color-accent: 0 160 255;
   
   /* Status Colors */
-  --color-success: 0 160 80;
-  --color-warning: 220 150 0;
-  --color-danger: 220 50 50;
-  --color-info: 0 160 220;
+  --color-success: 16 150 100;
+  --color-warning: 218 150 40;
+  --color-danger: 214 68 68;
+  --color-info: 20 150 230;
   
   /* Borders */
-  --color-border: 220 220 220;
-  --color-border-secondary: 200 200 200;
+  --color-border: 212 220 232;
+  --color-border-secondary: 196 206 222;
   
   /* Components */
   --color-card: 255 255 255;
-  --color-card-border: 220 220 220;
-  --color-card-header: 245 245 245;
+  --color-card-border: 212 220 232;
+  --color-card-header: 236 242 250;
   
   /* Navbar */
-  --color-navbar: 0 100 200;
-  --color-navbar-text: 255 255 255;
+  --color-navbar: 46 119 232;
+  --color-navbar-text: 245 248 252;
   
   /* Inputs */
   --color-input: 255 255 255;
-  --color-input-border: 200 200 200;
-  --color-input-text: 30 30 30;
+  --color-input-border: 196 206 222;
+  --color-input-text: 24 32 44;
   
   /* Bootstrap Overrides */
   --bs-light: rgb(var(--color-bg-secondary));
