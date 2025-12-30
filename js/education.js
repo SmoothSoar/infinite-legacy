@@ -948,6 +948,15 @@ static handleEnroll(programId) {
 
         this.selectedProgram = program;
 
+        // Status helpers used across enrollment UI
+        const isEnrolled = this.isProgramEnrolled(programId);
+        const isCompleted = this.isProgramCompleted(programId);
+        const missingPrereqs = this.getMissingPrerequisites(programId);
+        const insufficientFunds = this.gameState?.balance < (program.cost || 0);
+        const age = TimeManager?.state?.timeState?.age ?? TimeManager?.timeState?.age ?? 0;
+        const tooYoung = program.minAge && age < program.minAge;
+        const tooOld = program.maxAge && age > program.maxAge;
+
         // Set basic program info
         if (this.elements.modalTitle) {
             this.elements.modalTitle.textContent = program.name || 'Unknown Program';
@@ -1053,14 +1062,6 @@ static handleEnroll(programId) {
 
         // Update enrollment status section
         if (this.getElementById('enrollmentStatusSection') && this.getElementById('enrollmentStatusMessage')) {
-            const isEnrolled = this.isProgramEnrolled(programId);
-            const isCompleted = this.isProgramCompleted(programId);
-            const missingPrereqs = this.getMissingPrerequisites(programId);
-            const insufficientFunds = this.gameState.balance < program.cost;
-            const age = TimeManager?.timeState?.age || 0;
-            const tooYoung = program.minAge && age < program.minAge;
-            const tooOld = program.maxAge && age > program.maxAge;
-            
             let statusMessage = '';
             let statusClass = '';
             
