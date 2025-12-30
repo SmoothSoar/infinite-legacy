@@ -36,14 +36,14 @@ a, a:hover, a:focus {
 /* Cards and surfaces */
 .card {
   background-color: rgb(var(--color-card));
-  border: 1px solid rgba(var(--color-border), 0.45);
+  border: 1px solid rgba(var(--color-border), 0.25);
   color: rgb(var(--color-text));
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 [data-theme="dark"] .card {
-  border-color: rgba(var(--color-border), 0.3);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  border-color: rgba(var(--color-border), 0.2);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
 }
 
 .card-header {
@@ -55,7 +55,7 @@ a, a:hover, a:focus {
 .list-group-item {
   background-color: rgb(var(--color-card));
   color: rgb(var(--color-text));
-  border-color: rgba(var(--color-border), 0.35);
+  border-color: rgba(var(--color-border), 0.18);
 }
 
 /* Buttons */
