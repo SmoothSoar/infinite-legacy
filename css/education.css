@@ -369,12 +369,23 @@ body {
   background-color: rgb(var(--color-card));
   border: 1px solid rgb(var(--color-border));
   border-radius: 1rem;
+  color: rgb(var(--color-text));
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
 
 .modal-header {
   background-color: var(--bs-primary) !important;
   color: rgb(var(--color-text-inverse)) !important;
   border-bottom: 1px solid rgba(var(--color-border), 0.5) !important;
+}
+
+#programDetailsModal .modal-backdrop,
+.modal-backdrop.show {
+  opacity: 0.6;
+}
+
+#programDetailsModal .modal-dialog {
+  color: rgb(var(--color-text));
 }
 
 /* Footer */
