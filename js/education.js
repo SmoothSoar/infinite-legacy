@@ -57,13 +57,7 @@ class EducationManager {
         this.log('Initializing EducationManager...');
         
         // Wait for TimeManager to be ready
-        // Wait for TimeManager to populate its state before initializing
-        if (!TimeManager?.state?.timeState) {
-            setTimeout(() => this.init(), 100);
-            return;
-        }
-        
-        // Rest of your initialization code
+        // If TimeManager isn't ready yet, don't block rendering; we'll still hook its events later.
         this.loadEducationData();
         this.loadGameState();
         this.cacheElements();
