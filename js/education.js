@@ -929,14 +929,16 @@ static handleEnroll(programId) {
         if (!programId) return;
 
         // Ensure modal instance exists (in case bootstrap wasn't ready during cache)
-        if (!this.elements.modal) {
-            const modalElement = this.getElementById('programDetailsModal');
-            if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-                this.elements.modal = new bootstrap.Modal(modalElement);
-            }
+        const modalElement = this.getElementById('programDetailsModal');
+        if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            this.elements.modal = this.elements.modal || new bootstrap.Modal(modalElement);
         }
 
-        if (!this.elements.modal) return;
+        // Fallback: if bootstrap modal isn't available, at least show the dialog container
+        if (!this.elements.modal && modalElement) {
+            modalElement.classList.add('show');
+            modalElement.style.display = 'block';
+        }
 
         const program = this.programs.find(p => p.id === programId);
         if (!program) {
@@ -1135,6 +1137,10 @@ static handleEnroll(programId) {
 
         if (this.elements.modal?.show) {
             this.elements.modal.show();
+        } else if (modalElement) {
+            // Basic fallback display
+            modalElement.classList.add('show');
+            modalElement.style.display = 'block';
         }
 
     } catch (e) {

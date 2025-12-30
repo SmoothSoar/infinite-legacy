@@ -28,6 +28,28 @@ body {
   color: var(--bs-body-color);
 }
 
+/* Improve dark-theme contrast */
+[data-theme="dark"] .card,
+[data-theme="dark"] .education-hero,
+[data-theme="dark"] .pathway-tile,
+[data-theme="dark"] .outcome-tile,
+[data-theme="dark"] .grid-cell,
+[data-theme="dark"] .skill-chip {
+  background-color: rgba(var(--color-card), 0.9);
+  color: rgb(var(--color-text));
+  border-color: rgba(var(--color-border), 0.6);
+}
+
+[data-theme="dark"] .card-header,
+[data-theme="dark"] .modal-header {
+  color: rgb(var(--color-text-inverse));
+}
+
+[data-theme="dark"] .modal-content {
+  background-color: rgba(var(--color-card), 0.95);
+  color: rgb(var(--color-text));
+}
+
 .eyebrow {
   letter-spacing: 0.08em;
   font-size: 0.75rem;
