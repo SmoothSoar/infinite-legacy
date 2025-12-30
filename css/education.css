@@ -367,7 +367,7 @@ body {
 /* Modal */
 .modal-content {
   background-color: rgb(var(--color-card));
-  border: 1px solid rgb(var(--color-border));
+  border: 0;
   border-radius: 1rem;
   color: rgb(var(--color-text));
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);

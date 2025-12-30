@@ -45,26 +45,26 @@ a, a:hover, a:focus {
 /* Cards and surfaces */
 .card {
   background-color: rgb(var(--color-card));
-  border: 1px solid rgba(var(--color-border), 0.25);
+  border: 0;
   color: rgb(var(--color-text));
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 [data-theme="dark"] .card {
-  border-color: rgba(var(--color-border), 0.2);
+  border: 0;
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
 }
 
 .card-header {
   background-color: rgb(var(--color-card-header)) !important;
   color: rgb(var(--color-text));
-  border-bottom: 1px solid rgba(var(--color-border), 0.4);
+  border-bottom: 0;
 }
 
 .list-group-item {
   background-color: rgb(var(--color-card));
   color: rgb(var(--color-text));
-  border-color: rgba(var(--color-border), 0.18);
+  border: 0;
 }
 
 /* Buttons */
@@ -137,7 +137,7 @@ label {
 
 .alert {
   color: rgb(var(--color-text));
-  border-color: rgba(var(--color-border), 0.5);
+  border: 0;
 }
 
 .alert-info {
