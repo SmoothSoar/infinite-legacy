@@ -458,6 +458,7 @@
     <script src="js/degrees.js"></script>
     <script src="js/skills.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/settingsDropdown.js"></script>
     <script src="js/education.js"></script>
     <script src="js/eventManager.js"></script>
     <script>
@@ -465,6 +466,7 @@
             document.getElementById('currentYear').textContent = new Date().getFullYear();
             if (typeof GameManager !== 'undefined') GameManager.init();
             if (typeof TimeManager !== 'undefined') TimeManager.init();
+            if (typeof SettingsDropdown !== 'undefined') SettingsDropdown.init();
             if (typeof EducationManager !== 'undefined') EducationManager.init();
         });
     </script>

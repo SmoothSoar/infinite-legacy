@@ -926,7 +926,17 @@ static handleEnroll(programId) {
     
   static showProgramDetails(programId) {
     try {
-        if (!programId || !this.elements.modal) return;
+        if (!programId) return;
+
+        // Ensure modal instance exists (in case bootstrap wasn't ready during cache)
+        if (!this.elements.modal) {
+            const modalElement = this.getElementById('programDetailsModal');
+            if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                this.elements.modal = new bootstrap.Modal(modalElement);
+            }
+        }
+
+        if (!this.elements.modal) return;
 
         const program = this.programs.find(p => p.id === programId);
         if (!program) {
