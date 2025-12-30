@@ -232,6 +232,7 @@ static async _setupCore() {
     
     // Force initial UI update after all systems are ready
     this._forceInitialUIUpdate();
+    this._syncNavigationLinks(characterId);
     
     this._log('Core systems ready');
 }
@@ -296,6 +297,45 @@ static _forceInitialUIUpdate() {
     localStorage.setItem('currentCharacterId', characterId);
     return characterId;
 }
+
+    /**
+     * Ensures navigation links carry the active character ID so state stays in sync
+     * @static
+     * @private
+     * @param {string} characterId
+     */
+    static _syncNavigationLinks(characterId) {
+        if (!characterId || typeof document === 'undefined') return;
+
+        const trackedPages = new Set([
+            'game.html',
+            'finances.html',
+            'career.html',
+            'education.html',
+            'relationships.html',
+            'assets.html',
+            'real-estate.html'
+        ]);
+
+        const links = Array.from(document.querySelectorAll('a[href]'));
+        links.forEach(link => {
+            const rawHref = link.getAttribute('href');
+            if (!rawHref || rawHref.startsWith('http') || rawHref.startsWith('mailto:')) return;
+            if (rawHref === '#') return;
+
+            const targetPage = rawHref.split('?')[0];
+            if (!trackedPages.has(targetPage)) return;
+
+            const url = new URL(rawHref, window.location.origin);
+            url.searchParams.set('characterId', characterId);
+            link.setAttribute('href', `${targetPage}?${url.searchParams.toString()}`);
+        });
+
+        const brandLink = document.querySelector('.navbar-brand');
+        if (brandLink && (brandLink.getAttribute('href') === '#' || !brandLink.getAttribute('href'))) {
+            brandLink.setAttribute('href', `game.html?characterId=${characterId}`);
+        }
+    }
 
     /* ========================
      * EVENT SYSTEM

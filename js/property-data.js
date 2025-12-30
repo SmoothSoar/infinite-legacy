@@ -9,7 +9,7 @@ const PROPERTY_DATA = {
             price: 50000,
             description: 'A minimalist 200 sq ft tiny home with basic amenities.',
             type: 'residential',
-            image: '🏠',
+            image: '',
             bedrooms: 1,
             bathrooms: 1,
             size: '200 sq ft',

@@ -11,10 +11,10 @@ class RealEstateManager {
         this.events = [];
         this.selectedProperty = null;
         this.propertyImages = {
-            residential: '🏠',
-            commercial: '🏢',
-            vacation: '🏖️',
-            land: '🌄'
+            residential: 'Home',
+            commercial: 'Office',
+            vacation: 'Retreat',
+            land: 'Land'
         };
     }
 
@@ -125,7 +125,7 @@ setupTimeAdvancementListener() {
         document.getElementById('propertyModalSize').textContent = property.size;
         document.getElementById('propertyModalRooms').textContent = `${property.bedrooms || 0} bed, ${property.bathrooms || 0} bath`;
         document.getElementById('propertyModalYear').textContent = property.yearBuilt;
-        document.getElementById('propertyModalImage').textContent = this.propertyImages[property.type] || '🏠';
+        document.getElementById('propertyModalImage').textContent = this.propertyImages[property.type] || 'Home';
         
         this.updateFinanceInfo('cash');
         
@@ -656,7 +656,7 @@ _showPurchaseSuccess(message) {
             tenantContainer.className = 'alert alert-success';
             tenantContainer.innerHTML = `
                 <strong>${tenant.name}</strong><br>
-                ${'★'.repeat(tenant.reliability)}${'☆'.repeat(5 - tenant.reliability)} Reliability<br>
+                ${"*".repeat(tenant.reliability)}${".".repeat(5 - tenant.reliability)} Reliability<br>
                 Lease: ${tenant.leaseDuration} months remaining<br>
                 Rent: $${tenant.monthlyRent.toLocaleString()}/month
             `;
@@ -844,3 +844,4 @@ if (document.readyState === 'loading') {
 } else {
     initializeRealEstateManager();
 }
+

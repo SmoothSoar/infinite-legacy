@@ -764,11 +764,15 @@ static setupEventListeners() {
 
     // Storage event listener for cross-tab sync
     const storageListener = (e) => {
-        if (e.key === 'financesGameState') {
-            this.log('Detected finances state change from storage');
-            this.loadGameState();
-            this.renderAll();
-        }
+        const currentKey = this.storageKey || this.getStorageKey();
+        const legacyKey = 'financesGameState';
+
+        // Only react to updates for the active character's finances
+        if (e.key !== currentKey && e.key !== legacyKey) return;
+
+        this.log('Detected finances state change from storage');
+        this.loadGameState();
+        this.renderAll();
     };
     window.addEventListener('storage', storageListener);
     this.eventListeners.push({
