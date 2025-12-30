@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Life Simulator - Education Pathway</title>
+    <title>Life Simulator - Education & Skills</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/education.css">
@@ -11,9 +11,9 @@
 </head>
 <body class="d-flex flex-column min-vh-100 theme-transition">
     <!-- Navigation -->
-     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="#">
+            <a class="navbar-brand d-flex align-items-center" href="game.html">
                 <i class="bi bi-controller me-2"></i>
                 Life Simulator
             </a>
@@ -23,7 +23,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="game.html">
+                        <a class="nav-link" href="game.html">
                             <i class="bi bi-house-door"></i> Home
                         </a>
                     </li>
@@ -38,7 +38,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="education.html">
+                        <a class="nav-link active" aria-current="page" href="education.html">
                             <i class="bi bi-book"></i> Education
                         </a>
                     </li>
@@ -59,11 +59,10 @@
                     </li>
                 </ul>
                 <div class="d-flex align-items-center">
-                  <button id="advanceTimeButton" class="btn btn-primary me-2">
-    <i class="bi bi-skip-forward-fill"></i>
-    <span>Advance Time (3 Months)</span>
-</button>
-                    
+                    <button id="advanceTimeButton" class="btn btn-primary me-2">
+                        <i class="bi bi-skip-forward-fill"></i>
+                        <span>Advance Time (3 Months)</span>
+                    </button>
                     <div class="dropdown me-2">
                         <button class="btn btn-outline-light dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown">
                             <i class="bi bi-gear"></i>
@@ -123,175 +122,312 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="container my-4 flex-grow-1">
-        <!-- Education Summary -->
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <i class="bi bi-mortarboard fs-1 text-primary mb-2"></i>
-                        <h3 id="eduLevel" class="mb-0">High School</h3>
-                        <small class="text-muted">Education Level</small>
+    <main class="container py-4 flex-grow-1">
+        <section class="education-hero card mb-4">
+            <div class="card-body d-flex flex-column flex-lg-row justify-content-between align-items-start gap-4">
+                <div class="flex-grow-1">
+                    <p class="eyebrow text-uppercase fw-bold mb-2">Education & Skills</p>
+                    <h1 class="hero-title mb-2">Degrees unlock skills. Skills unlock paychecks.</h1>
+                    <p class="lead text-muted mb-3">
+                        Earn skill bundles through degrees, stack certificates, or grind skills on the job. Either way, the more skills you unlock, the better the jobs you qualify for.
+                    </p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="pill-badge">
+                            <i class="bi bi-mortarboard-fill me-1"></i> Degree skill bundles
+                        </span>
+                        <span class="pill-badge">
+                            <i class="bi bi-lightning-fill me-1"></i> Skill-first job unlocks
+                        </span>
+                        <span class="pill-badge">
+                            <i class="bi bi-graph-up-arrow me-1"></i> Better pay through mastery
+                        </span>
+                    </div>
+                </div>
+                <div class="hero-side card shadow-sm">
+                    <div class="card-body">
+                        <small class="text-uppercase text-muted fw-semibold">Time In Game</small>
+                        <div class="d-flex align-items-baseline gap-2">
+                            <span id="yearDisplay" class="display-6 mb-0">Year 1</span>
+                            <span class="text-muted">tracks your education runway</span>
+                        </div>
+                        <p class="mb-0 mt-2 text-muted">Advance time every 3 months to progress programs and grow skills.</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <i class="bi bi-star fs-1 text-warning mb-2"></i>
-                        <h3 id="gpaDisplay" class="mb-0">3.2</h3>
-                        <small class="text-muted">Current GPA</small>
+        </section>
+
+        <!-- Snapshot Stats -->
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="character-stat-card">
+                    <div class="stat-icon"><i class="bi bi-mortarboard-fill"></i></div>
+                    <div class="stat-label">Education Level</div>
+                    <div class="stat-value" id="eduLevel">High School</div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="character-stat-card">
+                    <div class="stat-icon"><i class="bi bi-bar-chart-line-fill"></i></div>
+                    <div class="stat-label">Current GPA</div>
+                    <div class="stat-value" id="gpaDisplay">3.20</div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="character-stat-card">
+                    <div class="stat-icon"><i class="bi bi-wallet2"></i></div>
+                    <div class="stat-label">Cash For Tuition</div>
+                    <div class="stat-value money-display" id="balanceDisplay">$10,000</div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="character-stat-card">
+                    <div class="stat-icon"><i class="bi bi-stars"></i></div>
+                    <div class="stat-label">Skills Unlocked</div>
+                    <div class="stat-value" id="skillsUnlockedCount">Level them up to land better jobs</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pathways -->
+        <section class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                    <div>
+                        <p class="eyebrow text-uppercase fw-bold mb-1">Choose Your Path</p>
+                        <h2 class="h4 mb-1">Degree tracks, certificate sprints, or skill-first grind</h2>
+                        <p class="text-muted mb-0">Use school to unlock bundled skills quickly, or skip class and build the same skills in the field to unlock higher-paying roles without a diploma.</p>
+                    </div>
+                    <div class="text-end">
+                        <span class="pill-badge neutral"><i class="bi bi-shield-check me-1"></i>Prereqs auto-checked</span>
+                        <span class="pill-badge success"><i class="bi bi-cash-stack me-1"></i>Jobs pay more as skills level up</span>
+                    </div>
+                </div>
+                <div class="row g-3 mt-3">
+                    <div class="col-lg-4">
+                        <div class="pathway-tile">
+                            <div class="tile-icon bg-primary text-white"><i class="bi bi-mortarboard"></i></div>
+                            <div>
+                                <h3 class="h6 mb-1">Degree Skill Bundles</h3>
+                                <p class="mb-0 text-muted">Each degree instantly grants multiple skills so you can jump tiers in the career list.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="pathway-tile">
+                            <div class="tile-icon bg-success text-white"><i class="bi bi-briefcase"></i></div>
+                            <div>
+                                <h3 class="h6 mb-1">Skill-First Jobs</h3>
+                                <p class="mb-0 text-muted">Skip school, grind skills on the job, and unlock better-paying roles once your skills hit the required level.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="pathway-tile">
+                            <div class="tile-icon bg-info text-dark"><i class="bi bi-lightbulb"></i></div>
+                            <div>
+                                <h3 class="h6 mb-1">Certificate Sprints</h3>
+                                <p class="mb-0 text-muted">Short, focused programs that add niche skills for promotions without the 4-year wait.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+        </section>
+
+        <!-- Skills + Enrollment -->
+        <div class="row g-3 mb-4">
+            <div class="col-lg-6">
                 <div class="card h-100">
-                    <div class="card-body text-center">
-                        <i class="bi bi-journal-check fs-1 text-success mb-2"></i>
-                        <h3 id="completedCount" class="mb-0">0</h3>
-                        <small class="text-muted">Programs Completed</small>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="bi bi-stars me-2"></i>
+                            <span class="fw-semibold">Skill Ledger</span>
+                        </div>
+                        <small class="text-white-50">Level skills to open higher-paying jobs</small>
+                    </div>
+                    <div class="card-body" id="skillMeter">
+                        <div class="alert alert-info mb-0">
+                            Complete programs or work roles to start unlocking skills.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="bi bi-rocket-takeoff me-2"></i>
+                            <span class="fw-semibold">Current Enrollment</span>
+                        </div>
+                        <small class="text-white-50">Progress advances every 3 months</small>
+                    </div>
+                    <div class="card-body" id="currentProgress">
+                        <div class="alert alert-info mb-0">
+                            Not currently enrolled in any programs
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Program Catalog -->
-        <div class="card mb-4">
-            <div class="card-header bg-primary text-white">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h2 class="h5 mb-0"><i class="bi bi-book me-2"></i>Program Catalog</h2>
-                    <div class="filter-buttons">
-                        <button class="btn btn-sm btn-outline-light filter-btn active" data-filter="all">All</button>
-                        <button class="btn btn-sm btn-outline-light filter-btn" data-filter="high-school">High School</button>
-                        <button class="btn btn-sm btn-outline-light filter-btn" data-filter="certificates">Certificates</button>
-                        <button class="btn btn-sm btn-outline-light filter-btn" data-filter="associate">Associate</button>
-                        <button class="btn btn-sm btn-outline-light filter-btn" data-filter="bachelor">Bachelor's</button>
-                        <button class="btn btn-sm btn-outline-light filter-btn" data-filter="master">Master's</button>
-                    </div>
+        <section class="card mb-4">
+            <div class="card-header d-flex flex-wrap align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-journal-text"></i>
+                    <h2 class="h5 mb-0">Program Catalog</h2>
+                </div>
+                <div class="filter-buttons d-flex flex-wrap gap-2">
+                    <button class="btn btn-sm filter-btn active" data-filter="all">All</button>
+                    <button class="btn btn-sm filter-btn" data-filter="high-school">High School</button>
+                    <button class="btn btn-sm filter-btn" data-filter="certificates">Certificates</button>
+                    <button class="btn btn-sm filter-btn" data-filter="associate">Associate</button>
+                    <button class="btn btn-sm filter-btn" data-filter="bachelor">Bachelor's</button>
+                    <button class="btn btn-sm filter-btn" data-filter="master">Master's</button>
                 </div>
             </div>
             <div class="card-body">
-                <div class="row g-3" id="programsContainer">
-                    <!-- Programs will be loaded here -->
+                <p class="text-muted mb-3">
+                    Each program grants a set of skills. Stack the right mix to qualify for better jobs, or cherry-pick skills and skip the degree if you prefer.
+                </p>
+                <div class="row g-3 education-programs-container">
+                    <!-- Populated by EducationManager -->
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Current Enrollment -->
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h2 class="h5 mb-0"><i class="bi bi-journal-check me-2"></i>Current Enrollment</h2>
+        <!-- Career Outcomes -->
+        <section class="card mb-4">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-briefcase-fill"></i>
+                <h2 class="h6 mb-0">Career Outcomes By Skills</h2>
             </div>
             <div class="card-body">
-                <div id="currentProgress">
-                    <div class="alert alert-info mb-0">
-                        <i class="bi bi-info-circle me-2"></i> Not currently enrolled in any programs
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="outcome-tile">
+                            <div class="tile-icon bg-secondary text-white"><i class="bi bi-cpu"></i></div>
+                            <div>
+                                <h3 class="h6 mb-1">Tech Track</h3>
+                                <p class="mb-1 text-muted">Programming + System Design unlocks higher-paying dev and engineering roles.</p>
+                                <span class="skill-chip">Programmer</span>
+                                <span class="skill-chip">System Design</span>
+                                <span class="skill-chip success">High-paying roles</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="outcome-tile">
+                            <div class="tile-icon bg-warning text-dark"><i class="bi bi-bag-heart"></i></div>
+                            <div>
+                                <h3 class="h6 mb-1">Care + Service</h3>
+                                <p class="mb-1 text-muted">First Aid + Empathy gets you into healthcare support jobs with steady raises.</p>
+                                <span class="skill-chip">First Aid</span>
+                                <span class="skill-chip">Empathy</span>
+                                <span class="skill-chip success">Better pay without a degree</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="outcome-tile">
+                            <div class="tile-icon bg-info text-dark"><i class="bi bi-broadcast-pin"></i></div>
+                            <div>
+                                <h3 class="h6 mb-1">Business + Design</h3>
+                                <p class="mb-1 text-muted">Negotiation + Graphic Design fuel creative and sales roles that scale with skills.</p>
+                                <span class="skill-chip">Negotiation</span>
+                                <span class="skill-chip">Graphic Design</span>
+                                <span class="skill-chip success">Skill-first promotions</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     </main>
 
     <!-- Program Details Modal -->
-    <div class="modal fade" id="programModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+    <div class="modal fade" id="programDetailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="programModalTitle">Program Details</h5>
+                <div class="modal-header">
+                    <div>
+                        <p class="eyebrow text-uppercase mb-1 text-white-50">Program Details</p>
+                        <h5 class="modal-title" id="programDetailsTitle">Program Name</h5>
+                        <small id="programDetailsField" class="text-white-50">Field</small>
+                    </div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row">
-                        <!-- Left Column -->
-                        <div class="col-md-6">
-                            <div class="mb-4">
-                                <h4 id="programName" class="mb-2">Program Name</h4>
-                                <span id="programType" class="badge bg-primary mb-3">Type</span>
-                                <p id="programDescription" class="text-muted">Program description will appear here.</p>
-                            </div>
-
-                            <div class="program-details-grid mb-4">
-                                <div class="detail-item">
-                                    <i class="bi bi-clock text-primary"></i>
-                                    <div>
+                    <div class="row g-4">
+                        <div class="col-md-7">
+                            <p id="programDetailsDescription" class="text-muted mb-3">
+                                Program description will appear here.
+                            </p>
+                            <div class="row g-3 mb-3">
+                                <div class="col-sm-6">
+                                    <div class="program-detail">
                                         <small class="text-muted">Duration</small>
-                                        <p id="programDuration" class="mb-0">--</p>
+                                        <div class="fw-semibold" id="programDetailsDuration">--</div>
                                     </div>
                                 </div>
-                                <div class="detail-item">
-                                    <i class="bi bi-cash-coin text-primary"></i>
-                                    <div>
+                                <div class="col-sm-6">
+                                    <div class="program-detail">
                                         <small class="text-muted">Cost</small>
-                                        <p id="programCost" class="mb-0">--</p>
+                                        <div class="fw-semibold" id="programDetailsCost">$0</div>
                                     </div>
                                 </div>
-                                <div class="detail-item">
-                                    <i class="bi bi-speedometer2 text-primary"></i>
-                                    <div>
+                                <div class="col-sm-6">
+                                    <div class="program-detail">
                                         <small class="text-muted">Difficulty</small>
-                                        <p id="programDifficulty" class="mb-0">--</p>
+                                        <div class="fw-semibold" id="programDetailsDifficulty">-</div>
                                     </div>
                                 </div>
-                                <div class="detail-item">
-                                    <i class="bi bi-building text-primary"></i>
-                                    <div>
-                                        <small class="text-muted">Field</small>
-                                        <p id="programField" class="mb-0">--</p>
+                                <div class="col-sm-6">
+                                    <div class="program-detail">
+                                        <small class="text-muted">Type</small>
+                                        <div class="fw-semibold text-capitalize" id="programDetailsType">-</div>
                                     </div>
                                 </div>
+                            </div>
+                            <div id="enrollmentStatusSection" class="enrollment-status p-3 rounded">
+                                <h6 class="mb-1 d-flex align-items-center gap-2">
+                                    <i class="bi bi-info-circle text-info"></i>
+                                    Enrollment Status
+                                </h6>
+                                <p class="mb-0" id="enrollmentStatusMessage">Checking eligibility...</p>
+                                <small class="text-muted" id="enrollmentStatusDetail">Prereqs, age, and funds are validated automatically.</small>
                             </div>
                         </div>
-
-                        <!-- Right Column -->
-                        <div class="col-md-6">
-                            <div class="mb-4">
-                                <h5 class="d-flex align-items-center">
-                                    <i class="bi bi-lightbulb text-primary me-2"></i>
-                                    Skills Gained
-                                </h5>
-                                <div class="skills-container" id="programSkills">
-                                    <span class="badge bg-secondary mb-1">Loading skills...</span>
+                        <div class="col-md-5">
+                            <div class="mb-3">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <i class="bi bi-stars text-primary"></i>
+                                    <h6 class="mb-0">Skills Gained</h6>
+                                </div>
+                                <div class="skills-badges" id="programDetailsSkills">
+                                    <span class="badge bg-secondary">Loading skills...</span>
                                 </div>
                             </div>
-
-                            <div class="mb-4" id="careerSection">
-                                <h5 class="d-flex align-items-center">
-                                    <i class="bi bi-briefcase text-primary me-2"></i>
-                                    Career Paths
-                                </h5>
-                                <div class="careers-container" id="careerPaths">
-                                    <span class="badge bg-info mb-1">No career paths found</span>
+                            <div class="mb-3" id="careerRelevanceSection">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <i class="bi bi-briefcase text-primary"></i>
+                                    <h6 class="mb-0">Career Paths</h6>
+                                </div>
+                                <div class="careers-badges" id="programDetailsCareers">
+                                    <span class="badge bg-info">No linked careers yet</span>
                                 </div>
                             </div>
-
-                            <div id="prereqSection">
-                                <h5 class="d-flex align-items-center">
-                                    <i class="bi bi-list-check text-primary me-2"></i>
-                                    Prerequisites
-                                </h5>
-                                <div class="prereq-list" id="prerequisitesList">
-                                    <div class="prereq-item completed">
-                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <div id="prerequisitesSection">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <i class="bi bi-list-check text-primary"></i>
+                                    <h6 class="mb-0">Prerequisites</h6>
+                                </div>
+                                <div class="prerequisites-list" id="programDetailsPrerequisites">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-success"><i class="bi bi-check"></i></span>
                                         <span>None required</span>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Enrollment Status -->
-                    <div class="enrollment-status mt-4 p-3 rounded">
-                        <h5 class="d-flex align-items-center mb-3">
-                            <i class="bi bi-info-circle text-primary me-2"></i>
-                            Enrollment Status
-                        </h5>
-                        <div class="d-flex align-items-center">
-                            <div id="enrollmentStatusIcon" class="me-3">
-                                <i class="bi bi-question-circle fs-4 text-secondary"></i>
-                            </div>
-                            <div>
-                                <p id="enrollmentStatusText" class="mb-0">Checking eligibility...</p>
-                                <small id="enrollmentStatusDetail" class="text-muted"></small>
                             </div>
                         </div>
                     </div>
@@ -300,7 +436,7 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         <i class="bi bi-x-circle me-1"></i> Close
                     </button>
-                    <button type="button" class="btn btn-primary" id="enrollButton">
+                    <button type="button" class="btn btn-primary" id="startProgramBtn">
                         <i class="bi bi-pencil-square me-1"></i> Enroll Now
                     </button>
                 </div>
@@ -311,7 +447,7 @@
     <!-- Footer -->
     <footer class="bg-dark text-white py-3 mt-auto">
         <div class="container text-center">
-            <p class="mb-0">&copy; <span id="currentYear">2023</span> Life Simulator - Education Pathway</p>
+            <p class="mb-0">&copy; <span id="currentYear">2023</span> Life Simulator - Education & Skills</p>
         </div>
     </footer>
 
@@ -319,17 +455,13 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/time.js"></script>
     <script src="js/Player.js"></script>
-    <!-- Load education data before the manager so courses are available -->
     <script src="js/degrees.js"></script>
     <script src="js/main.js"></script>
     <script src="js/education.js"></script>
     <script src="js/eventManager.js"></script>
-    
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('currentYear').textContent = new Date().getFullYear();
-            
-            // Initialize managers
             if (typeof GameManager !== 'undefined') GameManager.init();
             if (typeof TimeManager !== 'undefined') TimeManager.init();
             if (typeof EducationManager !== 'undefined') EducationManager.init();

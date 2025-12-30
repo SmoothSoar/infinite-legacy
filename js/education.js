@@ -214,6 +214,7 @@ class EducationManager {
             eduLevel: this.getElementById('eduLevel'),
             gpaDisplay: this.getElementById('gpaDisplay'),
             yearDisplay: this.getElementById('yearDisplay'),
+            skillsUnlockedCount: this.getElementById('skillsUnlockedCount'),
             balanceDisplay: this.getElementById('balanceDisplay'),
             startProgramBtn: this.getElementById('startProgramBtn'),
             modalTitle: this.getElementById('programDetailsTitle'),
@@ -726,7 +727,8 @@ static handleEnroll(programId) {
         // Difficulty
         const difficultyCell = document.createElement('div');
         difficultyCell.className = 'grid-cell';
-        difficultyCell.innerHTML = `<i class="bi bi-speedometer2 me-1"></i>${'★'.repeat(program.difficulty)}${'☆'.repeat(5 - program.difficulty)}`;
+        const difficultyLevel = Math.max(1, Math.min(5, program.difficulty || 1));
+        difficultyCell.innerHTML = `<i class="bi bi-speedometer2 me-1"></i>${'*'.repeat(difficultyLevel)}${'.'.repeat(5 - difficultyLevel)}`;
         
         detailsGrid.appendChild(fieldCell);
         detailsGrid.appendChild(durationCell);
@@ -913,6 +915,14 @@ static handleEnroll(programId) {
             this.elements.yearDisplay.textContent = `Year ${this.gameState.currentYear || 1}`;
         }
         
+        if (this.elements.skillsUnlockedCount) {
+            const skills = edu.skills || {};
+            const unlockedCount = Object.values(skills).filter(s => s?.xp > 0).length;
+            this.elements.skillsUnlockedCount.textContent = unlockedCount > 0
+                ? `${unlockedCount} skills active`
+                : 'Level them up to land better jobs';
+        }
+        
         if (this.elements.balanceDisplay) {
             this.elements.balanceDisplay.textContent = `$${typeof this.gameState.balance === 'number' ? 
                 this.gameState.balance.toLocaleString() : '0'}`;
@@ -951,12 +961,17 @@ static handleEnroll(programId) {
 
         // Add new fields
         if (this.getElementById('programDetailsDifficulty')) {
-            const difficultyStars = '★'.repeat(program.difficulty || 1) + '☆'.repeat(5 - (program.difficulty || 1));
+            const difficultyLevel = Math.max(1, Math.min(5, program.difficulty || 1));
+            const difficultyStars = `${'*'.repeat(difficultyLevel)}${'.'.repeat(5 - difficultyLevel)}`;
             this.getElementById('programDetailsDifficulty').textContent = difficultyStars;
         }
 
         if (this.getElementById('programDetailsField')) {
             this.getElementById('programDetailsField').textContent = program.field || 'General';
+        }
+
+        if (this.getElementById('programDetailsType')) {
+            this.getElementById('programDetailsType').textContent = program.type?.replace(/-/g, ' ') || 'program';
         }
 
         // Update skills display
