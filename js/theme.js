@@ -1,8 +1,12 @@
 class ThemeManager {
     static init() {
         // Set initial theme
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        this.setTheme(savedTheme);
+        const savedTheme = localStorage.getItem('theme');
+        const documentTheme = document.documentElement.getAttribute('data-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        const initialTheme = savedTheme || documentTheme || prefersDark;
+
+        this.setTheme(initialTheme);
         
         // Add event listener to theme toggle button
         const themeToggle = document.getElementById('themeToggle');
@@ -11,10 +15,22 @@ class ThemeManager {
         }
     }
 
-    static setTheme(themeName) {
+    static applyTheme(themeName) {
         document.documentElement.setAttribute('data-theme', themeName);
+        if (document.body) {
+            document.body.setAttribute('data-theme', themeName);
+            document.body.classList.toggle('theme-dark', themeName === 'dark');
+            document.body.classList.toggle('theme-light', themeName === 'light');
+        }
+    }
+
+    static setTheme(themeName) {
+        this.applyTheme(themeName);
         localStorage.setItem('theme', themeName);
         this.updateThemeButton(themeName);
+        document.dispatchEvent(new CustomEvent('themeChanged', {
+            detail: { theme: themeName }
+        }));
     }
 
     static toggleTheme() {

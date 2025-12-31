@@ -1,35 +1,38 @@
-/* theme.css - Fresh dual-mode palette for Infinite Legacy */
+/* theme.css - unified dual-mode palette + tokens */
 
 :root {
-  /* ===== Default (dark-forward) ===== */
-  --color-bg: 10 12 22;
-  --color-bg-secondary: 16 20 35;
-  --color-bg-tertiary: 23 27 44;
-  --color-card: 18 22 38;
-  --color-card-border: 42 52 76;
-  --color-card-header: 24 30 50;
+  /* Light-first palette */
+  --color-bg: 245 247 252;
+  --color-bg-secondary: 255 255 255;
+  --color-bg-tertiary: 234 239 248;
+  --color-card: 255 255 255;
+  --color-card-border: 210 220 236;
+  --color-card-header: 242 245 252;
 
-  --color-text: 240 244 255;
-  --color-text-secondary: 192 200 219;
-  --color-text-muted: 148 156 175;
-  --color-text-inverse: 6 8 16;
+  --color-text: 20 24 33;
+  --color-text-secondary: 70 81 101;
+  --color-text-muted: 120 132 153;
+  --color-text-inverse: 248 250 255;
 
-  --color-primary: 255 122 40;   /* Ember orange */
-  --color-secondary: 0 203 173;  /* Jade teal */
-  --color-accent: 90 135 255;    /* Signal blue */
-  --color-success: 59 201 146;
-  --color-warning: 255 196 86;
-  --color-danger: 244 87 108;
-  --color-info: 80 164 255;
+  --color-primary: 119 140 255;   /* indigo glow */
+  --color-secondary: 74 222 172;  /* jade mint */
+  --color-accent: 255 149 94;     /* ember coral */
+  --color-success: 66 187 128;
+  --color-warning: 246 190 77;
+  --color-danger: 234 84 105;
+  --color-info: 84 164 255;
 
-  --color-border: 43 52 79;
-  --color-border-secondary: 60 72 104;
-  --color-navbar: 12 16 28;
-  --color-navbar-text: 240 244 255;
+  --color-border: 208 216 232;
+  --color-border-secondary: 188 198 216;
+  --color-navbar: 255 255 255;
+  --color-navbar-text: 20 24 33;
 
-  --color-input: 20 24 40;
-  --color-input-border: 46 58 84;
-  --color-input-text: 240 244 255;
+  --color-input: 255 255 255;
+  --color-input-border: 198 206 223;
+  --color-input-text: 20 24 33;
+
+  --shadow-soft: 0 12px 30px rgba(12, 18, 34, 0.12);
+  --shadow-strong: 0 18px 48px rgba(12, 18, 34, 0.18);
 
   /* Bootstrap mapping */
   --bs-primary: rgb(var(--color-primary));
@@ -38,10 +41,10 @@
   --bs-info: rgb(var(--color-info));
   --bs-warning: rgb(var(--color-warning));
   --bs-danger: rgb(var(--color-danger));
-  --bs-light: rgb(var(--color-bg-tertiary));
+  --bs-light: rgb(var(--color-bg-secondary));
   --bs-dark: rgb(var(--color-text));
-  --bs-white: rgb(var(--color-text));
-  --bs-black: rgb(var(--color-bg));
+  --bs-white: 255 255 255;
+  --bs-black: 0 0 0;
   --bs-body-color: rgb(var(--color-text));
   --bs-body-bg: rgb(var(--color-bg));
   --bs-border-color: rgb(var(--color-border));
@@ -50,78 +53,86 @@
   --bs-gray-600: rgb(var(--color-text-muted));
 }
 
-/* ==================== */
-/* LIGHT MODE OVERRIDES */
-/* ==================== */
-[data-theme="light"] {
-  --color-bg: 244 247 252;
-  --color-bg-secondary: 255 255 255;
-  --color-bg-tertiary: 230 235 246;
-  --color-card: 255 255 255;
-  --color-card-border: 214 221 236;
-  --color-card-header: 235 241 252;
+/* Dark overrides */
+[data-theme="dark"],
+body[data-theme="dark"] {
+  --color-bg: 8 10 20;
+  --color-bg-secondary: 13 16 28;
+  --color-bg-tertiary: 19 23 38;
+  --color-card: 18 21 36;
+  --color-card-border: 46 56 86;
+  --color-card-header: 26 31 50;
 
-  --color-text: 17 24 39;
-  --color-text-secondary: 73 84 104;
-  --color-text-muted: 118 128 144;
-  --color-text-inverse: 244 247 252;
+  --color-text: 232 237 255;
+  --color-text-secondary: 186 196 220;
+  --color-text-muted: 140 150 172;
+  --color-text-inverse: 6 8 16;
 
-  --color-primary: 255 122 40;
-  --color-secondary: 0 163 140;
-  --color-accent: 65 109 255;
-  --color-success: 30 178 128;
-  --color-warning: 243 169 52;
-  --color-danger: 232 76 102;
-  --color-info: 65 148 255;
+  --color-primary: 132 157 255;
+  --color-secondary: 64 214 166;
+  --color-accent: 255 144 97;
+  --color-success: 78 206 154;
+  --color-warning: 246 184 82;
+  --color-danger: 243 101 121;
+  --color-info: 120 176 255;
 
-  --color-border: 204 212 228;
-  --color-border-secondary: 188 198 216;
-  --color-navbar: 255 255 255;
-  --color-navbar-text: 17 24 39;
+  --color-border: 52 62 94;
+  --color-border-secondary: 66 78 110;
+  --color-navbar: 12 16 26;
+  --color-navbar-text: 232 237 255;
 
-  --color-input: 255 255 255;
-  --color-input-border: 200 208 224;
-  --color-input-text: 17 24 39;
+  --color-input: 20 24 38;
+  --color-input-border: 54 66 98;
+  --color-input-text: 232 237 255;
 
-  --bs-light: rgb(var(--color-bg-secondary));
-  --bs-dark: rgb(var(--color-text));
-  --bs-white: 255 255 255;
-  --bs-black: 0 0 0;
+  --shadow-soft: 0 14px 40px rgba(0, 0, 0, 0.45);
+  --shadow-strong: 0 18px 60px rgba(0, 0, 0, 0.55);
 }
 
-/* ==================== */
-/* THEME TRANSITIONS */
-/* ==================== */
-html {
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
+/* Theme application */
+html,
 body {
   background-color: rgb(var(--color-bg));
   color: rgb(var(--color-text));
+  transition: background-color 0.28s ease, color 0.28s ease;
+}
+
+body {
   min-height: 100vh;
+  background-image:
+    radial-gradient(circle at 18% 18%, rgba(var(--color-primary), 0.07), transparent 26%),
+    radial-gradient(circle at 82% 10%, rgba(var(--color-accent), 0.08), transparent 28%);
+  background-attachment: fixed;
+}
+
+[data-theme="dark"],
+body[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+[data-theme="light"],
+body[data-theme="light"] {
+  color-scheme: light;
 }
 
 ::selection {
-  background: rgba(var(--color-primary), 0.18);
+  background: rgba(var(--color-primary), 0.2);
   color: rgb(var(--color-text));
 }
 
-/* ==================== */
-/* SCROLLBARS & TABLES */
-/* ==================== */
+/* Scrollbars & shared components */
 ::-webkit-scrollbar {
   width: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(var(--color-border-secondary), 0.8);
+  background-color: rgba(var(--color-border-secondary), 0.85);
   border-radius: 999px;
   border: 2px solid rgba(var(--color-bg), 0.9);
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(var(--color-bg), 0.4);
+  background: rgba(var(--color-bg), 0.55);
 }
 
 .table {
@@ -143,9 +154,9 @@ body {
 .form-control:focus,
 .form-select:focus {
   border-color: rgb(var(--color-primary));
-  box-shadow: 0 0 0 0.2rem rgba(var(--color-primary), 0.25);
+  box-shadow: 0 0 0 0.2rem rgba(var(--color-primary), 0.24);
 }
 
 .card {
-  box-shadow: 0 14px 35px rgba(var(--color-bg), 0.4);
+  box-shadow: var(--shadow-soft);
 }

@@ -277,29 +277,27 @@ body {
 /* ==================== */
 /* DARK MODE ENHANCEMENTS */
 /* ==================== */
-[data-theme="dark"] {
-  .card,
-  .asset-card {
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  }
-  
-  .card:hover,
-  .asset-card:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-  }
-  
-  .category-tabs .nav-link {
-    background-color: rgba(var(--color-primary), 0.1);
-    color: rgb(var(--color-text-muted));
-  }
-  
-  .category-tabs .nav-link.active {
-    background-color: rgb(var(--color-bg));
-  }
-  
-  .modal-content {
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  }
+[data-theme="dark"] .card,
+[data-theme="dark"] .asset-card {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+}
+
+[data-theme="dark"] .card:hover,
+[data-theme="dark"] .asset-card:hover {
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+
+[data-theme="dark"] .category-tabs .nav-link {
+  background-color: rgba(var(--color-primary), 0.12);
+  color: rgb(var(--color-text-secondary));
+}
+
+[data-theme="dark"] .category-tabs .nav-link.active {
+  background-color: rgb(var(--color-bg));
+}
+
+[data-theme="dark"] .modal-content {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.35);
 }
 
 /* ==================== */

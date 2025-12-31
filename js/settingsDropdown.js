@@ -397,9 +397,18 @@ static resetCharacter(characterId) {
         });
     }
 
-  /* ========================
+    /* ========================
        THEME MANAGEMENT (FIXED)
        ======================== */
+
+    static applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        if (document.body) {
+            document.body.setAttribute('data-theme', theme);
+            document.body.classList.toggle('theme-dark', theme === 'dark');
+            document.body.classList.toggle('theme-light', theme === 'light');
+        }
+    }
     
     static initializeTheme() {
         try {
@@ -411,7 +420,7 @@ static resetCharacter(characterId) {
             }
             
             // Apply the theme
-            document.documentElement.setAttribute('data-theme', theme);
+            this.applyTheme(theme);
             
             // Update toggle button icon
             this.updateThemeButton(theme);
@@ -426,7 +435,7 @@ static resetCharacter(characterId) {
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             
             // Apply the new theme
-            document.documentElement.setAttribute('data-theme', newTheme);
+            this.applyTheme(newTheme);
             localStorage.setItem('theme', newTheme);
             
             // Update UI
