@@ -4,153 +4,177 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Life Simulator - Assets</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Sora:wght@500;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/assets.css">
 </head>
-<body class="theme-transition">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="#">
-                <i class="bi bi-controller me-2"></i>
-                Life Simulator
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="game.html">
-                            <i class="bi bi-house-door"></i> Home
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="finances.html">
-                            <i class="bi bi-cash-stack"></i> Finances
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="career.html">
-                            <i class="bi bi-briefcase"></i> Career
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="education.html">
-                            <i class="bi bi-book"></i> Education
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="relationships.html">
-                            <i class="bi bi-heart"></i> Relationships
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="assets.html">
-                            <i class="bi bi-house-gear"></i> Assets
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="real-estate.html">
-                            <i class="bi bi-buildings"></i> Real Estate
-                        </a>
-                    </li>
-                </ul>
-                <div class="d-flex align-items-center">
-                 <button id="advanceTimeButton" class="btn btn-primary me-2">
-    <i class="bi bi-skip-forward-fill"></i>
-    <span>Advance Time (3 Months)</span>
-</button>
-                    <button id="themeToggle" class="btn btn-outline-light">
-                        <span class="theme-icon bi bi-moon"></span>
-                        <span class="d-none d-sm-inline">Theme</span>
-                    </button>
+<body class="app-body theme-transition">
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="brand">
+                <div class="brand-mark">∞</div>
+                <div class="brand-text">
+                    <span class="eyebrow">Infinite Legacy</span>
+                    <strong>Life Simulator</strong>
                 </div>
             </div>
-        </div>
-    </nav>
+            <nav class="app-nav" aria-label="Primary navigation">
+                <a class="app-nav-link" href="game.html"><i class="bi bi-grid"></i><span>Dashboard</span></a>
+                <a class="app-nav-link" href="finances.html"><i class="bi bi-cash-stack"></i><span>Finances</span></a>
+                <a class="app-nav-link" href="career.html"><i class="bi bi-briefcase"></i><span>Career</span></a>
+                <a class="app-nav-link" href="education.html"><i class="bi bi-book"></i><span>Education</span></a>
+                <a class="app-nav-link" href="relationships.html"><i class="bi bi-heart"></i><span>Relationships</span></a>
+                <a class="app-nav-link active" href="assets.html"><i class="bi bi-box-seam"></i><span>Assets</span></a>
+                <a class="app-nav-link" href="real-estate.html"><i class="bi bi-buildings"></i><span>Real Estate</span></a>
+            </nav>
+            <div class="app-actions">
+                <button id="themeToggle" class="ghost-btn" type="button">
+                    <i class="bi bi-moon"></i>
+                    <span class="d-none d-md-inline">Theme</span>
+                </button>
+                <button id="advanceTimeButton" class="primary-btn" type="button">
+                    <i class="bi bi-skip-forward-fill"></i>
+                    <span>Advance Quarter</span>
+                </button>
+                <div class="dropdown">
+                    <button class="ghost-btn dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-gear"></i>
+                        <span class="d-none d-lg-inline">Settings</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settingsDropdown">
+                        <li><h6 class="dropdown-header">Character</h6></li>
+                        <li>
+                            <a class="dropdown-item" href="#" id="switchCharacterBtn">
+                                <i class="bi bi-person-lines-fill me-2"></i>Switch Character
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="create-character.html">
+                                <i class="bi bi-person-plus me-2"></i>New Character
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#" id="deleteCharacterBtn">
+                                <i class="bi bi-person-x me-2"></i>Delete Character
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header">Game Settings</h6></li>
+                        <li>
+                            <button class="dropdown-item" id="themeToggleDropdown">
+                                <i class="bi bi-palette me-2"></i>Toggle Theme
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item" id="toggleSoundBtn">
+                                <i class="bi bi-volume-up me-2"></i>Toggle Sound
+                            </button>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header">Data</h6></li>
+                        <li>
+                            <button class="dropdown-item" id="resetCharacterBtn">
+                                <i class="bi bi-arrow-counterclockwise me-2"></i>Reset Character
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item" id="exportSaveBtn">
+                                <i class="bi bi-download me-2"></i>Export Save
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item" id="importSaveBtn">
+                                <i class="bi bi-upload me-2"></i>Import Save
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </header>
 
-    <main class="container my-4">
-           <!-- Character Header -->
-     <div class="text-center mb-4">
-    <div class="welcome-header p-4 rounded">
-        <div class="d-flex flex-column align-items-center">
-            <h1 id="characterName" class="display-5 mb-2 fw-bold">Player</h1>
-            <div class="d-flex align-items-center justify-content-center gap-3 mb-2">
-                <span class="time-display badge bg-primary text-white px-3 py-2 rounded-pill" id="timeDisplay">
-                    <i class="bi bi-calendar3 me-1"></i> Year 1, Q1 (January)
-                </span>
-                <span class="age-display badge bg-secondary text-white px-3 py-2 rounded-pill" id="characterAge">
-                    <i class="bi bi-person me-1"></i> Age 18
-                </span>
+        <section class="page-hero mt-4">
+            <div class="text-center">
+                <div class="d-flex flex-column align-items-center">
+                    <h1 id="characterName" class="display-6 mb-2 fw-bold">Player</h1>
+                    <div class="d-flex align-items-center justify-content-center gap-3 mb-2">
+                        <span class="chip" id="timeDisplay">
+                            <i class="bi bi-calendar3"></i> Year 1, Q1 (January)
+                        </span>
+                        <span class="chip" id="characterAge">
+                            <i class="bi bi-person"></i> Age 18
+                        </span>
+                    </div>
+                    <p class="text-muted mb-0">Grow collections across vehicles, boats, planes, and collectibles. Assets sync with finances instantly.</p>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
-        <!-- Current Assets Section -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h2 class="h5 mb-0"><i class="bi bi-box-seam me-2"></i>Your Current Assets</h2>
+        </section>
+
+        <div class="content-grid mt-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="h5 mb-0"><i class="bi bi-box-seam me-2"></i>Your Current Assets</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row" id="currentAssets">
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                You don't own any assets yet. Browse the categories below to make your first purchase!
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="row" id="currentAssets">
-                    <div class="col-12">
-                        <div class="alert alert-info">
-                            You don't own any assets yet. Browse the categories below to make your first purchase!
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="h5 mb-0"><i class="bi bi-tags me-2"></i>Available Assets</h2>
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs category-tabs mb-4" id="assetTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="cars-tab" data-bs-toggle="tab" data-bs-target="#cars" type="button" role="tab">
+                                <i class="bi bi-car-front me-1"></i> Cars
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="boats-tab" data-bs-toggle="tab" data-bs-target="#boats" type="button" role="tab">
+                                <i class="bi bi-water me-1"></i> Boats
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="planes-tab" data-bs-toggle="tab" data-bs-target="#planes" type="button" role="tab">
+                                <i class="bi bi-airplane me-1"></i> Aircraft
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="motorcycles-tab" data-bs-toggle="tab" data-bs-target="#motorcycles" type="button" role="tab">
+                                <i class="bi bi-bicycle me-1"></i> Motorcycles
+                            </button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="assetTabsContent">
+                        <div class="tab-pane fade show active" id="cars" role="tabpanel">
+                            <div class="row" id="vehiclesList"></div>
+                        </div>
+                        <div class="tab-pane fade" id="boats" role="tabpanel">
+                            <div class="row" id="electronicsList"></div>
+                        </div>
+                        <div class="tab-pane fade" id="planes" role="tabpanel">
+                            <div class="row" id="furnitureList"></div>
+                        </div>
+                        <div class="tab-pane fade" id="motorcycles" role="tabpanel">
+                            <div class="row" id="collectiblesList"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Asset Categories -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="h5 mb-0"><i class="bi bi-tags me-2"></i>Available Assets</h2>
-            </div>
-            <div class="card-body">
-                <ul class="nav nav-tabs category-tabs mb-4" id="assetTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="cars-tab" data-bs-toggle="tab" data-bs-target="#cars" type="button" role="tab">
-                            <i class="bi bi-car-front me-1"></i> Cars
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="boats-tab" data-bs-toggle="tab" data-bs-target="#boats" type="button" role="tab">
-                            <i class="bi bi-water me-1"></i> Boats
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="planes-tab" data-bs-toggle="tab" data-bs-target="#planes" type="button" role="tab">
-                            <i class="bi bi-airplane me-1"></i> Aircraft
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="motorcycles-tab" data-bs-toggle="tab" data-bs-target="#motorcycles" type="button" role="tab">
-                            <i class="bi bi-bicycle me-1"></i> Motorcycles
-                        </button>
-                    </li>
-                </ul>
-                <div class="tab-content" id="assetTabsContent">
-                    <div class="tab-pane fade show active" id="cars" role="tabpanel">
-                        <div class="row" id="vehiclesList"></div>
-                    </div>
-                    <div class="tab-pane fade" id="boats" role="tabpanel">
-                        <div class="row" id="electronicsList"></div>
-                    </div>
-                    <div class="tab-pane fade" id="planes" role="tabpanel">
-                        <div class="row" id="furnitureList"></div>
-                    </div>
-                    <div class="tab-pane fade" id="motorcycles" role="tabpanel">
-                        <div class="row" id="collectiblesList"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
+    </div>
 
     <!-- Purchase Modal -->
     <div class="modal fade" id="purchaseModal" tabindex="-1" aria-hidden="true">
@@ -189,10 +213,8 @@
         </div>
     </div>
 
-    <footer class="bg-dark text-white py-3 mt-auto">
-        <div class="container text-center">
-            <p class="mb-0">&copy; <span id="currentYear"></span> Life Simulator</p>
-        </div>
+    <footer class="app-footer">
+        <p class="mb-0">&copy; <span id="currentYearFooter"></span> Life Simulator</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -204,11 +226,10 @@
     <script src="js/settingsDropdown.js"></script>
     <script src="js/assets.js"></script>
     <script src="js/theme.js"></script>
-  <script>
-  // Only this is needed - MainManager handles the rest
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('currentYear').textContent = new Date().getFullYear();
-  });
-</script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('currentYearFooter').textContent = new Date().getFullYear();
+        });
+    </script>
 </body>
 </html>

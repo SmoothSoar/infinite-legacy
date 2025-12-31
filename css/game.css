@@ -1,188 +1,26 @@
-/* game.css - Updated to match theme.css color system */
-:root {
-    /* Define CSS variables that map to theme.css variables */
-    --bs-primary: rgb(var(--color-primary));
-    --bs-secondary: rgb(var(--color-secondary));
-    --bs-accent: rgb(var(--color-accent));
-    --bs-success: rgb(var(--color-success));
-    --bs-warning: rgb(var(--color-warning));
-    --bs-danger: rgb(var(--color-danger));
-    --bs-info: rgb(var(--color-info));
-    --bs-light: rgb(var(--color-bg-secondary));
-    --bs-dark: rgb(var(--color-bg-tertiary));
-    --bs-gray-400: rgb(var(--color-text-muted));
-}
+/* game.css - Dashboard-specific polish for the unified layout */
 
-/* Main layout and transitions */
-html, body {
-    background-color: rgb(var(--color-bg));
-    color: rgb(var(--color-text));
-}
-
-.theme-transition {
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Navigation - Using theme colors */
-.navbar {
-    background-color: rgb(var(--color-navbar)) !important;
-}
-
-.navbar-brand, .nav-link {
-    color: rgb(var(--color-navbar-text)) !important;
-}
-
-.nav-link:hover {
-    color: rgba(var(--color-navbar-text), 0.8) !important;
-}
-
-/* Character stat cards */
 .character-stat-card {
-    background-color: rgb(var(--color-card));
-    border: 1px solid rgb(var(--color-card-border));
-    border-radius: 10px;
-    padding: 1.5rem;
-    text-align: center;
-    height: 100%;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    color: rgb(var(--color-text));
-}
-
-.character-stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(var(--color-card-border), 0.8);
+    background: linear-gradient(160deg, rgba(var(--color-card), 0.95), rgba(var(--color-bg-tertiary), 0.7));
+    box-shadow: 0 12px 26px rgba(var(--color-bg), 0.35);
 }
 
 .stat-icon {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-    color: var(--bs-primary);
+    font-size: 1.6rem;
+    opacity: 0.9;
 }
 
-.stat-label {
-    font-size: 1rem;
-    color: rgb(var(--color-text-secondary));
-    margin-bottom: 0.5rem;
+.hero-title {
+    letter-spacing: -0.01em;
 }
 
-.stat-value {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-bottom: 0;
-    color: rgb(var(--color-text));
-}
-
-/* Welcome header */
-.welcome-header {
-    padding: 1.5rem;
-    background-color: rgb(var(--color-card));
-    border: 1px solid rgb(var(--color-card-border));
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    color: rgb(var(--color-text));
-}
-
-.welcome-header h1 {
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    color: rgb(var(--color-text));
-}
-
-/* Card styling */
-.card {
-    border: 1px solid rgb(var(--color-card-border));
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    background-color: rgb(var(--color-card));
-    color: rgb(var(--color-text));
-}
-
-.card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-}
-
-.card-header {
-    border-radius: 10px 10px 0 0 !important;
-    background-color: rgb(var(--color-card-header)) !important;
-    color: rgb(var(--color-text-inverse)) !important;
-    border-bottom: 1px solid rgb(var(--color-card-border)) !important;
-}
-
-/* Buttons */
-.btn-primary {
-    background-color: var(--bs-primary);
-    border-color: var(--bs-primary);
-}
-
-.btn-outline-light {
-    color: rgb(var(--color-text-inverse));
-    border-color: rgb(var(--color-border));
-}
-
-.btn-outline-light:hover {
-    background-color: rgba(var(--color-primary), 0.1);
-    color: rgb(var(--color-text));
-}
-
-/* Event log styling */
 #eventLog .list-group-item {
-    border-left: none;
-    border-right: none;
-    padding: 0.75rem 1.25rem;
-    background-color: rgb(var(--color-card));
-    color: rgb(var(--color-text));
-    border-color: rgb(var(--color-border)) !important;
+    padding: 0.85rem 1.1rem;
+    background: rgba(var(--color-card), 0.9);
 }
 
-#eventLog .list-group-item:first-child {
-    border-top: none;
-}
-
-/* Footer */
-footer {
-    background-color: rgb(var(--color-navbar)) !important;
-    color: rgb(var(--color-navbar-text)) !important;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .character-stat-card {
-        padding: 1rem;
-    }
-    
-    .stat-icon {
-        font-size: 1.5rem;
-    }
-    
-    .stat-value {
-        font-size: 1.25rem;
-    }
-}
-
-/* Dark mode specific adjustments */
-[data-theme="dark"] {
-    /* Enhance card shadows in dark mode for better depth */
-    .character-stat-card,
-    .card,
-    .welcome-header {
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    }
-    
-    .character-stat-card:hover,
-    .card:hover {
-        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
-    }
-    
-    /* Slightly brighter text for better readability */
-    .stat-label {
-        color: rgb(var(--color-text-secondary));
-    }
-    
-    /* Adjust button hover states */
-    .btn-outline-light:hover {
-        background-color: rgba(var(--color-primary), 0.2);
-    }
+#eventLog {
+    max-height: 240px;
+    overflow-y: auto;
 }

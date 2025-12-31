@@ -1,432 +1,91 @@
-/* finances.css - Unified Styling with Career/Education */
-/* Uses theme.css variables for consistent theming */
-
-/* ==================== */
-/* BASE STYLES */
-/* ==================== */
-body {
-    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background-color: rgb(var(--color-bg));
-    color: rgb(var(--color-text));
-}
+/* finances.css - refreshed layout + finance-specific components */
 
 .finance-hero {
-    background: radial-gradient(circle at 10% 20%, rgba(var(--color-primary), 0.15), rgba(var(--color-primary), 0)) , 
-                linear-gradient(135deg, rgba(var(--color-card), 0.9), rgba(var(--color-bg), 0.95));
-    border: 1px solid rgba(var(--color-border), 0.6);
-    box-shadow: 0 18px 40px rgba(var(--color-text), 0.1);
+    background: linear-gradient(140deg, rgba(var(--color-card), 0.95), rgba(var(--color-bg-tertiary), 0.7));
 }
 
 .hero-metric-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 0.75rem;
 }
 
 .hero-metric {
-    background-color: rgba(var(--color-card), 0.9);
-    border: 1px solid rgba(var(--color-border), 0.7);
-    border-radius: 0.75rem;
-    padding: 0.75rem;
+    background-color: rgba(var(--color-bg-secondary), 0.9);
+    border: 1px solid rgba(var(--color-card-border), 0.85);
+    border-radius: 12px;
+    padding: 0.85rem;
 }
 
 .hero-metric .metric-value {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: rgb(var(--color-text));
+    font-size: 1.3rem;
+    font-weight: 800;
 }
 
-.quick-metrics .metric-tile {
-    background-color: rgb(var(--color-card));
-    border: 1px solid rgba(var(--color-border), 0.8);
-    border-radius: 0.75rem;
-    padding: 1rem;
-    height: 100%;
-    box-shadow: 0 8px 20px rgba(var(--color-text), 0.05);
+.metric-tile {
+    border: 1px solid rgba(var(--color-card-border), 0.9);
+    background: linear-gradient(170deg, rgba(var(--color-card), 0.95), rgba(var(--color-bg-tertiary), 0.75));
+    box-shadow: 0 14px 28px rgba(var(--color-bg), 0.35);
 }
 
-.metric-tile .stat-label {
-    font-weight: 600;
-    color: rgb(var(--color-text-secondary));
-}
-
-.metric-tile .stat-value {
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: rgb(var(--color-text));
-}
-
-.theme-transition * {
-    transition: 
-        background-color 0.3s ease,
-        color 0.3s ease,
-        border-color 0.3s ease;
-}
-
-/* ==================== */
-/* NAVIGATION */
-/* ==================== */
-.navbar {
-    background-color: rgb(var(--color-navbar)) !important;
-    border-bottom: 1px solid rgba(var(--color-border), 0.5);
-}
-
-.navbar-brand,
-.nav-link {
-    color: rgb(var(--color-navbar-text)) !important;
-}
-
-.nav-link.active {
-    position: relative;
-}
-
-.nav-link.active::after {
-    content: '';
-    position: absolute;
-    bottom: -0.75rem;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60%;
-    height: 3px;
-    background-color: rgb(var(--color-primary));
-    border-radius: 3px;
-}
-
-/* ==================== */
-/* CHARACTER HEADER */
-/* ==================== */
-.welcome-header {
-    padding: 1.5rem;
-    background-color: rgb(var(--color-card));  /* Uses theme.css variable */
-    border: 1px solid rgb(var(--color-card-border));
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    color: rgb(var(--color-text));
-}
-.welcome-header .display-5 {
-    color: inherit;
-    text-shadow: 1px 1px 2px rgba(var(--color-text), 0.2);
-}
-
-.time-display, .age-display {
-    background-color: rgba(var(--color-bg), 0.7);
-    color: rgb(var(--color-text));
-}
-
-/* ==================== */
-/* STAT CARDS */
-/* ==================== */
-.character-stat-card {
-    background-color: rgb(var(--color-card));
-    border: 1px solid rgb(var(--color-card-border));
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    text-align: center;
-    box-shadow: 0 2px 5px rgba(var(--color-text), 0.05);
-    transition: all 0.2s ease;
-    height: 100%;
+.accounts-container {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    gap: 0.75rem;
 }
 
-.character-stat-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(var(--color-text), 0.1);
-}
-
-.character-stat-card .stat-icon {
-    color: rgb(var(--color-primary));
-    font-size: 1.75rem;
-    margin-bottom: 0.75rem;
-}
-
-.character-stat-card .stat-label {
-    color: rgb(var(--color-text-secondary));
-    font-size: 0.95rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.character-stat-card .stat-value {
-    color: rgb(var(--color-text));
-    font-size: 1.4rem;
-    font-weight: 700;
-}
-
-/* ==================== */
-/* MAIN CONTENT CARDS */
-/* ==================== */
-.card {
-    background-color: rgb(var(--color-card));
-    border: 1px solid rgb(var(--color-border));
-    border-radius: 0.75rem;
-    box-shadow: 0 2px 8px rgba(var(--color-text), 0.08);
-    margin-bottom: 1.5rem;
-}
-
-.card-header {
-    background-color: rgb(var(--color-primary)) !important;
-    color: rgb(var(--color-text-inverse)) !important;
-    border-bottom: 1px solid rgba(var(--color-border), 0.5) !important;
-    font-weight: 600;
-}
-
-.card-header h2 {
-    font-size: 1.15rem;
-    margin-bottom: 0;
-    display: flex;
-    align-items: center;
-}
-
-.card-header i {
-    margin-right: 0.5rem;
-}
-
-/* ==================== */
-/* TAB SYSTEM */
-/* ==================== */
-.nav-tabs {
-    border-bottom: 1px solid rgb(var(--color-border));
-}
-
-.nav-tabs .nav-link {
-    color: rgb(var(--color-text-secondary));
-    border: 1px solid transparent;
-    border-radius: 0.5rem 0.5rem 0 0;
-    padding: 0.75rem 1.25rem;
-    transition: all 0.2s ease;
-    margin-right: 0.25rem;
-    background-color: rgba(var(--color-primary), 0.05);
-}
-
-.nav-tabs .nav-link:hover {
-    color: rgb(var(--color-primary));
-    background-color: rgba(var(--color-primary), 0.1);
-    border-color: rgb(var(--color-border));
-}
-
-.nav-tabs .nav-link.active {
-    color: rgb(var(--color-primary));
-    background-color: rgb(var(--color-card));
-    border-color: rgb(var(--color-border)) rgb(var(--color-border)) transparent;
-    position: relative;
-}
-
-.nav-tabs .nav-link.active::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background-color: rgb(var(--color-primary));
-}
-
-/* ==================== */
-/* ACCOUNT CARDS */
-/* ==================== */
 .account-card {
-    background-color: rgb(var(--color-card));
-    border: 1px solid rgb(var(--color-border));
-    border-left: 3px solid rgb(var(--color-primary));
-    border-radius: 0.5rem;
-    padding: 1rem;
-    margin-bottom: 0.75rem;
-    transition: all 0.2s ease;
-}
-
-.account-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 10px rgba(var(--color-text), 0.1);
-}
-
-.section-label {
-    font-size: 0.95rem;
-    letter-spacing: 0.02em;
-    color: rgb(var(--color-text-secondary));
-}
-
-.mini-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 0.65rem;
-}
-
-.mini-stat .mini-value {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: rgb(var(--color-text));
-}
-
-.chart-shell {
-    background-color: rgba(var(--color-bg), 0.7);
-    border: 1px dashed rgba(var(--color-border), 0.6);
-    border-radius: 0.75rem;
-    padding: 0.75rem;
+    background: rgba(var(--color-card), 0.95);
+    border: 1px solid rgba(var(--color-card-border), 0.85);
+    border-left: 4px solid rgba(var(--color-primary), 0.9);
+    border-radius: 10px;
+    padding: 0.9rem;
+    box-shadow: 0 10px 20px rgba(var(--color-bg), 0.35);
 }
 
 .account-name {
-    color: rgb(var(--color-text));
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.account-type {
-    color: rgb(var(--color-text-secondary));
-    font-size: 0.85rem;
-    margin-bottom: 0.5rem;
-}
-
-.account-balance {
-    color: rgb(var(--color-success));
     font-weight: 700;
-    font-size: 1.1rem;
 }
 
 .account-meta {
     color: rgb(var(--color-text-muted));
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     display: flex;
     justify-content: space-between;
-}
-
-/* ==================== */
-/* TRANSACTION LIST */
-/* ==================== */
-.list-group-item {
-    background-color: rgb(var(--color-card));
-    color: rgb(var(--color-text));
-    border-color: rgb(var(--color-border));
-    padding: 0.75rem 1.25rem;
 }
 
 .activity-list {
     max-height: 320px;
     overflow-y: auto;
     border: 1px solid rgba(var(--color-border), 0.6);
-    border-radius: 0.65rem;
+    border-radius: 12px;
 }
 
-.transaction-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.chart-shell {
+    background-color: rgba(var(--color-bg), 0.7);
+    border: 1px dashed rgba(var(--color-border), 0.6);
+    border-radius: 12px;
+    padding: 0.75rem;
 }
 
-.transaction-details {
-    color: rgb(var(--color-text-secondary));
-    font-size: 0.9rem;
+.mini-stat .mini-value {
+    font-size: 1.1rem;
+    font-weight: 700;
 }
 
-.transaction-date {
-    color: rgb(var(--color-text-muted));
-    font-size: 0.75rem;
-}
-
-.transaction-amount.positive {
-    color: rgb(var(--color-success));
-    font-weight: 600;
-}
-
-.transaction-amount.negative {
-    color: rgb(var(--color-danger));
-    font-weight: 600;
-}
-
-/* ==================== */
-/* BUTTONS */
-/* ==================== */
-.btn {
-    border-radius: 0.5rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.btn-primary {
-    background-color: rgb(var(--color-primary));
-    border-color: rgb(var(--color-primary));
-    color: rgb(var(--color-text-inverse));
-}
-
-.btn-primary:hover {
-    background-color: rgba(var(--color-primary), 0.9);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 5px rgba(var(--color-text), 0.1);
-}
-
-/* ==================== */
-/* FORM ELEMENTS */
-/* ==================== */
-.form-control, .form-select {
-    background-color: rgb(var(--color-input));
-    border: 1px solid rgb(var(--color-input-border));
-    color: rgb(var(--color-input-text));
-    border-radius: 0.5rem;
-}
-
-.form-control:focus, .form-select:focus {
-    border-color: rgb(var(--color-primary));
-    box-shadow: 0 0 0 0.25rem rgba(var(--color-primary), 0.25);
-}
-
-.input-group-text {
-    background-color: rgb(var(--color-bg-secondary));
-    border-color: rgb(var(--color-input-border));
-    color: rgb(var(--color-text-secondary));
-}
-
-/* ==================== */
-/* MODAL */
-/* ==================== */
 .modal-content {
-    background-color: rgb(var(--color-card));
-    border: 1px solid rgb(var(--color-border));
-    border-radius: 0.75rem;
+    background: rgba(var(--color-card), 0.95);
+    border: 1px solid rgba(var(--color-card-border), 0.9);
+    border-radius: 14px;
 }
 
 .modal-header {
-    background-color: rgb(var(--color-primary)) !important;
-    color: rgb(var(--color-text-inverse)) !important;
-    border-bottom: 1px solid rgb(var(--color-border)) !important;
+    background: linear-gradient(120deg, rgba(var(--color-primary), 0.9), rgba(var(--color-secondary), 0.85));
+    color: rgb(var(--color-text-inverse));
 }
 
-/* ==================== */
-/* FOOTER */
-/* ==================== */
-footer {
-    background-color: rgb(var(--color-navbar)) !important;
-    color: rgb(var(--color-navbar-text)) !important;
-}
-
-/* ==================== */
-/* RESPONSIVE ADJUSTMENTS */
-/* ==================== */
 @media (max-width: 768px) {
-    .character-stat-card {
-        padding: 1rem;
-    }
-    
     .hero-metric-grid {
         grid-template-columns: 1fr;
-    }
-
-    .quick-metrics .metric-tile {
-        padding: 0.85rem;
-    }
-
-    .activity-list {
-        max-height: 240px;
-    }
-    
-    .nav-tabs .nav-link {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.9rem;
-    }
-    
-    .btn {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.9rem;
     }
 }
