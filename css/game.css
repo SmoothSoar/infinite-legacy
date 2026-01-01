@@ -111,21 +111,7 @@ html, body {
     border-bottom: 1px solid rgb(var(--color-card-border)) !important;
 }
 
-/* Buttons */
-.btn-primary {
-    background-color: var(--bs-primary);
-    border-color: var(--bs-primary);
-}
-
-.btn-outline-light {
-    color: rgb(var(--color-text-inverse));
-    border-color: rgb(var(--color-border));
-}
-
-.btn-outline-light:hover {
-    background-color: rgba(var(--color-primary), 0.1);
-    color: rgb(var(--color-text));
-}
+/* Buttons use shared styling from ui-kit/common; no overrides needed here. */
 
 /* Event log styling */
 #eventLog .list-group-item {
@@ -181,8 +167,4 @@ footer {
         color: rgb(var(--color-text-secondary));
     }
     
-    /* Adjust button hover states */
-    .btn-outline-light:hover {
-        background-color: rgba(var(--color-primary), 0.2);
-    }
 }

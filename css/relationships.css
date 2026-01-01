@@ -173,36 +173,7 @@ body {
     margin-left: 0.5rem;
 }
 
-/* ==================== */
-/* BUTTONS */
-/* ==================== */
-.btn {
-    border-radius: 0.5rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.btn-primary {
-    background-color: rgb(var(--color-primary));
-    border-color: rgb(var(--color-primary));
-    color: rgb(var(--color-text-inverse));
-}
-
-.btn-primary:hover {
-    background-color: rgba(var(--color-primary), 0.9);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 5px rgba(var(--color-text), 0.1);
-}
-
-.btn-success {
-    background-color: rgb(var(--color-success));
-    border-color: rgb(var(--color-success));
-}
-
-.btn-danger {
-    background-color: rgb(var(--color-danger));
-    border-color: rgb(var(--color-danger));
-}
+/* Buttons use shared styling from ui-kit/common; no overrides needed here. */
 
 /* ==================== */
 /* MODAL */

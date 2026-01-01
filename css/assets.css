@@ -198,19 +198,7 @@ body {
   background-color: rgb(var(--color-primary));
 }
 
-/* ==================== */
-/* BUTTON STYLES */
-/* ==================== */
-.purchase-btn {
-  transition: all var(--transition-fast) ease;
-  font-weight: 500;
-  border-radius: var(--radius-sm);
-  margin-top: auto;
-}
-
-.purchase-btn:hover {
-  transform: scale(1.03);
-}
+/* Buttons use shared styling; no overrides needed here. */
 
 /* ==================== */
 /* ALERT STYLES */

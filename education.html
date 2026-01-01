@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Life Simulator - Education & Skills</title>
+    <title>Life Simulator - Education</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/common.css">
-    <link rel="stylesheet" href="css/education.css">
+    <link rel="stylesheet" href="css/ui-kit.css">
 </head>
 <body class="app-body theme-transition">
     <nav class="navbar navbar-expand-lg app-navbar">
@@ -134,11 +134,12 @@
     </nav>
 
     <main class="app-shell">
+        <!-- Hero -->
         <header class="page-heading">
             <div>
                 <p class="eyebrow">Education center</p>
-                <h1 class="page-title">Build skills faster than time passes.</h1>
-                <p class="lede">Enroll in programs, sprint through certificates, or grind skills in the field. Everything here feeds career unlocks and better pay.</p>
+                <h1 id="characterName" class="page-title">Player</h1>
+                <p class="lede">Enroll, level up skills, and unlock better careers with a clean snapshot of progress.</p>
                 <div class="status-strip">
                     <span class="status-pill primary">
                         <i class="bi bi-calendar3"></i><span id="yearDisplay">Year 1</span>
@@ -147,7 +148,7 @@
                         <i class="bi bi-mortarboard"></i><span id="eduLevel">High School</span>
                     </span>
                     <span class="status-pill success">
-                        <i class="bi bi-cash-coin"></i><span id="moneyDisplay">$0</span>
+                        <i class="bi bi-cash-coin"></i><span id="balanceDisplay">$0</span>
                     </span>
                     <span class="status-pill success">
                         <i class="bi bi-stars"></i><span id="skillsUnlockedCount">0 skills</span>
@@ -155,19 +156,15 @@
                 </div>
             </div>
             <div class="page-panel">
-                <div class="label">Learning velocity</div>
+                <div class="label">Current focus</div>
                 <div class="panel-card">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-muted small">Current GPA</span>
                         <span class="fw-bold" id="gpaDisplay">3.20</span>
                     </div>
                     <div class="status-strip">
-                        <span class="status-pill success">
-                            <i class="bi bi-wallet2"></i><span id="balanceDisplay">$10,000</span>
-                        </span>
-                        <span class="status-pill">
-                            <i class="bi bi-stars"></i><span class="mirror-value" data-source="skillsUnlockedCount">0 skills</span>
-                        </span>
+                        <span class="status-pill success"><i class="bi bi-wallet2"></i><span id="balanceDisplay" class="mirror-value" data-source="balanceDisplay">$0</span></span>
+                        <span class="status-pill"><i class="bi bi-stars"></i><span class="mirror-value" data-source="skillsUnlockedCount">0 skills</span></span>
                     </div>
                 </div>
                 <button id="advanceTimeButton" class="btn btn-primary w-100">
@@ -176,7 +173,17 @@
             </div>
         </header>
 
+        <!-- Quick stats -->
         <div class="row g-3 mb-4 align-items-stretch">
+            <div class="col-6 col-lg-3">
+                <div class="stat-tile h-100">
+                    <div class="icon-wrap bg-warning-subtle text-warning"><i class="bi bi-wallet2"></i></div>
+                    <div>
+                        <p class="label mb-1">Cash for tuition</p>
+                        <p class="value mirror-value mb-0" data-source="balanceDisplay">$0</p>
+                    </div>
+                </div>
+            </div>
             <div class="col-6 col-lg-3">
                 <div class="stat-tile h-100">
                     <div class="icon-wrap bg-success-subtle text-success"><i class="bi bi-mortarboard"></i></div>
@@ -188,18 +195,9 @@
             </div>
             <div class="col-6 col-lg-3">
                 <div class="stat-tile h-100">
-                    <div class="icon-wrap bg-warning-subtle text-warning"><i class="bi bi-wallet2"></i></div>
-                    <div>
-                        <p class="label mb-1">Cash for tuition</p>
-                        <p class="value mirror-value mb-0" data-source="balanceDisplay">$10,000</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-lg-3">
-                <div class="stat-tile h-100">
                     <div class="icon-wrap bg-info-subtle text-info"><i class="bi bi-bar-chart"></i></div>
                     <div>
-                        <p class="label mb-1">Current GPA</p>
+                        <p class="label mb-1">GPA</p>
                         <p class="value mirror-value mb-0" data-source="gpaDisplay">3.20</p>
                     </div>
                 </div>
@@ -217,22 +215,24 @@
 
         <div class="row g-4 mt-4 align-items-start">
             <div class="col-xxl-8 col-lg-7">
-                <div class="card programs-panel h-100">
+                <div class="card jobs-panel h-100">
                     <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
                         <div class="d-flex align-items-center gap-2">
-                            <i class="bi bi-journal-text"></i>
+                            <i class="bi bi-search"></i>
                             <h2 class="h5 mb-0">Programs & Certificates</h2>
                         </div>
-                        <span class="text-white small">Pick a path to unlock careers</span>
+                        <span class="text-white small">Tune filters to narrow programs</span>
                     </div>
                     <div class="card-body">
                         <div class="filter-buttons d-flex flex-wrap gap-2 mb-3">
                             <button class="btn btn-sm btn-outline-primary filter-btn active" data-filter="all">All</button>
-                            <button class="btn btn-sm btn-outline-primary filter-btn" data-filter="degree">Degrees</button>
-                            <button class="btn btn-sm btn-outline-primary filter-btn" data-filter="certificate">Certificates</button>
-                            <button class="btn btn-sm btn-outline-primary filter-btn" data-filter="bootcamp">Bootcamps</button>
+                            <button class="btn btn-sm btn-outline-primary filter-btn" data-filter="high-school">High School</button>
+                            <button class="btn btn-sm btn-outline-primary filter-btn" data-filter="certificates">Certificates</button>
+                            <button class="btn btn-sm btn-outline-primary filter-btn" data-filter="associate">Associate</button>
+                            <button class="btn btn-sm btn-outline-primary filter-btn" data-filter="bachelor">Bachelor's</button>
+                            <button class="btn btn-sm btn-outline-primary filter-btn" data-filter="master">Master's</button>
                         </div>
-                        <div class="education-programs-container row g-3" id="programsContainer">
+                        <div class="education-programs-container job-listings-container row g-3" id="programsContainer">
                             <div class="col-12">
                                 <div class="alert alert-info mb-0">Loading programs...</div>
                             </div>
@@ -247,9 +247,9 @@
                         <h2 class="h6 mb-0"><i class="bi bi-lightbulb me-2"></i>Active Programs</h2>
                     </div>
                     <div class="card-body">
-                        <div id="currentProgress" class="d-flex flex-column gap-2">
+                        <div id="currentProgress" class="current-job-details">
                             <div class="alert alert-info mb-0">
-                                Not currently enrolled in any programs
+                                Not currently enrolled in any programs.
                             </div>
                         </div>
                     </div>
@@ -260,9 +260,9 @@
                         <h2 class="h6 mb-0"><i class="bi bi-diagram-3 me-2"></i>Skills Unlocked</h2>
                     </div>
                     <div class="card-body">
-                        <div id="skillMeter" class="d-flex flex-column gap-2">
+                        <div id="skillMeter" class="job-history">
                             <div class="alert alert-info mb-0">
-                                Complete programs to develop skills
+                                Earn skills by completing programs or practice sessions.
                             </div>
                         </div>
                     </div>
@@ -272,72 +272,86 @@
             <div id="eventLog" class="d-none"></div>
         </div>
 
+        <!-- Program Details Modal -->
         <div class="modal fade" id="programDetailsModal" tabindex="-1" aria-labelledby="programDetailsTitle" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
-                    <div class="modal-header bg-primary text-white">
-                        <div>
-                            <h5 class="modal-title" id="programDetailsTitle">Program Name</h5>
-                            <small id="programDetailsField" class="text-white-50">Field</small>
-                        </div>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="programDetailsTitle">Program Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="row g-4">
-                            <div class="col-md-7">
-                                <p id="programDetailsDescription" class="text-muted mb-3">Program description will appear here.</p>
-                                <div class="row g-3 mb-3">
-                                    <div class="col-sm-6"><div class="program-detail"><small class="text-muted">Duration</small><div class="fw-semibold" id="programDetailsDuration">--</div></div></div>
-                                    <div class="col-sm-6"><div class="program-detail"><small class="text-muted">Cost</small><div class="fw-semibold" id="programDetailsCost">$0</div></div></div>
-                                    <div class="col-sm-6"><div class="program-detail"><small class="text-muted">Difficulty</small><div class="fw-semibold" id="programDetailsDifficulty">-</div></div></div>
-                                    <div class="col-sm-6"><div class="program-detail"><small class="text-muted">Type</small><div class="fw-semibold text-capitalize" id="programDetailsType">-</div></div></div>
-                                </div>
-                                <div id="enrollmentStatusSection" class="enrollment-status p-3 rounded">
-                                    <h6 class="mb-1 d-flex align-items-center gap-2"><i class="bi bi-info-circle text-info"></i>Enrollment Status</h6>
-                                    <p class="mb-0" id="enrollmentStatusMessage">Checking eligibility...</p>
-                                    <small class="text-muted" id="enrollmentStatusDetail">Prereqs, age, and funds are validated automatically.</small>
+                        <div class="job-detail-item">
+                            <h6>Description</h6>
+                            <p id="programDetailsDescription">Program description will appear here.</p>
+                        </div>
+                        <div class="job-detail-item">
+                            <h6>Cost</h6>
+                            <p id="programDetailsCost">$0</p>
+                        </div>
+                        <div class="job-detail-item">
+                            <h6>Duration</h6>
+                            <p id="programDetailsDuration">--</p>
+                        </div>
+                        <div class="job-detail-item">
+                            <h6>Difficulty</h6>
+                            <p id="programDetailsDifficulty">--</p>
+                        </div>
+                        <div class="job-detail-item">
+                            <h6>Type</h6>
+                            <p id="programDetailsType">--</p>
+                        </div>
+                        <div class="job-detail-item">
+                            <h6>Skills Gained</h6>
+                            <ul class="skills-list" id="programDetailsSkills">
+                                <li>Loading...</li>
+                            </ul>
+                        </div>
+                        <div class="job-detail-item" id="careerRelevanceSection">
+                            <h6>Career Paths</h6>
+                            <div class="careers-badges" id="programDetailsCareers">
+                                <span class="badge bg-info">No linked careers yet</span>
+                            </div>
+                        </div>
+                        <div class="job-detail-item" id="prerequisitesSection">
+                            <h6>Prerequisites</h6>
+                            <div class="prerequisites-list" id="programDetailsPrerequisites">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-success"><i class="bi bi-check"></i></span>
+                                    <span>None required</span>
                                 </div>
                             </div>
-                            <div class="col-md-5">
-                                <div class="mb-3">
-                                    <div class="d-flex align-items-center gap-2 mb-2"><i class="bi bi-stars text-primary"></i><h6 class="mb-0">Skills Gained</h6></div>
-                                    <div class="skills-badges" id="programDetailsSkills"><span class="badge bg-secondary">Loading skills...</span></div>
-                                </div>
-                                <div class="mb-3" id="careerRelevanceSection">
-                                    <div class="d-flex align-items-center gap-2 mb-2"><i class="bi bi-briefcase text-primary"></i><h6 class="mb-0">Career Paths</h6></div>
-                                    <div class="careers-badges" id="programDetailsCareers"><span class="badge bg-info">No linked careers yet</span></div>
-                                </div>
-                                <div id="prerequisitesSection">
-                                    <div class="d-flex align-items-center gap-2 mb-2"><i class="bi bi-list-check text-primary"></i><h6 class="mb-0">Prerequisites</h6></div>
-                                    <div class="prerequisites-list" id="programDetailsPrerequisites">
-                                        <div class="d-flex align-items-center gap-2"><span class="badge bg-success"><i class="bi bi-check"></i></span><span>None required</span></div>
-                                    </div>
-                                </div>
-                            </div>
+                        </div>
+                        <div id="enrollmentStatusSection" class="enrollment-status p-3 rounded">
+                            <h6 class="mb-1 d-flex align-items-center gap-2"><i class="bi bi-info-circle text-info"></i>Enrollment Status</h6>
+                            <p class="mb-0" id="enrollmentStatusMessage">Checking eligibility...</p>
+                            <small class="text-muted" id="enrollmentStatusDetail">Prereqs, age, and funds are validated automatically.</small>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-circle me-1"></i> Close</button>
-                        <button type="button" class="btn btn-primary" id="startProgramBtn"><i class="bi bi-pencil-square me-1"></i> Enroll Now</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="startProgramBtn">Enroll Now</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <footer class="app-footer">
-            <p class="mb-0">&copy; <span id="currentYearFooter">2023</span> Life Simulator - Education & Skills</p>
+            <p class="mb-0">&copy; <span id="currentYearFooter">2023</span> Life Simulator - Education Center</p>
         </footer>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/time.js"></script>
     <script src="js/Player.js"></script>
+    <script src="js/time.js"></script>
+    <script src="js/eventManager.js"></script>
+    <script src="js/main.js"></script>
     <script src="js/degrees.js"></script>
     <script src="js/skills.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/settingsDropdown.js"></script>
     <script src="js/education.js"></script>
-    <script src="js/eventManager.js"></script>
+    <script src="js/finances.js"></script>
+    <script src="js/settingsDropdown.js"></script>
+    <script src="js/theme.js"></script>
     <script>
         function syncEducationMirrors() {
             document.querySelectorAll('.mirror-value').forEach(el => {
@@ -348,18 +362,55 @@
                 }
             });
         }
-
-        ['educationTimeAdvanced', 'timeAdvanced', 'educationUpdated', 'characterStateChanged', 'financialDataUpdated', 'DOMContentLoaded'].forEach(evt => {
+        ['financialDataUpdated', 'educationUpdated', 'educationTimeAdvanced', 'characterStateChanged', 'DOMContentLoaded'].forEach(evt => {
             document.addEventListener(evt, syncEducationMirrors);
         });
+    </script>
+    <script>
+        async function initializeEducationSystem() {
+            try {
+                if (!window.MainManager?.state?.initialized) {
+                    await new Promise(resolve => {
+                        const check = () => {
+                            if (window.MainManager?.state?.initialized) {
+                                resolve();
+                            } else {
+                                setTimeout(check, 100);
+                            }
+                        };
+                        check();
+                    });
+                }
+
+                if (typeof EducationManager !== 'undefined') {
+                    await EducationManager.init();
+                    if (window.EventManager) {
+                        EventManager._updateDisplays();
+                        EventManager._updateCharacterDisplays();
+                    }
+                } else {
+                    throw new Error('EducationManager not found');
+                }
+            } catch (error) {
+                console.error('Initialization error:', error);
+                const eventLog = document.getElementById('eventLog');
+                if (eventLog) {
+                    const errorItem = document.createElement('div');
+                    errorItem.className = 'list-group-item list-group-item-danger';
+                    errorItem.textContent = 'Education system failed to initialize';
+                    eventLog.prepend(errorItem);
+                }
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('currentYearFooter').textContent = new Date().getFullYear();
-            if (typeof GameManager !== 'undefined') GameManager.init();
-            if (typeof TimeManager !== 'undefined') TimeManager.init();
-            if (typeof SettingsDropdown !== 'undefined') SettingsDropdown.init();
-            if (typeof EducationManager !== 'undefined') EducationManager.init();
-            syncEducationMirrors();
+
+            if (window.MainManager?.state?.initialized) {
+                initializeEducationSystem();
+            } else {
+                document.addEventListener('mainManagerReady', initializeEducationSystem);
+            }
         });
     </script>
 </body>

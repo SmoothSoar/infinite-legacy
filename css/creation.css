@@ -49,7 +49,7 @@
     right: -20px;
 }
 
-body, .card, .form-control, .form-select, .btn {
+body, .card, .form-control, .form-select {
     color: var(--cc-text);
 }
 
@@ -85,14 +85,7 @@ body, .card, .form-control, .form-select, .btn {
     color: #0b0f1a !important;
 }
 
-.btn-primary {
-    background: var(--cc-accent-2);
-    border: none;
-}
-
-.btn-primary:hover {
-    filter: brightness(1.05);
-}
+/* Buttons use shared styling from ui-kit/common; no overrides needed here. */
 
 .card {
     border: none;

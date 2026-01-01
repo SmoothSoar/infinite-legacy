@@ -338,23 +338,7 @@ body {
 /* ==================== */
 /* BUTTONS */
 /* ==================== */
-.btn {
-    border-radius: 0.5rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.btn-primary {
-    background-color: rgb(var(--color-primary));
-    border-color: rgb(var(--color-primary));
-    color: rgb(var(--color-text-inverse));
-}
-
-.btn-primary:hover {
-    background-color: rgba(var(--color-primary), 0.9);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 5px rgba(var(--color-text), 0.1);
-}
+/* Buttons use shared styling from ui-kit/common; no overrides needed here. */
 
 /* ==================== */
 /* FORM ELEMENTS */
@@ -425,8 +409,4 @@ footer {
         font-size: 0.9rem;
     }
     
-    .btn {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.9rem;
-    }
 }
