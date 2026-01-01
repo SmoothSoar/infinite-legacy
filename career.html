@@ -6,7 +6,7 @@
     <title>Life Simulator - Career</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Sora:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/theme.css">
@@ -14,37 +14,27 @@
     <link rel="stylesheet" href="css/career.css">
 </head>
 <body class="app-body theme-transition">
-    <header class="top-nav">
-        <div class="top-nav-inner">
-            <a class="brand" href="game.html">
-                <div class="brand-mark">∞</div>
+    <nav class="navbar navbar-expand-lg app-navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand brand" href="index.html">
+                <span class="brand-mark"></span>
                 <div class="brand-text">
-                    <span class="eyebrow">Infinite Legacy</span>
-                    <strong>Life Simulator</strong>
+                    <span class="title">Smooth Soar</span>
+                    <small>Life Simulator</small>
                 </div>
             </a>
-            <nav class="top-links" aria-label="Primary navigation">
-                <a class="top-link" href="game.html"><i class="bi bi-grid"></i><span>Dashboard</span></a>
-                <a class="top-link" href="finances.html"><i class="bi bi-cash-stack"></i><span>Finances</span></a>
-                <a class="top-link active" href="career.html"><i class="bi bi-briefcase"></i><span>Career</span></a>
-                <a class="top-link" href="education.html"><i class="bi bi-book"></i><span>Education</span></a>
-                <a class="top-link" href="relationships.html"><i class="bi bi-heart"></i><span>Relationships</span></a>
-                <a class="top-link" href="assets.html"><i class="bi bi-box-seam"></i><span>Assets</span></a>
-                <a class="top-link" href="real-estate.html"><i class="bi bi-buildings"></i><span>Real Estate</span></a>
-            </nav>
-            <div class="top-actions">
-                <button id="themeToggle" class="ghost-btn" type="button">
-                    <i class="bi bi-moon"></i>
-                    <span class="d-none d-md-inline">Theme</span>
+            <div class="toolbar ms-auto order-lg-3">
+                <button class="btn-ghost" type="button" id="themeToggleDropdown" aria-label="Toggle theme">
+                    <i class="bi bi-sun"></i>
+                    <span class="d-none d-xl-inline">Theme</span>
                 </button>
-                <button id="advanceTimeButton" class="primary-btn" type="button">
-                    <i class="bi bi-skip-forward-fill"></i>
-                    <span>Advance Quarter</span>
+                <button id="advanceTimeButton" class="btn btn-primary d-none d-lg-inline-flex">
+                    <i class="bi bi-skip-forward-fill me-1"></i> Advance 3 months
                 </button>
                 <div class="dropdown">
-                    <button class="ghost-btn dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button class="btn-ghost" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-gear"></i>
-                        <span class="d-none d-lg-inline">Settings</span>
+                        <span class="d-none d-xl-inline">Settings</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settingsDropdown">
                         <li><h6 class="dropdown-header">Character</h6></li>
@@ -66,7 +56,7 @@
                         <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header">Game Settings</h6></li>
                         <li>
-                            <button class="dropdown-item" id="themeToggleDropdown">
+                            <button class="dropdown-item" data-theme-toggle-proxy>
                                 <i class="bi bi-palette me-2"></i>Toggle Theme
                             </button>
                         </li>
@@ -94,72 +84,126 @@
                         </li>
                     </ul>
                 </div>
+                <button class="navbar-toggler d-lg-none ms-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse order-lg-2 mt-3 mt-lg-0" id="navbarNav">
+                <ul class="navbar-nav me-auto gap-lg-1">
+                    <li class="nav-item">
+                        <a class="nav-link" href="game.html">
+                            <i class="bi bi-house-door me-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="finances.html">
+                            <i class="bi bi-cash-stack me-1"></i> Finances
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="career.html">
+                            <i class="bi bi-briefcase me-1"></i> Career
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="education.html">
+                            <i class="bi bi-book me-1"></i> Education
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="relationships.html">
+                            <i class="bi bi-heart me-1"></i> Relationships
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="assets.html">
+                            <i class="bi bi-house-gear me-1"></i> Assets
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="real-estate.html">
+                            <i class="bi bi-buildings me-1"></i> Real Estate
+                        </a>
+                    </li>
+                </ul>
+                <button id="advanceTimeButton" class="btn btn-primary w-100 mt-3 d-lg-none">
+                    <i class="bi bi-skip-forward-fill me-1"></i> Advance 3 months
+                </button>
             </div>
         </div>
-    </header>
-    <div class="app-shell">
+    </nav>
 
-        <section class="page-hero career-hero mt-4">
+    <main class="app-shell">
+        <!-- Hero -->
+        <header class="page-heading">
             <div>
-                <div class="d-flex align-items-center gap-3 flex-wrap mb-2">
-                    <span class="chip text-uppercase">Career Center</span>
-                    <span class="chip" id="timeDisplay">
-                        <i class="bi bi-calendar3"></i> Year 1, Q1 (January)
+                <p class="eyebrow">Career center</p>
+                <h1 id="characterName" class="page-title">Player</h1>
+                <p class="lede">Chart promotions, pivots, and raises with a clear snapshot of where you stand.</p>
+                <div class="status-strip">
+                    <span class="status-pill primary">
+                        <i class="bi bi-calendar3"></i><span id="timeDisplay">Year 1, Q1</span>
                     </span>
-                    <span class="chip" id="characterAge">
-                        <i class="bi bi-person"></i> Age 18
+                    <span class="status-pill">
+                        <i class="bi bi-person"></i><span id="characterAge">Age 18</span>
+                    </span>
+                    <span class="status-pill success">
+                        <i class="bi bi-cash-coin"></i><span id="moneyDisplay">$0</span>
+                    </span>
+                    <span class="status-pill success">
+                        <i class="bi bi-graph-up"></i><span id="performanceDisplay">0%</span>
                     </span>
                 </div>
-                <h1 id="characterName" class="display-6 fw-bold mb-2">Player</h1>
-                <p class="lead mb-0">Chart a deliberate climb: pick roles, build skills, and move toward better pay.</p>
             </div>
-            <div class="hero-side">
-                <small class="text-uppercase fw-semibold text-muted">Current focus</small>
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <div>
-                        <div class="fs-6 text-muted">Salary</div>
-                        <div id="salaryDisplay" class="fs-5 fw-bold text-dark">$0/month</div>
+            <div class="page-panel">
+                <div class="label">Current focus</div>
+                <div class="panel-card">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted small">Monthly pay</span>
+                        <span class="fw-bold" id="salaryDisplay">$0/month</span>
                     </div>
-                    <span class="badge bg-light text-dark border">Live status</span>
+                    <div class="status-strip">
+                        <span class="status-pill success"><i class="bi bi-emoji-smile"></i><span id="satisfactionDisplay">0%</span></span>
+                        <span class="status-pill"><i class="bi bi-cash-coin"></i><span id="moneyDisplay">$0</span></span>
+                    </div>
                 </div>
-                <div class="d-flex gap-2 flex-wrap">
-                    <span class="chip mirror-value" data-source="performanceDisplay">
-                        <i class="bi bi-graph-up"></i> 0%
-                    </span>
-                    <span class="chip mirror-value" data-source="satisfactionDisplay">
-                        <i class="bi bi-emoji-smile"></i> 0%
-                    </span>
-                    <span class="chip mirror-value" data-source="moneyDisplay">
-                        <i class="bi bi-cash"></i> $0
-                    </span>
-                </div>
+                <button id="advanceTimeButton" class="btn btn-primary w-100">
+                    <i class="bi bi-skip-forward-fill me-1"></i> Advance 3 months
+                </button>
             </div>
-        </section>
+        </header>
 
-        <div class="content-grid mt-4">
-            <div class="stat-grid">
-                <div class="stat-tile stat-card">
+        <!-- Quick stats -->
+        <div class="row g-3 mb-4 align-items-stretch">
+            <div class="col-6 col-lg-3">
+                <div class="stat-tile h-100">
                     <div class="icon-wrap bg-primary-subtle text-primary"><i class="bi bi-arrow-up-circle"></i></div>
                     <div>
                         <p class="label mb-1">Salary</p>
                         <p id="incomeDisplay" class="value">$0/month</p>
                     </div>
                 </div>
-                <div class="stat-tile stat-card">
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-tile h-100">
                     <div class="icon-wrap bg-success-subtle text-success"><i class="bi bi-cash-coin"></i></div>
                     <div>
                         <p class="label mb-1">Balance</p>
                         <p id="moneyDisplay" class="value">$0</p>
                     </div>
                 </div>
-                <div class="stat-tile stat-card">
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-tile h-100">
                     <div class="icon-wrap bg-info-subtle text-info"><i class="bi bi-graph-up"></i></div>
                     <div>
                         <p class="label mb-1">Performance</p>
                         <p id="performanceDisplay" class="value">0%</p>
                     </div>
                 </div>
-                <div class="stat-tile stat-card">
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-tile h-100">
                     <div class="icon-wrap bg-warning-subtle text-warning"><i class="bi bi-emoji-smile"></i></div>
                     <div>
                         <p class="label mb-1">Satisfaction</p>
@@ -167,9 +211,11 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="content-grid two-column align-items-start">
-                <div class="card h-100">
+        <div class="row g-4 mt-4 align-items-start">
+            <div class="col-xxl-8 col-lg-7">
+                <div class="card jobs-panel h-100">
                     <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
                         <div class="d-flex align-items-center gap-2">
                             <i class="bi bi-search"></i>
@@ -190,46 +236,37 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="d-flex flex-column gap-3">
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="h6 mb-0"><i class="bi bi-person-workspace me-2"></i>Current Role</h2>
-                        </div>
-                        <div class="card-body">
-                            <div id="currentJobDetails" class="current-job-details">
-                                <div class="alert alert-info mb-0">
-                                    You are not currently employed.
-                                </div>
+            <div class="col-xxl-4 col-lg-5 d-flex flex-column gap-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="h6 mb-0"><i class="bi bi-person-workspace me-2"></i>Current Role</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="currentJobDetails" class="current-job-details">
+                            <div class="alert alert-info mb-0">
+                                You are not currently employed.
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="h6 mb-0"><i class="bi bi-clock-history me-2"></i>Employment History</h2>
-                        </div>
-                        <div class="card-body">
-                            <div id="jobHistory" class="job-history">
-                                <div class="alert alert-info mb-0">
-                                    No employment history yet.
-                                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="h6 mb-0"><i class="bi bi-clock-history me-2"></i>Employment History</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="jobHistory" class="job-history">
+                            <div class="alert alert-info mb-0">
+                                No employment history yet.
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="h6 mb-0"><i class="bi bi-clock-history me-2"></i>Event Log</h2>
-                </div>
-                <div class="card-body p-0">
-                    <div id="eventLog" class="list-group list-group-flush log-scroll">
-                        <div class="list-group-item">Game started</div>
-                    </div>
-                </div>
-            </div>
+            <div id="eventLog" class="d-none"></div>
         </div>
 
         <!-- Job Details Modal -->
@@ -273,7 +310,7 @@
         <footer class="app-footer">
             <p class="mb-0">&copy; <span id="currentYearFooter">2023</span> Life Simulator - Career Center</p>
         </footer>
-    </div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/Player.js"></script>

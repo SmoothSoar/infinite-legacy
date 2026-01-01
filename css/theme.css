@@ -1,38 +1,37 @@
-/* theme.css - unified dual-mode palette + tokens */
+/* theme.css - clean dual-mode palette shared across every page */
 
 :root {
-  /* Light-first palette */
-  --color-bg: 245 247 252;
-  --color-bg-secondary: 255 255 255;
-  --color-bg-tertiary: 234 239 248;
+  --color-bg: 244 246 249;
+  --color-bg-secondary: 252 253 255;
+  --color-bg-tertiary: 234 239 245;
   --color-card: 255 255 255;
-  --color-card-border: 210 220 236;
-  --color-card-header: 242 245 252;
+  --color-card-border: 210 218 229;
+  --color-card-header: 242 247 252;
 
-  --color-text: 20 24 33;
-  --color-text-secondary: 70 81 101;
-  --color-text-muted: 120 132 153;
-  --color-text-inverse: 248 250 255;
+  --color-text: 23 32 44;
+  --color-text-secondary: 92 104 124;
+  --color-text-muted: 133 144 162;
+  --color-text-inverse: 252 254 255;
 
-  --color-primary: 119 140 255;   /* indigo glow */
-  --color-secondary: 74 222 172;  /* jade mint */
-  --color-accent: 255 149 94;     /* ember coral */
-  --color-success: 66 187 128;
-  --color-warning: 246 190 77;
-  --color-danger: 234 84 105;
-  --color-info: 84 164 255;
+  --color-primary: 58 132 255;    /* cobalt */
+  --color-secondary: 46 196 182;  /* teal */
+  --color-accent: 247 158 109;    /* soft amber */
+  --color-success: 46 196 182;
+  --color-warning: 250 193 112;
+  --color-danger: 232 108 128;
+  --color-info: 90 156 255;
 
-  --color-border: 208 216 232;
-  --color-border-secondary: 188 198 216;
+  --color-border: 210 218 229;
+  --color-border-secondary: 191 200 214;
   --color-navbar: 255 255 255;
-  --color-navbar-text: 20 24 33;
+  --color-navbar-text: 23 32 44;
 
   --color-input: 255 255 255;
-  --color-input-border: 198 206 223;
-  --color-input-text: 20 24 33;
+  --color-input-border: 202 210 223;
+  --color-input-text: 23 32 44;
 
-  --shadow-soft: 0 12px 30px rgba(12, 18, 34, 0.12);
-  --shadow-strong: 0 18px 48px rgba(12, 18, 34, 0.18);
+  --shadow-soft: 0 14px 38px rgba(15, 23, 42, 0.12);
+  --shadow-strong: 0 20px 60px rgba(15, 23, 42, 0.18);
 
   /* Bootstrap mapping */
   --bs-primary: rgb(var(--color-primary));
@@ -53,40 +52,40 @@
   --bs-gray-600: rgb(var(--color-text-muted));
 }
 
-/* Dark overrides */
+/* Dark mode overrides */
 [data-theme="dark"],
 body[data-theme="dark"] {
-  --color-bg: 8 10 20;
-  --color-bg-secondary: 13 16 28;
-  --color-bg-tertiary: 19 23 38;
-  --color-card: 18 21 36;
-  --color-card-border: 46 56 86;
-  --color-card-header: 26 31 50;
+  --color-bg: 10 14 24;
+  --color-bg-secondary: 16 21 32;
+  --color-bg-tertiary: 22 28 40;
+  --color-card: 19 25 36;
+  --color-card-border: 54 65 82;
+  --color-card-header: 27 33 46;
 
-  --color-text: 232 237 255;
-  --color-text-secondary: 186 196 220;
-  --color-text-muted: 140 150 172;
-  --color-text-inverse: 6 8 16;
+  --color-text: 229 236 245;
+  --color-text-secondary: 190 200 214;
+  --color-text-muted: 154 166 184;
+  --color-text-inverse: 9 11 16;
 
-  --color-primary: 132 157 255;
-  --color-secondary: 64 214 166;
-  --color-accent: 255 144 97;
-  --color-success: 78 206 154;
-  --color-warning: 246 184 82;
-  --color-danger: 243 101 121;
-  --color-info: 120 176 255;
+  --color-primary: 116 170 255;   /* soft cobalt */
+  --color-secondary: 78 200 187;  /* cool teal */
+  --color-accent: 240 174 128;    /* muted amber */
+  --color-success: 78 200 187;
+  --color-warning: 242 195 122;
+  --color-danger: 232 122 142;
+  --color-info: 136 186 255;
 
-  --color-border: 52 62 94;
-  --color-border-secondary: 66 78 110;
-  --color-navbar: 12 16 26;
-  --color-navbar-text: 232 237 255;
+  --color-border: 68 80 100;
+  --color-border-secondary: 86 98 118;
+  --color-navbar: 14 18 28;
+  --color-navbar-text: 229 236 245;
 
-  --color-input: 20 24 38;
-  --color-input-border: 54 66 98;
-  --color-input-text: 232 237 255;
+  --color-input: 24 30 42;
+  --color-input-border: 68 80 100;
+  --color-input-text: 229 236 245;
 
-  --shadow-soft: 0 14px 40px rgba(0, 0, 0, 0.45);
-  --shadow-strong: 0 18px 60px rgba(0, 0, 0, 0.55);
+  --shadow-soft: 0 14px 38px rgba(0, 0, 0, 0.46);
+  --shadow-strong: 0 22px 70px rgba(0, 0, 0, 0.56);
 }
 
 /* Theme application */
@@ -94,15 +93,7 @@ html,
 body {
   background-color: rgb(var(--color-bg));
   color: rgb(var(--color-text));
-  transition: background-color 0.28s ease, color 0.28s ease;
-}
-
-body {
-  min-height: 100vh;
-  background-image:
-    radial-gradient(circle at 18% 18%, rgba(var(--color-primary), 0.07), transparent 26%),
-    radial-gradient(circle at 82% 10%, rgba(var(--color-accent), 0.08), transparent 28%);
-  background-attachment: fixed;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 [data-theme="dark"],
@@ -116,7 +107,7 @@ body[data-theme="light"] {
 }
 
 ::selection {
-  background: rgba(var(--color-primary), 0.2);
+  background: rgba(var(--color-primary), 0.22);
   color: rgb(var(--color-text));
 }
 

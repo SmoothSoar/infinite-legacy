@@ -6,7 +6,7 @@
     <title>Life Simulator - Finances</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Sora:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/theme.css">
@@ -14,37 +14,27 @@
     <link rel="stylesheet" href="css/finances.css">
 </head>
 <body class="app-body theme-transition">
-    <header class="top-nav">
-        <div class="top-nav-inner">
-            <a class="brand" href="game.html">
-                <div class="brand-mark">∞</div>
+    <nav class="navbar navbar-expand-lg app-navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand brand" href="index.html">
+                <span class="brand-mark"></span>
                 <div class="brand-text">
-                    <span class="eyebrow">Infinite Legacy</span>
-                    <strong>Life Simulator</strong>
+                    <span class="title">Smooth Soar</span>
+                    <small>Life Simulator</small>
                 </div>
             </a>
-            <nav class="top-links" aria-label="Primary navigation">
-                <a class="top-link" href="game.html"><i class="bi bi-grid"></i><span>Dashboard</span></a>
-                <a class="top-link active" href="finances.html"><i class="bi bi-cash-stack"></i><span>Finances</span></a>
-                <a class="top-link" href="career.html"><i class="bi bi-briefcase"></i><span>Career</span></a>
-                <a class="top-link" href="education.html"><i class="bi bi-book"></i><span>Education</span></a>
-                <a class="top-link" href="relationships.html"><i class="bi bi-heart"></i><span>Relationships</span></a>
-                <a class="top-link" href="assets.html"><i class="bi bi-box-seam"></i><span>Assets</span></a>
-                <a class="top-link" href="real-estate.html"><i class="bi bi-buildings"></i><span>Real Estate</span></a>
-            </nav>
-            <div class="top-actions">
-                <button id="themeToggle" class="ghost-btn" type="button">
-                    <i class="bi bi-moon"></i>
-                    <span class="d-none d-md-inline">Theme</span>
+            <div class="toolbar ms-auto order-lg-3">
+                <button class="btn-ghost" type="button" id="themeToggleDropdown" aria-label="Toggle theme">
+                    <i class="bi bi-sun"></i>
+                    <span class="d-none d-xl-inline">Theme</span>
                 </button>
-                <button id="advanceTimeButton" class="primary-btn" type="button">
-                    <i class="bi bi-skip-forward-fill"></i>
-                    <span>Advance Quarter</span>
+                <button id="advanceTimeButton" class="btn btn-primary d-none d-lg-inline-flex">
+                    <i class="bi bi-skip-forward-fill me-1"></i> Advance 3 months
                 </button>
                 <div class="dropdown">
-                    <button class="ghost-btn dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button class="btn-ghost" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-gear"></i>
-                        <span class="d-none d-lg-inline">Settings</span>
+                        <span class="d-none d-xl-inline">Settings</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settingsDropdown">
                         <li><h6 class="dropdown-header">Character</h6></li>
@@ -66,7 +56,7 @@
                         <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header">Game Settings</h6></li>
                         <li>
-                            <button class="dropdown-item" id="themeToggleDropdown">
+                            <button class="dropdown-item" data-theme-toggle-proxy>
                                 <i class="bi bi-palette me-2"></i>Toggle Theme
                             </button>
                         </li>
@@ -94,48 +84,94 @@
                         </li>
                     </ul>
                 </div>
+                <button class="navbar-toggler d-lg-none ms-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse order-lg-2 mt-3 mt-lg-0" id="navbarNav">
+                <ul class="navbar-nav me-auto gap-lg-1">
+                    <li class="nav-item">
+                        <a class="nav-link" href="game.html">
+                            <i class="bi bi-house-door me-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="finances.html">
+                            <i class="bi bi-cash-stack me-1"></i> Finances
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="career.html">
+                            <i class="bi bi-briefcase me-1"></i> Career
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="education.html">
+                            <i class="bi bi-book me-1"></i> Education
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="relationships.html">
+                            <i class="bi bi-heart me-1"></i> Relationships
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="assets.html">
+                            <i class="bi bi-house-gear me-1"></i> Assets
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="real-estate.html">
+                            <i class="bi bi-buildings me-1"></i> Real Estate
+                        </a>
+                    </li>
+                </ul>
+                <button id="advanceTimeButton" class="btn btn-primary w-100 mt-3 d-lg-none">
+                    <i class="bi bi-skip-forward-fill me-1"></i> Advance 3 months
+                </button>
             </div>
         </div>
-    </header>
-    <div class="app-shell">
+    </nav>
 
-        <section class="page-hero finance-hero mt-4">
+    <main class="app-shell">
+        <header class="page-heading">
             <div>
-                <p class="eyebrow text-uppercase fw-semibold text-muted small mb-1">Financial cockpit</p>
-                <h1 id="characterName" class="display-6 fw-bold mb-2">Player</h1>
-                <div class="hero-meta">
-                    <span class="chip" id="timeDisplay">
-                        <i class="bi bi-calendar3"></i> Year 1, Q1 (January)
+                <p class="eyebrow">Financial cockpit</p>
+                <h1 id="characterName" class="page-title">Player</h1>
+                <p class="lede">See liquidity, guardrails, and big levers without digging through tables.</p>
+                <div class="status-strip">
+                    <span class="status-pill primary">
+                        <i class="bi bi-calendar3"></i><span id="timeDisplay">Year 1, Q1</span>
                     </span>
-                    <span class="chip" id="characterAge">
-                        <i class="bi bi-person"></i> Age 18
+                    <span class="status-pill">
+                        <i class="bi bi-person"></i><span id="characterAge">Age 18</span>
+                    </span>
+                    <span class="status-pill success">
+                        <i class="bi bi-cash-coin"></i><span id="moneyDisplay">$0</span>
                     </span>
                 </div>
-                <p class="mb-0 text-muted">Track liquidity, protect your downside, and grow the portfolio without cheesing the system.</p>
             </div>
-            <div class="hero-side">
-                <div class="hero-metric-grid">
-                    <div class="hero-metric">
-                        <small class="text-muted text-uppercase">Net Worth</small>
-                        <div id="netWorthDisplay" class="metric-value">$0</div>
+            <div class="page-panel">
+                <div class="label">Portfolio snapshot</div>
+                <div class="panel-card">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted small">Net worth</span>
+                        <span class="fw-bold" id="netWorthDisplay">$0</span>
                     </div>
-                    <div class="hero-metric">
-                        <small class="text-muted text-uppercase">Next Review</small>
-                        <div class="metric-value">Quarterly</div>
-                        <small class="text-muted">Investment returns post at quarter open</small>
-                    </div>
-                    <div class="hero-metric">
-                        <small class="text-muted text-uppercase">Guardrails</small>
-                        <div class="metric-value text-success">Fair play</div>
-                        <small class="text-muted">No instant flip arbitrage</small>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge-soft"><i class="bi bi-graph-up"></i>Quarterly posting</span>
+                        <span class="badge-soft"><i class="bi bi-shield-check"></i>Guardrails on</span>
                     </div>
                 </div>
+                <button id="advanceTimeButton" class="btn btn-primary w-100">
+                    <i class="bi bi-skip-forward-fill me-1"></i> Advance 3 months
+                </button>
             </div>
-        </section>
+        </header>
 
-        <div class="content-grid mt-4">
-            <div class="stat-grid quick-metrics">
-                <div class="metric-tile stat-card">
+        <div class="row g-3 mb-4 quick-metrics">
+            <div class="col-6 col-lg-3">
+                <div class="metric-tile">
                     <div class="d-flex align-items-center justify-content-between">
                         <span class="stat-label">Liquid Cash</span>
                         <i class="bi bi-cash-coin text-primary"></i>
@@ -143,7 +179,9 @@
                     <div id="moneyDisplay" class="stat-value">$0</div>
                     <small class="text-muted">Available balance</small>
                 </div>
-                <div class="metric-tile stat-card">
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="metric-tile">
                     <div class="d-flex align-items-center justify-content-between">
                         <span class="stat-label">Income</span>
                         <i class="bi bi-arrow-up-circle text-success"></i>
@@ -151,7 +189,9 @@
                     <div id="incomeDisplay" class="stat-value">$0/month</div>
                     <small class="text-muted">After tax estimate</small>
                 </div>
-                <div class="metric-tile stat-card">
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="metric-tile">
                     <div class="d-flex align-items-center justify-content-between">
                         <span class="stat-label">Expenses</span>
                         <i class="bi bi-arrow-down-circle text-danger"></i>
@@ -159,7 +199,9 @@
                     <div id="expensesDisplay" class="stat-value">$0/month</div>
                     <small class="text-muted">Typical monthly burn</small>
                 </div>
-                <div class="metric-tile stat-card">
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="metric-tile">
                     <div class="d-flex align-items-center justify-content-between">
                         <span class="stat-label">Debt Ratio</span>
                         <i class="bi bi-graph-up text-warning"></i>
@@ -168,8 +210,10 @@
                     <small class="text-muted">Lower is safer</small>
                 </div>
             </div>
+        </div>
 
-            <div class="content-grid two-column">
+        <div class="row g-4">
+            <div class="col-lg-7">
                 <div class="card h-100 shadow-sm">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h2 class="h5 mb-0"><i class="bi bi-wallet2 me-2"></i>Money Hub</h2>
@@ -205,6 +249,8 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="col-lg-5">
                 <div class="card h-100 shadow-sm">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h2 class="h5 mb-0"><i class="bi bi-pie-chart me-2"></i>Health &amp; Summary</h2>
@@ -237,8 +283,10 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="content-grid two-column">
+        <div class="row g-4 mt-1">
+            <div class="col-lg-7">
                 <div class="card shadow-sm">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h2 class="h5 mb-0"><i class="bi bi-activity me-2"></i>Activity</h2>
@@ -261,6 +309,8 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="col-lg-5">
                 <div class="card shadow-sm">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h2 class="h5 mb-0"><i class="bi bi-safe me-2"></i>Assets &amp; Holdings</h2>
@@ -326,11 +376,13 @@
                 </div>
             </div>
         </div>
+    </main>
 
-        <footer class="app-footer">
-            <p class="mb-0">&copy; <span id="currentYearFooter">2023</span> Life Simulator - Financial Center</p>
-        </footer>
-    </div>
+    <footer class="py-3">
+        <div class="container text-center">
+            <p class="mb-0 text-muted">&copy; <span id="currentYear">2023</span> Life Simulator - Financial Center</p>
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -342,12 +394,5 @@
     <script src="js/careerManager.js"></script>
     <script src="js/careers-data.js"></script>
     <script src="js/settingsDropdown.js"></script>
-    <script src="js/theme.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const yearEl = document.getElementById('currentYearFooter');
-            if (yearEl) yearEl.textContent = new Date().getFullYear();
-        });
-    </script>
 </body>
 </html>

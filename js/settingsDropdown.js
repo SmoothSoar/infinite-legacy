@@ -38,6 +38,14 @@ class SettingsDropdown {
             this.toggleTheme();
         });
 
+        // Proxy buttons that should trigger the same theme toggle
+        document.querySelectorAll('[data-theme-toggle-proxy]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.elements.themeToggleDropdown?.click();
+            });
+        });
+
         // Sound toggle
         this.elements.toggleSoundBtn?.addEventListener('click', (e) => {
             e.preventDefault();
